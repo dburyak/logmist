@@ -3,6 +3,7 @@ package dburyak.logmist.model;
 
 import java.io.Serializable;
 
+import dburyak.jtools.Validators;
 import net.jcip.annotations.Immutable;
 import net.jcip.annotations.ThreadSafe;
 
@@ -55,9 +56,7 @@ public final class Category implements Serializable {
      *             if name is invalid
      */
     private static final boolean validateName(final String name) {
-        if (name == null) {
-            throw new IllegalArgumentException();
-        }
+        Validators.nonNull(name);
         return true;
     }
 
@@ -75,9 +74,7 @@ public final class Category implements Serializable {
      *             if filter is invalid
      */
     private static final boolean validateFilter(final IFilter filter) {
-        if (filter == null) {
-            throw new IllegalArgumentException();
-        }
+        Validators.nonNull(filter);
         return true;
     }
 
@@ -127,6 +124,23 @@ public final class Category implements Serializable {
      */
     public final IFilter getFilter() {
         return filter;
+    }
+    
+    /**
+     * Get string representation of this category. <br/>
+     * <b>PRE-conditions:</b> NONE <br/>
+     * <b>POST-conditions:</b> non-null result <br/>
+     * <b>Side-effects:</b> NONE <br/>
+     * <b>Created on:</b> <i>10:19:17 PM Jul 22, 2015</i>
+     *
+     * @see java.lang.Object#toString()
+     * @return string representation of this category
+     */
+    @Override
+    public String toString() {
+        final StringBuilder sb = (new StringBuilder("{name=[")).append(name); //$NON-NLS-1$
+        sb.append("],filter=[").append(filter).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
+        return sb.toString();
     }
 
 }

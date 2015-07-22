@@ -1,9 +1,11 @@
 package dburyak.logmist.model;
 
 
-import java.util.regex.Matcher;
+import java.io.Serializable;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import dburyak.jtools.AssertConst;
 import dburyak.jtools.Validators;
 import net.jcip.annotations.Immutable;
 import net.jcip.annotations.ThreadSafe;
@@ -15,13 +17,13 @@ import net.jcip.annotations.ThreadSafe;
  * <b>Created on:</b> <i>2:07:07 AM Jul 22, 2015</i>
  *
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
- * @version 0.1
+ * @version 0.2
  */
 @Immutable
 @ThreadSafe
 @javax.annotation.concurrent.Immutable
 @javax.annotation.concurrent.ThreadSafe
-public final class RegexpFilter implements IFilter {
+public final class RegexpFilter extends PredicateFilter {
 
     /**
      * Serial version ID. <br/>
@@ -29,17 +31,88 @@ public final class RegexpFilter implements IFilter {
      */
     private static final long serialVersionUID = 1L;
 
+
     /**
-     * Name of the filter. <br/>
-     * <b>Created on:</b> <i>2:23:45 AM Jul 22, 2015</i>
+     * Project : logmist.<br/>
+     * Predicate which test given log entry against matching to regular expression. <br/>
+     * <b>Created on:</b> <i>1:01:45 AM Jul 23, 2015</i>
+     *
+     * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
+     * @version 0.1
      */
-    private final String name;
+    private static final class RegexpPredicate implements Predicate<LogEntry>, Serializable {
+        
+        /**
+         * <br/>
+         * <b>Created on:</b> <i>1:19:20 AM Jul 23, 2015</i>
+         */
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Regexp pattern for this predicate. <br/>
+         * <b>Created on:</b> <i>1:02:21 AM Jul 23, 2015</i>
+         */
+        private final Pattern pattern;
+        
+        
+        /**
+         * Constructor for class : [logmist] dburyak.logmist.model.RegexpPredicate.<br/>
+         * <br/>
+         * <b>PRE-conditions:</b> non-null argument <br/>
+         * <b>POST-conditions:</b> NONE <br/>
+         * <b>Side-effects:</b> NONE <br/>
+         * <b>Created on:</b> <i>1:05:22 AM Jul 23, 2015</i>
+         *
+         * @param pattern
+         *            pattern to be used for this predicate
+         * @param ignoreCase
+         *            indicates whether case should be ignored
+         */
+        @SuppressWarnings("synthetic-access")
+        private RegexpPredicate(final Pattern pattern, final boolean ignoreCase) {
+            assert(RegexpFilter.validatePattern(pattern)) : AssertConst.ASRT_INVALID_ARG;
+            
+            if (ignoreCase) {
+                this.pattern = Pattern.compile(pattern.pattern(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            } else {
+                this.pattern = pattern;
+            }
+        }
+        
+        /**
+         * Test given log entry by matching against regexp pattern of this predicate.
+         * <br/>
+         * <b>PRE-conditions:</b> NONE <br/>
+         * <b>POST-conditions:</b> NONE <br/>
+         * <b>Side-effects:</b> NONE <br/>
+         * <b>Created on:</b> <i>1:06:50 AM Jul 23, 2015</i>
+         *
+         * @see java.util.function.Predicate#test(java.lang.Object)
+         * @param t
+         *            log entry to be tested
+         * @return true if given log entry matches against pattern of this predicate
+         * @throws NullPointerException
+         *             if null is passed
+         */
+        @Override
+        public boolean test(final LogEntry t) {
+            return pattern.matcher(t.getMsg()).find();
+        }
+        
+    }
+
 
     /**
      * Regexp pattern of the filter. <br/>
      * <b>Created on:</b> <i>2:23:53 AM Jul 22, 2015</i>
      */
     private final Pattern pattern;
+
+    /**
+     * Indicates whether case should be ignored. <br/>
+     * <b>Created on:</b> <i>1:09:12 AM Jul 23, 2015</i>
+     */
+    private final boolean ignoreCase;
 
 
     /**
@@ -108,51 +181,32 @@ public final class RegexpFilter implements IFilter {
      * @param ignoreCase
      *            indicates whether case should be ignored
      */
+    @SuppressWarnings("synthetic-access")
     public RegexpFilter(final String name, final Pattern pattern, final boolean ignoreCase) {
-        Pattern patternWithFlags = pattern;
-        if (ignoreCase) {
-            patternWithFlags = Pattern.compile(pattern.pattern(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-        }
+        super(name, new RegexpPredicate(pattern, ignoreCase));
 
         validateName(name);
-        validatePattern(patternWithFlags);
+        validatePattern(pattern);
 
-        this.name = name;
-        this.pattern = patternWithFlags;
+        this.pattern = pattern;
+        this.ignoreCase = ignoreCase;
     }
 
     /**
-     * Test if given log entry matches regexp pattern of this filter. <br/>
-     * <b>PRE-conditions:</b> non-null arg <br/>
-     * <b>POST-conditions:</b> NONE <br/>
-     * <b>Side-effects:</b> new Matcher is created on each call - this is a tradeoff for making this filter thread-safe
-     * <br/>
-     * <b>Created on:</b> <i>2:07:07 AM Jul 22, 2015</i>
-     *
-     * @see dburyak.logmist.model.IFilter#accept(dburyak.logmist.model.LogEntry)
-     * @param log
-     *            log entry to be matched
-     * @return true if log entry matches regexp of this filter
-     */
-    @Override
-    public final boolean accept(final LogEntry log) {
-        final Matcher matcher = pattern.matcher(log.getMsgFull());
-        return matcher.find();
-    }
-
-    /**
-     * Get name of this filter. <br/>
+     * Get string representation of predicate for this regexp filter. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
      * <b>POST-conditions:</b> non-null result <br/>
      * <b>Side-effects:</b> NONE <br/>
-     * <b>Created on:</b> <i>2:07:07 AM Jul 22, 2015</i>
+     * <b>Created on:</b> <i>1:11:50 AM Jul 23, 2015</i>
      *
-     * @see dburyak.logmist.model.IFilter#getName()
-     * @return name of this filter
+     * @see dburyak.logmist.model.PredicateFilter#predicateToString()
+     * @return string representation of predicate for this regexp filter
      */
     @Override
-    public final String getName() {
-        return name;
+    protected String predicateToString() {
+        final StringBuilder sb = (new StringBuilder("{pattern=[")).append(pattern.pattern()); //$NON-NLS-1$
+        sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
+        return sb.toString();
     }
 
 }
