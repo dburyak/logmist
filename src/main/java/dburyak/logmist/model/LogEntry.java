@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import javax.annotation.concurrent.Immutable;
 
 import dburyak.jtools.AssertConst;
+import net.jcip.annotations.ThreadSafe;
 
 
 /**
@@ -17,7 +18,9 @@ import dburyak.jtools.AssertConst;
  * @version 0.1
  */
 @Immutable
+@ThreadSafe
 @net.jcip.annotations.Immutable
+@javax.annotation.concurrent.ThreadSafe
 public final class LogEntry implements Comparable<LogEntry> {
 
     /**
@@ -26,29 +29,29 @@ public final class LogEntry implements Comparable<LogEntry> {
      * <b>Created on:</b> <i>11:04:47 AM Jul 19, 2015</i>
      */
     private static final String SYNTAX_TIME_MSG_SEPARATOR = " - "; //$NON-NLS-1$
-    
-    
+
+
     /**
      * Time stamp of log entry. <br/>
      * <b>Created on:</b> <i>11:18:19 AM Jul 16, 2015</i>
      */
     private final LocalDateTime time;
-    
-    
+
+
     /**
      * Message of log entry (without time stamp). <br/>
      * <b>Created on:</b> <i>11:19:02 AM Jul 16, 2015</i>
      */
     private final String msg;
-    
+
     /**
      * Full message for this log (msg with time-stamp). Usually, when log entry is constructed by parsing log file, this
      * field holds original string from log file. <br/>
      * <b>Created on:</b> <i>8:42:13 PM Jul 18, 2015</i>
      */
     private final String msgFull;
-    
-    
+
+
     /**
      * Validator for time. Non-null time is valid.<br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -68,7 +71,7 @@ public final class LogEntry implements Comparable<LogEntry> {
         }
         return true;
     }
-    
+
     /**
      * Validator for msg. Non-null msg is valid. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -88,7 +91,7 @@ public final class LogEntry implements Comparable<LogEntry> {
         }
         return true;
     }
-    
+
     /**
      * Validator for msgFull. Non-null msgFull is valid. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -127,20 +130,20 @@ public final class LogEntry implements Comparable<LogEntry> {
      */
     private static final String getFullMsg(final LocalDateTime time, final String msg) {
         // check pre-conditions
-        assert(validateTime(time)) : AssertConst.ASRT_INVALID_ARG;
-        assert(validateMsg(msg)) : AssertConst.ASRT_INVALID_ARG;
+        assert(LogEntry.validateTime(time)) : AssertConst.ASRT_INVALID_ARG;
+        assert(LogEntry.validateMsg(msg)) : AssertConst.ASRT_INVALID_ARG;
 
         final StringBuilder sb = new StringBuilder(time.toString());
         sb.append(SYNTAX_TIME_MSG_SEPARATOR);
         sb.append(msg);
         final String msgFull = sb.toString();
-        
+
         // post-conditions
-        assert(validateMsgFull(msgFull)) : AssertConst.ASRT_INVALID_RESULT;
+        assert(LogEntry.validateMsgFull(msgFull)) : AssertConst.ASRT_INVALID_RESULT;
 
         return msgFull;
     }
-    
+
     /**
      * Constructor for class : [logmist] dburyak.logmist.model.LogEntry.<br/>
      * <br/>
@@ -156,15 +159,15 @@ public final class LogEntry implements Comparable<LogEntry> {
      */
     public LogEntry(final LocalDateTime time, final String msg) {
         // check pre-conditions
-        validateTime(time);
-        validateMsg(msg);
-        
+        LogEntry.validateTime(time);
+        LogEntry.validateMsg(msg);
+
         this.time = time;
         this.msg = msg;
-        this.msgFull = getFullMsg(time, msg);
-        validateMsgFull(msgFull);
+        this.msgFull = LogEntry.getFullMsg(time, msg);
+        LogEntry.validateMsgFull(msgFull);
     }
-    
+
     /**
      * Constructor for class : [logmist] dburyak.logmist.model.LogEntry.<br/>
      * Also remembers full string that is used for toString method.
@@ -183,15 +186,15 @@ public final class LogEntry implements Comparable<LogEntry> {
      */
     public LogEntry(final LocalDateTime time, final String msg, final String msgFull) {
         // check pre-conditions
-        validateTime(time);
-        validateMsg(msg);
-        validateMsgFull(msgFull);
-        
+        LogEntry.validateTime(time);
+        LogEntry.validateMsg(msg);
+        LogEntry.validateMsgFull(msgFull);
+
         this.time = time;
         this.msg = msg;
         this.msgFull = msgFull;
     }
-    
+
     /**
      * Getter method.<br/>
      * Get time mark of this log entry. <br/>
@@ -204,7 +207,7 @@ public final class LogEntry implements Comparable<LogEntry> {
     public final LocalDateTime getTime() {
         return time;
     }
-    
+
     /**
      * Getter method.<br/>
      * Get message of this log entry (without time stamp). <br/>
@@ -217,7 +220,7 @@ public final class LogEntry implements Comparable<LogEntry> {
     public final String getMsg() {
         return msg;
     }
-    
+
     /**
      * Getter method. <br/>
      * Get full message of this log entry (with time stamp included). If this log entry was constructed by parsing log
@@ -233,7 +236,7 @@ public final class LogEntry implements Comparable<LogEntry> {
     public final String getMsgFull() {
         return msgFull;
     }
-    
+
     /**
      * Comparator method.<br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -247,7 +250,7 @@ public final class LogEntry implements Comparable<LogEntry> {
      * @return -1 if this is less than other ; 0 if both are equal ; +1 if this is greater than other
      */
     @Override
-    public int compareTo(LogEntry o) {
+    public int compareTo(final LogEntry o) {
         // final int BEFORE = -1;
         final int EQUAL = 0;
         // final int AFTER = 1;
@@ -274,7 +277,7 @@ public final class LogEntry implements Comparable<LogEntry> {
         assert(this.equals(o)) : AssertConst.ASRT_INVALID_RESULT;
         return EQUAL;
     }
-    
+
     /**
      * Default generated implementation.
      * <br/>
@@ -290,12 +293,12 @@ public final class LogEntry implements Comparable<LogEntry> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((msg == null) ? 0 : msg.hashCode());
-        result = prime * result + ((msgFull == null) ? 0 : msgFull.hashCode());
-        result = prime * result + ((time == null) ? 0 : time.hashCode());
+        result = (prime * result) + ((msg == null) ? 0 : msg.hashCode());
+        result = (prime * result) + ((msgFull == null) ? 0 : msgFull.hashCode());
+        result = (prime * result) + ((time == null) ? 0 : time.hashCode());
         return result;
     }
-    
+
     /**
      * Default generated implementation. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -309,7 +312,7 @@ public final class LogEntry implements Comparable<LogEntry> {
      * @return true if objects are equal
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
@@ -319,7 +322,7 @@ public final class LogEntry implements Comparable<LogEntry> {
         if (!(obj instanceof LogEntry)) {
             return false;
         }
-        LogEntry other = (LogEntry) obj;
+        final LogEntry other = (LogEntry) obj;
         if (msg == null) {
             if (other.msg != null) {
                 return false;
@@ -346,7 +349,7 @@ public final class LogEntry implements Comparable<LogEntry> {
         }
         return true;
     }
-    
+
     /**
      * Get string for log entry. "Time - message" - in case if this entry was constructed manually (without fullMsg).
      * Otherwise, the fullMsg is returned.
@@ -367,11 +370,11 @@ public final class LogEntry implements Comparable<LogEntry> {
         }
 
         // otherwise, construct string representation
-        StringBuilder sb = new StringBuilder(time.toString());
+        final StringBuilder sb = new StringBuilder(time.toString());
         sb.append(SYNTAX_TIME_MSG_SEPARATOR);
         sb.append(msg);
-        
+
         return sb.toString();
     }
-    
+
 }
