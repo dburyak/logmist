@@ -23,14 +23,14 @@ import net.jcip.annotations.ThreadSafe;
 @javax.annotation.concurrent.Immutable
 @javax.annotation.concurrent.ThreadSafe
 public final class ContainsFilter extends PredicateFilter {
-    
+
     /**
      * Serial version ID.<br/>
      * <b>Created on:</b> <i>3:28:53 AM Jul 22, 2015</i>
      */
     private static final long serialVersionUID = 1L;
-    
-    
+
+
     /**
      * Project : logmist.<br/>
      * Predicate for "contains" testing. <br/>
@@ -40,7 +40,7 @@ public final class ContainsFilter extends PredicateFilter {
      * @version 0.1
      */
     private static final class ContainsPredicate implements Predicate<LogEntry>, Serializable {
-        
+
         /**
          * <br/>
          * <b>Created on:</b> <i>1:18:55 AM Jul 23, 2015</i>
@@ -64,8 +64,8 @@ public final class ContainsFilter extends PredicateFilter {
          * <b>Created on:</b> <i>1:26:57 AM Jul 23, 2015</i>
          */
         private final boolean ignoreCase;
-        
-        
+
+
         /**
          * Constructor for class : [logmist] dburyak.logmist.model.ContainsPredicate.<br/>
          * <br/>
@@ -82,7 +82,7 @@ public final class ContainsFilter extends PredicateFilter {
         @SuppressWarnings("synthetic-access")
         private ContainsPredicate(final String subStr, final boolean ignoreCase) {
             assert(ContainsFilter.validateSubStr(subStr)) : AssertConst.ASRT_INVALID_ARG;
-            
+
             this.subStr = subStr;
             this.subStrLowerCase = subStr.toLowerCase();
             this.ignoreCase = ignoreCase;
@@ -111,21 +111,21 @@ public final class ContainsFilter extends PredicateFilter {
         }
 
     }
-    
-    
+
+
     /**
      * Substring to be checked for containment by this filter.<br/>
      * <b>Created on:</b> <i>3:32:23 AM Jul 22, 2015</i>
      */
     private final String subStr;
-    
+
     /**
      * Indicates whether case should be ignored. <br/>
      * <b>Created on:</b> <i>3:33:53 AM Jul 22, 2015</i>
      */
     private final boolean ignoreCase;
-    
-    
+
+
     /**
      * Validator for subStr argument. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -142,7 +142,7 @@ public final class ContainsFilter extends PredicateFilter {
     private static final boolean validateSubStr(final String subStr) {
         return Validators.nonEmpty(subStr);
     }
-    
+
     /**
      * Constructor for class : [logmist] dburyak.logmist.model.ContainsFilter.<br/>
      * Creates contains filter with given case sensitiveness. <br/>
@@ -163,11 +163,11 @@ public final class ContainsFilter extends PredicateFilter {
         super(name, new ContainsPredicate(subStr, ignoreCase));
 
         validateSubStr(subStr);
-        
+
         this.subStr = subStr;
         this.ignoreCase = ignoreCase;
     }
-    
+
     /**
      * Constructor for class : [logmist] dburyak.logmist.model.ContainsFilter.<br/>
      * Creates case sensitive contains filter. <br/>
@@ -184,7 +184,7 @@ public final class ContainsFilter extends PredicateFilter {
     public ContainsFilter(final String name, final String subStr) {
         this(name, subStr, false);
     }
-    
+
     /**
      * Get string representation of predicate for this filter. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -201,5 +201,5 @@ public final class ContainsFilter extends PredicateFilter {
         sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();
     }
-    
+
 }

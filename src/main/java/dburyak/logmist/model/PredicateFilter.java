@@ -29,13 +29,13 @@ abstract class PredicateFilter implements IFilter {
      * <b>Created on:</b> <i>10:53:05 PM Jul 22, 2015</i>
      */
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Name of this filter. <br/>
      * <b>Created on:</b> <i>10:53:18 PM Jul 22, 2015</i>
      */
     private final String name;
-    
+
     /**
      * Predicate for this filter. <br/>
      * <b>Created on:</b> <i>10:53:31 PM Jul 22, 2015</i>
@@ -57,7 +57,7 @@ abstract class PredicateFilter implements IFilter {
      *             if name is invalid
      */
     private static final boolean validateName(final String name) {
-        Validators.nonNull(name);
+        Validators.nonEmpty(name);
         return true;
     }
 
@@ -115,11 +115,11 @@ abstract class PredicateFilter implements IFilter {
     protected PredicateFilter(final String name, final Predicate<LogEntry> predicate) {
         validateName(name);
         validatePredicate(predicate);
-        
+
         this.name = name;
         this.predicate = predicate;
     }
-    
+
     /**
      * Test given log entry with predicate of this filter. <br/>
      * <b>PRE-conditions:</b> non-null arg <br/>
@@ -154,7 +154,7 @@ abstract class PredicateFilter implements IFilter {
     public final String getName() {
         return name;
     }
-    
+
     /**
      * Template method. <br/>
      * Get string representation of this predicate filter. <br/>
@@ -174,7 +174,7 @@ abstract class PredicateFilter implements IFilter {
         sb.append("],predicate=[").append(predicateToString()).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();
     }
-    
+
     /**
      * Designed to be implemented in subclasses. <br/>
      * Get string representation of the predicate of this filter. <br/>

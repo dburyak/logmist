@@ -402,22 +402,30 @@ public final class FilterChain implements IFilter {
      */
     @Override
     public boolean accept(final LogEntry log) {
-        // TODO : currently implementing here .............
-        // FIXME : there is a bug here, needs to be tested
+        // FIXME : MUST be tested
         // heart of filter chain logic goes here
-        boolean accepted = true;
+        LinkType prevLinkType = null;
+        boolean acceptedAND = false;
+        boolean acceptedOR = false;
         for (final FilterJoint joint : chain) {
             if (joint.getLinkType() == LinkType.AND) {
-                accepted = joint.getFilter().accept(log);
+                if ((prevLinkType == LinkType.OR) && !acceptedOR) {
+                    return false;
+                }
+                acceptedAND = joint.getFilter().accept(log);
+                prevLinkType = LinkType.AND;
+                acceptedOR = false;
             } else { // OR
-                accepted = accepted || joint.getFilter().accept(log);
-                continue; // move to next without "accepted" check
+                acceptedOR = (acceptedOR || joint.getFilter().accept(log));
+                prevLinkType = LinkType.OR;
+                acceptedAND = false;
+                continue;
             }
-            if (!accepted) {
-                break;
+            if (!acceptedAND && !acceptedOR) {
+                return false;
             }
         }
-        return false;
+        return (acceptedAND || acceptedOR);
     }
 
     /**
