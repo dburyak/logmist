@@ -25,6 +25,8 @@ import net.jcip.annotations.ThreadSafe;
 @javax.annotation.concurrent.ThreadSafe
 public final class RegexpFilter extends PredicateFilter {
 
+    // TODO : add matchAll parameter to constructor, which defines whether to use find() or matches()
+
     /**
      * Serial version ID. <br/>
      * <b>Created on:</b> <i>2:28:15 AM Jul 22, 2015</i>
@@ -41,7 +43,7 @@ public final class RegexpFilter extends PredicateFilter {
      * @version 0.1
      */
     private static final class RegexpPredicate implements Predicate<LogEntry>, Serializable {
-        
+
         /**
          * <br/>
          * <b>Created on:</b> <i>1:19:20 AM Jul 23, 2015</i>
@@ -53,8 +55,14 @@ public final class RegexpFilter extends PredicateFilter {
          * <b>Created on:</b> <i>1:02:21 AM Jul 23, 2015</i>
          */
         private final Pattern pattern;
-        
-        
+
+        /**
+         * Indicates whether full line match is performed. <br/>
+         * <b>Created on:</b> <i>12:31:55 AM Jul 29, 2015</i>
+         */
+        private final boolean fullMatch;
+
+
         /**
          * Constructor for class : [logmist] dburyak.logmist.model.RegexpPredicate.<br/>
          * <br/>
@@ -67,18 +75,21 @@ public final class RegexpFilter extends PredicateFilter {
          *            pattern to be used for this predicate
          * @param ignoreCase
          *            indicates whether case should be ignored
+         * @param fullMatch
+         *            indicates whether full line matching is performed
          */
         @SuppressWarnings("synthetic-access")
-        private RegexpPredicate(final Pattern pattern, final boolean ignoreCase) {
+        private RegexpPredicate(final Pattern pattern, final boolean ignoreCase, final boolean fullMatch) {
             assert(RegexpFilter.validatePattern(pattern)) : AssertConst.ASRT_INVALID_ARG;
-            
+
             if (ignoreCase) {
                 this.pattern = Pattern.compile(pattern.pattern(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             } else {
                 this.pattern = pattern;
             }
+            this.fullMatch = fullMatch;
         }
-        
+
         /**
          * Test given log entry by matching against regexp pattern of this predicate.
          * <br/>
@@ -96,9 +107,13 @@ public final class RegexpFilter extends PredicateFilter {
          */
         @Override
         public boolean test(final LogEntry t) {
-            return pattern.matcher(t.getMsg()).find();
+            if (!fullMatch) {
+                return pattern.matcher(t.getMsg()).find();
+            } else {
+                return pattern.matcher(t.getMsg()).matches();
+            }
         }
-        
+
     }
 
 
@@ -113,6 +128,12 @@ public final class RegexpFilter extends PredicateFilter {
      * <b>Created on:</b> <i>1:09:12 AM Jul 23, 2015</i>
      */
     private final boolean ignoreCase;
+
+    /**
+     * Indicates whether full line mathing is performed. <br/>
+     * <b>Created on:</b> <i>12:27:45 AM Jul 29, 2015</i>
+     */
+    private final boolean fullMatch;
 
 
     /**
@@ -181,15 +202,37 @@ public final class RegexpFilter extends PredicateFilter {
      * @param ignoreCase
      *            indicates whether case should be ignored
      */
-    @SuppressWarnings("synthetic-access")
     public RegexpFilter(final String name, final Pattern pattern, final boolean ignoreCase) {
-        super(name, new RegexpPredicate(pattern, ignoreCase));
+        this(name, pattern, ignoreCase, false);
+    }
+
+    /**
+     * Constructor for class : [logmist] dburyak.logmist.model.RegexpFilter.<br/>
+     * Most specific constructor, provides most advanced tuning. <br/>
+     * <b>PRE-conditions:</b> <br/>
+     * <b>POST-conditions:</b> <br/>
+     * <b>Side-effects:</b> <br/>
+     * <b>Created on:</b> <i>12:35:13 AM Jul 29, 2015</i>
+     * 
+     * @param name
+     *            name for the filter
+     * @param pattern
+     *            regexp pattern for the filter
+     * @param ignoreCase
+     *            indicates whether case should be ignored
+     * @param fullMatch
+     *            indicates whether full string matching should be perfomred
+     */
+    @SuppressWarnings("synthetic-access")
+    public RegexpFilter(final String name, final Pattern pattern, final boolean ignoreCase, final boolean fullMatch) {
+        super(name, new RegexpPredicate(pattern, ignoreCase, fullMatch));
 
         validateName(name);
         validatePattern(pattern);
 
         this.pattern = pattern;
         this.ignoreCase = ignoreCase;
+        this.fullMatch = fullMatch;
     }
 
     /**
@@ -205,7 +248,8 @@ public final class RegexpFilter extends PredicateFilter {
     @Override
     protected String predicateToString() {
         final StringBuilder sb = (new StringBuilder("{pattern=[")).append(pattern.pattern()); //$NON-NLS-1$
-        sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
+        sb.append("],ignoreCase=[").append(ignoreCase); //$NON-NLS-1$
+        sb.append("],fullMatch=[").append(fullMatch).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();
     }
 
