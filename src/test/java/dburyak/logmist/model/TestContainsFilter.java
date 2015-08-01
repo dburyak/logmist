@@ -23,11 +23,11 @@ public class TestContainsFilter {
      * <br/><b>Created on:</b> <i>12:10:30 AM Jul 30, 2015</i>
      */
     private static final LogEntry[] LOGS_STATIC =
-        { new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef"),                                                                      //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "acdef"),                                                                      //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "adef"),                                                                    //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "aef"),                                                                    //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "af"),                                                                     //$NON-NLS-1$
+        { new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef"),                                                                                                  //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "acdef"),                                                                                                  //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "adef"),                                                                                                //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "aef"),                                                                                                //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "af"),                                                                                                 //$NON-NLS-1$
         new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 9), "a"),  //$NON-NLS-1$
         };
 
@@ -270,9 +270,49 @@ public class TestContainsFilter {
 
     }
 
+    /**
+     * Test method for {@link ContainsFilter#accept(LogEntry)}.
+     * <br/><b>Created on:</b> <i>11:08:22 PM Jul 30, 2015</i>
+     */
+    @SuppressWarnings({ "boxing", "static-method" })
     @Test
     public final void testAccept() {
+        final ContainsFilter[] filtersArray =
+            { new ContainsFilter("f1", "abc"),                //$NON-NLS-1$//$NON-NLS-2$
+            new ContainsFilter("f2", "cd", true),                //$NON-NLS-1$//$NON-NLS-2$
+            new ContainsFilter("f3", "de"),                //$NON-NLS-1$//$NON-NLS-2$
+            new ContainsFilter("f4", "a", true),                //$NON-NLS-1$//$NON-NLS-2$
+            new ContainsFilter("f5", "afg")  //$NON-NLS-1$//$NON-NLS-2$
+            };
 
+        final boolean[][] expArray =
+            { { true, false, false, false, false, false },        // "abc"
+                { true, true, false, false, false, false },        // "cd"
+                { true, true, true, false, false, false },        // "de"
+                { true, true, true, true, true, true },        // "a"
+                { false, false, false, false, false, false } // "afg"
+            };
+        assert(filtersArray.length == expArray.length);
+
+        for (int i = 0; i < filtersArray.length; i++) {
+            final ContainsFilter filter = filtersArray[i];
+            final boolean[] exp = expArray[i];
+            for (int j = 0; j < LOGS_STATIC.length; j++) {
+                Assert.assertEquals(exp[j], filter.accept(LOGS_STATIC[j]));
+            }
+        }
+    }
+
+    /**
+     * Test method for {@link ContainsFilter#accept(LogEntry)} with illegal argument.
+     * <br/><b>Created on:</b> <i>11:49:25 PM Jul 31, 2015</i>
+     */
+    @SuppressWarnings("static-method")
+    @Test(expected = NullPointerException.class)
+    public final void testAcceptFail() {
+        final ContainsFilter f1 = new ContainsFilter("f1", "f1");  //$NON-NLS-1$//$NON-NLS-2$
+        f1.accept(null);
+        Assert.fail();
     }
 
 }

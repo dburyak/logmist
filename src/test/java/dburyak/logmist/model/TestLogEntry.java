@@ -18,7 +18,7 @@ import org.junit.Test;
  * @version 0.1
  */
 public final class TestLogEntry {
-    
+
     /**
      * Test constructor with normal parameters.
      * Test method for {@link dburyak.logmist.model.LogEntry#LogEntry(LocalDateTime, java.lang.String)}.
@@ -43,7 +43,7 @@ public final class TestLogEntry {
         @SuppressWarnings("unused") final LogEntry le1 = new LogEntry(t1, m1);
         Assert.fail();
     }
-    
+
     /**
      * Test constructor 1 with first illegal parameter. <br/>
      * Test method for {@link LogEntry#LogEntry(LocalDateTime, String)} <br/>
@@ -71,7 +71,7 @@ public final class TestLogEntry {
         @SuppressWarnings("unused") final LogEntry le1 = new LogEntry(t1, m1);
         Assert.fail();
     }
-    
+
     /**
      * Test constructor 2 with all legal parameters. <br/>
      * Test method for {@link LogEntry#LogEntry(LocalDateTime, String, String)} <br/>
@@ -85,7 +85,7 @@ public final class TestLogEntry {
         final String mFull1 = "Jan 1 00:00:00 - test"; //$NON-NLS-1$
         @SuppressWarnings("unused") final LogEntry le1 = new LogEntry(t1, m1, mFull1);
     }
-    
+
     /**
      * Test constructor 2 with fist illegal parameter. <br/>
      * Test method of {@link LogEntry#LogEntry(LocalDateTime, String, String)} <br/>
@@ -100,7 +100,7 @@ public final class TestLogEntry {
         @SuppressWarnings("unused") final LogEntry le1 = new LogEntry(t1, m1, mFull1);
         Assert.fail();
     }
-    
+
     /**
      * Test constructor 2 with second illegal parameter. <br/>
      * Test method of {@link LogEntry#LogEntry(LocalDateTime, String, String)} <br/>
@@ -161,7 +161,7 @@ public final class TestLogEntry {
         @SuppressWarnings("unused") final LogEntry le1 = new LogEntry(t1, m1, mFull);
         Assert.fail();
     }
-    
+
     /**
      * Test constructor 2 with second and third invalid argumets. <br/>
      * Test method for {@link LogEntry#LogEntry(LocalDateTime, String, String)} <br/>
@@ -176,7 +176,7 @@ public final class TestLogEntry {
         @SuppressWarnings("unused") final LogEntry le1 = new LogEntry(t1, m1, mFull1);
         Assert.fail();
     }
-    
+
     /**
      * Test getter. <br/>
      * Test method for {@link dburyak.logmist.model.LogEntry#getTime()}. <br/>
@@ -194,7 +194,7 @@ public final class TestLogEntry {
         Assert.assertEquals(le1.getTime(), le1.getTime());
         Assert.assertNotEquals(null, le1.getTime());
     }
-    
+
     /**
      * Test getter. <br/>
      * Test method for {@link dburyak.logmist.model.LogEntry#getMsg()}. <br/>
@@ -212,7 +212,7 @@ public final class TestLogEntry {
         Assert.assertEquals(le1.getMsg(), le1.getMsg());
         Assert.assertNotEquals(null, le1.getMsg());
     }
-    
+
     /**
      * Test getter. <br/>
      * Test method for {@link LogEntry#getMsgFull()} <br/>
@@ -226,18 +226,18 @@ public final class TestLogEntry {
         final String m1 = "test"; //$NON-NLS-1$
         final LogEntry le1 = new LogEntry(t1, m1);
         final String exp1 = "1970-01-01T02:03:04 - test"; //$NON-NLS-1$
-        
+
         // test stored full message
         final LocalDateTime t2 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5);
         final String m2 = "test"; //$NON-NLS-1$
         final String mFull2 = "Jan 1 02:03:05 - test"; //$NON-NLS-1$
         final LogEntry le2 = new LogEntry(t2, m2, mFull2);
         final String exp2 = new String(mFull2);
-        
+
         Assert.assertEquals(exp1, le1.getMsgFull());
         Assert.assertEquals(le1.getMsgFull(), le1.getMsgFull());
         Assert.assertNotEquals(null, le1.getMsgFull());
-        
+
         Assert.assertEquals(exp2, le2.getMsgFull());
         Assert.assertEquals(le2.getMsgFull(), le2.getMsgFull());
         Assert.assertNotEquals(null, le2.getMsgFull());
@@ -297,21 +297,26 @@ public final class TestLogEntry {
         final LogEntry entry2Gen = new LogEntry(t2, m2);
 
         Assert.assertTrue(entry1Gen.compareTo(entry2Gen) == 0);
-        
+
         // test explicit full message
         final LocalDateTime t3 = LocalDateTime.of(1970, Month.FEBRUARY, 2, 3, 4, 5);
         final String m3 = "test2"; //$NON-NLS-1$
         final String mFull3 = "full2"; //$NON-NLS-1$
         final LogEntry entry3Explct = new LogEntry(t3, m3, mFull3);
-        
+
         final LocalDateTime t4 = LocalDateTime.of(1970, Month.FEBRUARY, 2, 3, 4, 5);
         final String m4 = "test2"; //$NON-NLS-1$
         final String mFull4 = "full2"; //$NON-NLS-1$
         final LogEntry entry4Explct = new LogEntry(t4, m4, mFull4);
-        
+
         Assert.assertTrue(entry3Explct.compareTo(entry4Explct) == 0);
+
+        Assert.assertTrue(entry1Gen.compareTo(entry1Gen) == 0);
+        Assert.assertTrue(entry2Gen.compareTo(entry2Gen) == 0);
+        Assert.assertTrue(entry3Explct.compareTo(entry3Explct) == 0);
+        Assert.assertTrue(entry4Explct.compareTo(entry4Explct) == 0);
     }
-    
+
     /**
      * Test greater.
      * Test method for {@link LogEntry#compareTo(LogEntry)}. <br/>
@@ -328,11 +333,11 @@ public final class TestLogEntry {
         final LocalDateTime tGreater1 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5);
         final String mGreater1 = "test0"; //$NON-NLS-1$
         final LogEntry greater1 = new LogEntry(tGreater1, mGreater1);
-        
+
         final LocalDateTime tGreater2 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4);
         final String mGreater2 = "test2"; //$NON-NLS-1$
         final LogEntry greater2 = new LogEntry(tGreater2, mGreater2);
-        
+
         final LocalDateTime tGreater3 = LocalDateTime.of(1971, Month.JANUARY, 1, 2, 3, 4);
         final String mGreater3 = "xxxxxx"; //$NON-NLS-1$
         final LogEntry greater3 = new LogEntry(tGreater3, mGreater3);
@@ -359,13 +364,13 @@ public final class TestLogEntry {
         final LocalDateTime t1 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4);
         final String m1 = "test1"; //$NON-NLS-1$
         final LogEntry entry = new LogEntry(t1, m1);
-        
+
         entry.compareTo(null);
         Assert.fail();
     }
 
     // hashCode() testing discarded intentionally
-    
+
     /**
      * Test method for {@link LogEntry#equals(Object)} .<br/>
      * <b>Created on:</b> <i>11:15:34 PM Jul 20, 2015</i>
@@ -377,7 +382,7 @@ public final class TestLogEntry {
         final String m1 = "test1"; //$NON-NLS-1$
         final String mFull1 = "aa00"; //$NON-NLS-1$
         final LogEntry le1 = new LogEntry(t1, m1, mFull1);
-        
+
         final LocalDateTime tEq = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4);
         final String mEq = "test1"; //$NON-NLS-1$
         final String mFullEq = "aa00"; //$NON-NLS-1$
@@ -387,34 +392,37 @@ public final class TestLogEntry {
         final String mUneq1 = "test1"; //$NON-NLS-1$
         final String mUneqFull1 = "aa00"; //$NON-NLS-1$
         final LogEntry unequal1 = new LogEntry(tUneq1, mUneq1, mUneqFull1);
-        
+
         final LocalDateTime tUneq2 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4);
         final String mUneq2 = "test2"; //$NON-NLS-1$
         final String mUneqFull2 = "aa00"; //$NON-NLS-1$
         final LogEntry unequal2 = new LogEntry(tUneq2, mUneq2, mUneqFull2);
-        
+
         final LocalDateTime tUneq3 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4);
         final String mUneq3 = "test1"; //$NON-NLS-1$
         final String mFullUneq3 = "bb11"; //$NON-NLS-1$
         final LogEntry unequal3 = new LogEntry(tUneq3, mUneq3, mFullUneq3);
-        
+
         final LocalDateTime tUneq4 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 3);
         final String mUneq4 = "test2"; //$NON-NLS-1$
         final String mFullUneq4 = "aa00"; //$NON-NLS-1$
         final LogEntry unequal4 = new LogEntry(tUneq4, mUneq4, mFullUneq4);
-        
+
         final LocalDateTime tUneq5 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 2);
         final String mUneq5 = "test1"; //$NON-NLS-1$
         final String mFullUneq5 = "bbv9"; //$NON-NLS-1$
         final LogEntry unequal5 = new LogEntry(tUneq5, mUneq5, mFullUneq5);
-        
+
         final LocalDateTime tUneq6 = LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4);
         final String mUneq6 = "test8"; //$NON-NLS-1$
         final String mFullUneq6 = "cc73"; //$NON-NLS-1$
         final LogEntry unequal6 = new LogEntry(tUneq6, mUneq6, mFullUneq6);
-        
+
         final LogEntry unequal7 = null;
 
+
+        Assert.assertTrue(le1.equals(le1));
+        Assert.assertFalse(le1.equals(new String("test"))); //$NON-NLS-1$
 
         Assert.assertTrue(le1.equals(equal));
         Assert.assertTrue(equal.equals(le1));
@@ -427,16 +435,16 @@ public final class TestLogEntry {
 
         Assert.assertFalse(le1.equals(unequal3));
         Assert.assertFalse(unequal3.equals(le1));
-        
+
         Assert.assertFalse(le1.equals(unequal4));
         Assert.assertFalse(unequal4.equals(le1));
-        
+
         Assert.assertFalse(le1.equals(unequal5));
         Assert.assertFalse(unequal5.equals(le1));
-        
+
         Assert.assertFalse(le1.equals(unequal6));
         Assert.assertFalse(unequal6.equals(le1));
-        
+
         Assert.assertFalse(le1.equals(unequal7));
     }
 
@@ -462,6 +470,18 @@ public final class TestLogEntry {
         final String exp2 = new String(msgFull2);
         Assert.assertEquals(exp2, entry2.toString());
 
+    }
+
+    /**
+     * Test method for {@link LogEntry#hashCode()}.
+     * <br/><b>Created on:</b> <i>2:45:10 AM Jul 31, 2015</i>
+     */
+    @SuppressWarnings("static-method")
+    @Test
+    public final void testHashCode() {
+        final LogEntry le1 = new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "test", "full test");  //$NON-NLS-1$//$NON-NLS-2$
+        final int exp1 = 2115952708;
+        Assert.assertEquals(exp1, le1.hashCode());
     }
 
 }

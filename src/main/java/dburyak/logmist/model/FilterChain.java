@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import dburyak.jtools.InstanceBuilder;
 import dburyak.jtools.Validators;
@@ -232,7 +233,18 @@ public final class FilterChain implements IFilter {
          *             if chain is invalid
          */
         private static final boolean validateChain(final Collection<FilterJoint> chain) {
-            return Validators.nonNull(chain);
+            boolean result = Validators.nonNull(chain);
+            final List<IFilter> traversed = new LinkedList<>();
+            for (final FilterJoint joint : chain) {
+                if (!traversed.contains(joint.getFilter())) { // not traversed yet
+                    traversed.add(joint.getFilter());
+                } else { // cirle detected - same filter in chain
+                    // FIXME : false alarms on same filters in chain (non-circles, just re-use)
+                    result = false;
+                    break;
+                }
+            }
+            return result;
         }
 
         /**
@@ -286,11 +298,13 @@ public final class FilterChain implements IFilter {
          * 
          * @param filter
          *            filter to be appended to chain
+         * @return this reference (for call chaining)
          */
-        public void and(final IFilter filter) {
+        public final FilterChainBuilder and(final IFilter filter) {
             final FilterJoint newAND = new FilterJoint(filter, LinkType.AND);
             validateJoint(newAND);
             chain.add(newAND);
+            return this;
         }
 
         /**
@@ -302,11 +316,13 @@ public final class FilterChain implements IFilter {
          * 
          * @param filter
          *            filter to be appended to chain
+         * @return this reference (for call chaining)
          */
-        public void or(final IFilter filter) {
+        public final FilterChainBuilder or(final IFilter filter) {
             final FilterJoint newOR = new FilterJoint(filter, LinkType.OR);
             validateJoint(newOR);
             chain.add(newOR);
+            return this;
         }
 
         /**
@@ -322,7 +338,7 @@ public final class FilterChain implements IFilter {
          */
         @SuppressWarnings("synthetic-access")
         @Override
-        public FilterChain build() throws IllegalStateException {
+        public final FilterChain build() throws IllegalStateException {
             try {
                 validateName(name);
                 validateChain(chain);
@@ -344,7 +360,7 @@ public final class FilterChain implements IFilter {
          * @return true if current state of builder is valid, false otherwise
          */
         @Override
-        public boolean isValid() {
+        public final boolean isValid() {
             boolean result;
             try {
                 result = validateName(name) && validateChain(chain);
@@ -401,7 +417,7 @@ public final class FilterChain implements IFilter {
      * @return true if given log entry passes all the chain
      */
     @Override
-    public boolean accept(final LogEntry log) {
+    public final boolean accept(final LogEntry log) {
         // FIXME : MUST be tested
         // heart of filter chain logic goes here
         LinkType prevLinkType = null;
@@ -439,8 +455,89 @@ public final class FilterChain implements IFilter {
      * @return name of this filter
      */
     @Override
-    public String getName() {
+    public final String getName() {
         return name;
+    }
+
+    /**
+     * Check if given filter joint is complex (has sub-elements).
+     * <br/><b>PRE-conditions:</b> non-null arg
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>10:56:05 AM Jul 30, 2015</i>
+     * 
+     * @param joint
+     *            filter joint to be tested
+     * @return true if given joint contains sub-elements
+     */
+    private static final boolean isJointComplex(final FilterJoint joint) {
+        assert(Validators.nonNull(joint));
+
+        return (joint.getFilter() instanceof FilterChain);
+    }
+
+    /**
+     * Get number of sub-joint of complex joint.
+     * <br/><b>PRE-conditions:</b> non-null arg, joint contains {@link FilterChain}
+     * <br/><b>POST-conditions:</b> ressult >= 1
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>11:08:56 AM Jul 30, 2015</i>
+     * 
+     * @param joint
+     *            complex joint to get number of sub-joints from
+     * @return number of sub-joints from given complex joint
+     */
+    private static final int getNumJointsFromComplex(final FilterJoint joint) {
+        assert(Validators.nonNull(joint));
+        assert(joint.getFilter() instanceof FilterChain);
+
+        // FIXME : bad code, decide how to improve it
+        return ((FilterChain) joint.getFilter()).getNumOfJoints();
+    }
+
+    /**
+     * Get number of joints in filter chain.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> result >= 1
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>10:56:59 AM Jul 30, 2015</i>
+     * 
+     * @return number of joints in this filter chain
+     */
+    private final int getNumOfJoints() {
+        int result = 0;
+        for (final FilterJoint joint : chain) {
+            if (isJointComplex(joint)) {
+                result += getNumJointsFromComplex(joint);
+            } else {
+                result++;
+            }
+        }
+        // TODO : add post-condition check
+
+        return result;
+    }
+
+    /**
+     * Prints this filter chain to string. Example:
+     * 
+     * <pre>
+     * {name=[super-chain-filter],numOfJoints=[6]}
+     * </pre>
+     * 
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> non-null result
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>10:50:19 AM Jul 30, 2015</i>
+     * 
+     * @see java.lang.Object#toString()
+     * @return string representation of this filter
+     */
+    @Override
+    public final String toString() {
+        final StringBuilder sb = new StringBuilder("{name=[").append(name); //$NON-NLS-1$
+        sb.append("],numOfJoints=[").append(getNumOfJoints()).append("]}");  //$NON-NLS-1$//$NON-NLS-2$
+        return sb.toString();
     }
 
 }

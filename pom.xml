@@ -65,7 +65,7 @@
 			<version>1.0</version>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -77,9 +77,13 @@
 					<target>1.8</target>
 					<showDeprecation>true</showDeprecation>
 					<showWarnings>true</showWarnings>
+					<compilerArgs>
+						<compilerArg>-Werror</compilerArg>
+						<compilerArg>-Xlint:-processing</compilerArg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
+
 </project>
