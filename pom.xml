@@ -80,6 +80,7 @@
 					<compilerArgs>
 						<compilerArg>-Werror</compilerArg>
 						<compilerArg>-Xlint:-processing</compilerArg>
+						<compilerArg>-disableassertions</compilerArg>
 					</compilerArgs>
 				</configuration>
 			</plugin>
