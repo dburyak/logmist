@@ -11,7 +11,7 @@ import net.jcip.annotations.ThreadSafe;
 /**
  * Project : logmist.<br/>
  * Represents log category. It can be a simple category. Or it can be a composite, i.e. be an aggregate of multiple
- * sub-categories. This relationship is stored in the complex category class (Composite design pattern). <br/>
+ * sub-categories. This relationship is stored in this class. <br/>
  * <b>Created on:</b> <i>11:18:24 PM Jul 21, 2015</i>
  *
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
@@ -21,11 +21,9 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 @javax.annotation.concurrent.Immutable
 @javax.annotation.concurrent.ThreadSafe
-public abstract class ACategory implements Serializable {
+public final class Category implements Serializable {
 
     // TODO : currently implementing ....
-    // make this class abstract and create two sub-classes : simple and complex (composite pattern)
-    // it's better to add reference to parent here
 
     /**
      * Serial version ID. <br/>
@@ -44,6 +42,18 @@ public abstract class ACategory implements Serializable {
      * <b>Created on:</b> <i>1:42:58 AM Jul 22, 2015</i>
      */
     private final IFilter filter;
+
+    /**
+     * Collection of sub-categories of this category.
+     * <br/><b>Created on:</b> <i>4:31:25 AM Aug 3, 2015</i>
+     */
+    private final Category[] subCategories;
+
+    /**
+     * Indicates whether this category has sub-categories.
+     * <br/><b>Created on:</b> <i>4:40:08 AM Aug 3, 2015</i>
+     */
+    private final boolean hasSubCategories;
 
 
     /**
@@ -96,12 +106,14 @@ public abstract class ACategory implements Serializable {
      * @param filter
      *            filter for the category
      */
-    public ACategory(final String name, final IFilter filter) {
+    public Category(final String name, final IFilter filter) {
         validateName(name);
         validateFilter(filter);
 
         this.name = name;
         this.filter = filter;
+        this.subCategories = new Category[0];
+        this.hasSubCategories = false;
     }
 
     /**
@@ -128,6 +140,51 @@ public abstract class ACategory implements Serializable {
      */
     public final IFilter getFilter() {
         return filter;
+    }
+
+    /**
+     * Indicates whether this category is composite category (contains sub-categories).
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>4:24:35 AM Aug 3, 2015</i>
+     * 
+     * @return true if this category has sub-categories
+     */
+    public final boolean hasSubCategories() {
+        return hasSubCategories;
+    }
+
+    /**
+     * Factory method. Creates a new category which is effectively current with adding given sub-category.
+     * <br/><b>PRE-conditions:</b> non-null arg
+     * <br/><b>POST-conditions:</b> non-null result
+     * <br/><b>Side-effects:</b> state of this object is not changed, a brand new object is created instead
+     * <br/><b>Created on:</b> <i>4:50:37 AM Aug 3, 2015</i>
+     * 
+     * @param category
+     *            category which should be included to this
+     * @return new category which contains provided category
+     */
+    public final Category withSubCategory(final Category category) {
+        // TODO : implement
+        // class is immutable, thus this method returns a brand new category
+    }
+
+    /**
+     * Factory method. Crates a new category which is effectively current with removing given sub-category.
+     * <br/><b>PRE-conditions:</b> non-null arg, this category already contains given one
+     * <br/><b>POST-conditions:</b> non-null result
+     * <br/><b>Side-effects:</b> state of this object is not changed, a brand new object is created instead
+     * <br/><b>Created on:</b> <i>4:56:42 AM Aug 3, 2015</i>
+     * 
+     * @param category
+     *            category which should be removed from this one
+     * @return a new category which doesn't contain given category
+     */
+    public final Category withoutSubCategory(final Category category) {
+        // TODO : implement
+        // class is immutable, thus this method returns a brand new category
     }
 
     /**
