@@ -11,7 +11,7 @@ import net.jcip.annotations.ThreadSafe;
 /**
  * Project : logmist.<br/>
  * Represents log category. It can be a simple category. Or it can be a composite, i.e. be an aggregate of multiple
- * sub-categories. However, this relationship is NOT stored in the {@link Category} class. <br/>
+ * sub-categories. This relationship is stored in the complex category class (Composite design pattern). <br/>
  * <b>Created on:</b> <i>11:18:24 PM Jul 21, 2015</i>
  *
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
@@ -21,7 +21,11 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 @javax.annotation.concurrent.Immutable
 @javax.annotation.concurrent.ThreadSafe
-public final class Category implements Serializable {
+public abstract class ACategory implements Serializable {
+
+    // TODO : currently implementing ....
+    // make this class abstract and create two sub-classes : simple and complex (composite pattern)
+    // it's better to add reference to parent here
 
     /**
      * Serial version ID. <br/>
@@ -92,7 +96,7 @@ public final class Category implements Serializable {
      * @param filter
      *            filter for the category
      */
-    public Category(final String name, final IFilter filter) {
+    public ACategory(final String name, final IFilter filter) {
         validateName(name);
         validateFilter(filter);
 
@@ -125,7 +129,7 @@ public final class Category implements Serializable {
     public final IFilter getFilter() {
         return filter;
     }
-    
+
     /**
      * Get string representation of this category. <br/>
      * <b>PRE-conditions:</b> NONE <br/>

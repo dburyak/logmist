@@ -169,7 +169,6 @@ abstract class PredicateFilter implements IFilter {
     @Override
     public final String toString() {
         final StringBuilder sb = (new StringBuilder("{name=[")).append(name); //$NON-NLS-1$
-        // TODO : check if getClass() behaves correctly for subclasses
         sb.append("],type=[").append(getClass().getSimpleName()); //$NON-NLS-1$
         sb.append("],predicate=[").append(predicateToString()).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();

@@ -244,6 +244,9 @@ public final class FilterChain implements IFilter {
                     break;
                 }
             }
+            if (!result) {
+                throw new IllegalArgumentException();
+            }
             return result;
         }
 
@@ -418,7 +421,6 @@ public final class FilterChain implements IFilter {
      */
     @Override
     public final boolean accept(final LogEntry log) {
-        // FIXME : MUST be tested
         // heart of filter chain logic goes here
         LinkType prevLinkType = null;
         boolean acceptedAND = false;
@@ -496,6 +498,24 @@ public final class FilterChain implements IFilter {
     }
 
     /**
+     * Validator for number of joints.
+     * <br/><b>Created on:</b> <i>2:04:59 AM Aug 3, 2015</i>
+     * 
+     * @param numOfJoints
+     *            number of joints to be validated
+     * @return true if number is valid
+     * @throws IllegalArgumentException
+     *             if number of joints is invalid
+     */
+    private static final boolean validateNumOfJoints(final int numOfJoints) {
+        if (numOfJoints < 1) {
+            throw new IllegalArgumentException();
+        }
+        return true;
+
+    }
+
+    /**
      * Get number of joints in filter chain.
      * <br/><b>PRE-conditions:</b> NONE
      * <br/><b>POST-conditions:</b> result >= 1
@@ -513,7 +533,7 @@ public final class FilterChain implements IFilter {
                 result++;
             }
         }
-        // TODO : add post-condition check
+        assert(validateNumOfJoints(result)); // post-condition
 
         return result;
     }

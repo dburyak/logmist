@@ -25,8 +25,6 @@ import net.jcip.annotations.ThreadSafe;
 @javax.annotation.concurrent.ThreadSafe
 public final class RegexpFilter extends PredicateFilter {
 
-    // TODO : add matchAll parameter to constructor, which defines whether to use find() or matches()
-
     /**
      * Serial version ID. <br/>
      * <b>Created on:</b> <i>2:28:15 AM Jul 22, 2015</i>
