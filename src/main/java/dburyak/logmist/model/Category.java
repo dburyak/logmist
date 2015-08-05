@@ -43,18 +43,6 @@ public final class Category implements Serializable {
      */
     private final IFilter filter;
 
-    /**
-     * Collection of sub-categories of this category.
-     * <br/><b>Created on:</b> <i>4:31:25 AM Aug 3, 2015</i>
-     */
-    private final Category[] subCategories;
-
-    /**
-     * Indicates whether this category has sub-categories.
-     * <br/><b>Created on:</b> <i>4:40:08 AM Aug 3, 2015</i>
-     */
-    private final boolean hasSubCategories;
-
 
     /**
      * Validator for name field. <br/>
@@ -112,8 +100,6 @@ public final class Category implements Serializable {
 
         this.name = name;
         this.filter = filter;
-        this.subCategories = new Category[0];
-        this.hasSubCategories = false;
     }
 
     /**
@@ -140,51 +126,6 @@ public final class Category implements Serializable {
      */
     public final IFilter getFilter() {
         return filter;
-    }
-
-    /**
-     * Indicates whether this category is composite category (contains sub-categories).
-     * <br/><b>PRE-conditions:</b> NONE
-     * <br/><b>POST-conditions:</b> NONE
-     * <br/><b>Side-effects:</b> NONE
-     * <br/><b>Created on:</b> <i>4:24:35 AM Aug 3, 2015</i>
-     * 
-     * @return true if this category has sub-categories
-     */
-    public final boolean hasSubCategories() {
-        return hasSubCategories;
-    }
-
-    /**
-     * Factory method. Creates a new category which is effectively current with adding given sub-category.
-     * <br/><b>PRE-conditions:</b> non-null arg
-     * <br/><b>POST-conditions:</b> non-null result
-     * <br/><b>Side-effects:</b> state of this object is not changed, a brand new object is created instead
-     * <br/><b>Created on:</b> <i>4:50:37 AM Aug 3, 2015</i>
-     * 
-     * @param category
-     *            category which should be included to this
-     * @return new category which contains provided category
-     */
-    public final Category withSubCategory(final Category category) {
-        // TODO : implement
-        // class is immutable, thus this method returns a brand new category
-    }
-
-    /**
-     * Factory method. Crates a new category which is effectively current with removing given sub-category.
-     * <br/><b>PRE-conditions:</b> non-null arg, this category already contains given one
-     * <br/><b>POST-conditions:</b> non-null result
-     * <br/><b>Side-effects:</b> state of this object is not changed, a brand new object is created instead
-     * <br/><b>Created on:</b> <i>4:56:42 AM Aug 3, 2015</i>
-     * 
-     * @param category
-     *            category which should be removed from this one
-     * @return a new category which doesn't contain given category
-     */
-    public final Category withoutSubCategory(final Category category) {
-        // TODO : implement
-        // class is immutable, thus this method returns a brand new category
     }
 
     /**

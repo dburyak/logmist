@@ -233,6 +233,7 @@ public final class FilterChain implements IFilter {
          *             if chain is invalid
          */
         private static final boolean validateChain(final Collection<FilterJoint> chain) {
+            // FIXME : wrong logic
             boolean result = Validators.nonNull(chain);
             final List<IFilter> traversed = new LinkedList<>();
             for (final FilterJoint joint : chain) {
