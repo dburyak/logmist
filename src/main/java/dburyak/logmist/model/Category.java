@@ -58,7 +58,7 @@ public final class Category implements Serializable {
      *             if name is invalid
      */
     private static final boolean validateName(final String name) {
-        Validators.nonNull(name);
+        Validators.nonEmpty(name);
         return true;
     }
 
@@ -139,7 +139,7 @@ public final class Category implements Serializable {
      * @return string representation of this category
      */
     @Override
-    public String toString() {
+    public final String toString() {
         final StringBuilder sb = (new StringBuilder("{name=[")).append(name); //$NON-NLS-1$
         sb.append("],filter=[").append(filter).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();
