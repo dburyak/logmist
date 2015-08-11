@@ -115,6 +115,13 @@
 					<xmlOutputDirectory>target/site</xmlOutputDirectory>
 					<effort>Max</effort>
 					<threshold>Low</threshold>
+					<plugins>
+						<plugin>
+							<groupId>com.mebigfatguy.fb-contrib</groupId>
+							<artifactId>fb-contrib</artifactId>
+							<version>6.3.0</version>
+						</plugin>
+					</plugins>
 				</configuration>
 			</plugin>
 			<plugin>
