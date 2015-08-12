@@ -23,8 +23,6 @@ import net.jcip.annotations.ThreadSafe;
 @javax.annotation.concurrent.ThreadSafe
 public final class Category implements Serializable {
 
-    // TODO : currently implementing ....
-
     /**
      * Serial version ID. <br/>
      * <b>Created on:</b> <i>1:46:04 AM Jul 22, 2015</i>
