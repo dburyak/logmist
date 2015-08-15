@@ -56,7 +56,7 @@ abstract class PredicateFilter implements IFilter {
      * @throws IllegalArgumentException
      *             if name is invalid
      */
-    private static final boolean validateName(final String name) {
+    static final boolean validateName(final String name) {
         Validators.nonEmpty(name);
         return true;
     }
@@ -74,7 +74,7 @@ abstract class PredicateFilter implements IFilter {
      * @throws IllegalArgumentException
      *             if predicate is invalid
      */
-    private static final boolean validatePredicate(final Predicate<LogEntry> predicate) {
+    static final boolean validatePredicate(final Predicate<LogEntry> predicate) {
         Validators.nonNull(predicate);
         return true;
     }
@@ -112,7 +112,7 @@ abstract class PredicateFilter implements IFilter {
      * @param predicate
      *            predicate for the filter
      */
-    protected PredicateFilter(final String name, final Predicate<LogEntry> predicate) {
+    PredicateFilter(final String name, final Predicate<LogEntry> predicate) {
         validateName(name);
         validatePredicate(predicate);
 
@@ -184,6 +184,6 @@ abstract class PredicateFilter implements IFilter {
      *
      * @return string representation of the predicate of this filter
      */
-    protected abstract String predicateToString();
+    abstract String predicateToString();
 
 }

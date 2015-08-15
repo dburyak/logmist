@@ -135,23 +135,6 @@ public final class RegexpFilter extends PredicateFilter {
 
 
     /**
-     * Validator for name. <br/>
-     * <b>PRE-conditions:</b> NONE <br/>
-     * <b>POST-conditions:</b> NONE <br/>
-     * <b>Side-effects:</b> NONE <br/>
-     * <b>Created on:</b> <i>2:24:07 AM Jul 22, 2015</i>
-     *
-     * @param name
-     *            name to be validated
-     * @return true if name is valid
-     * @throws IllegalArgumentException
-     *             if name is invalid
-     */
-    private static final boolean validateName(final String name) {
-        return Validators.nonNull(name);
-    }
-
-    /**
      * Validator for pattern. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
      * <b>POST-conditions:</b> NONE <br/>
@@ -225,7 +208,6 @@ public final class RegexpFilter extends PredicateFilter {
     public RegexpFilter(final String name, final Pattern pattern, final boolean ignoreCase, final boolean fullMatch) {
         super(name, new RegexpPredicate(pattern, ignoreCase, fullMatch));
 
-        validateName(name);
         validatePattern(pattern);
 
         this.pattern = pattern;

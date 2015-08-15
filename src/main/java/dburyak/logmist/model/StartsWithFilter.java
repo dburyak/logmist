@@ -29,8 +29,8 @@ public final class StartsWithFilter extends PredicateFilter {
      * <b>Created on:</b> <i>11:30:31 PM Jul 22, 2015</i>
      */
     private static final long serialVersionUID = 1L;
-    
-    
+
+
     /**
      * Project : logmist.<br/>
      * "Starts-with" predicate implementation, case-aware. <br/>
@@ -46,7 +46,7 @@ public final class StartsWithFilter extends PredicateFilter {
          * <b>Created on:</b> <i>1:19:39 AM Jul 23, 2015</i>
          */
         private static final long serialVersionUID = 1L;
-        
+
         /**
          * Prefix for this predicate. <br/>
          * <b>Created on:</b> <i>12:48:00 AM Jul 23, 2015</i>
@@ -64,8 +64,8 @@ public final class StartsWithFilter extends PredicateFilter {
          * <b>Created on:</b> <i>12:48:27 AM Jul 23, 2015</i>
          */
         private final boolean ignoreCase;
-        
-        
+
+
         /**
          * Constructor for class : [logmist] dburyak.logmist.model.StartsWithPredicate.<br/>
          * <br/>
@@ -82,12 +82,12 @@ public final class StartsWithFilter extends PredicateFilter {
         @SuppressWarnings("synthetic-access")
         private StartsWithPredicate(final String prefix, final boolean ignoreCase) {
             assert(StartsWithFilter.validatePrefix(prefix)) : AssertConst.ASRT_INVALID_ARG;
-            
+
             this.prefix = prefix;
             this.ignoreCase = ignoreCase;
             this.prefixLowerCase = prefix.toLowerCase();
         }
-        
+
         /**
          * Tests whether given log entry starts with the prfix of this predicate. <br/>
          * <b>PRE-conditions:</b> non-null arg <br/>
@@ -111,38 +111,21 @@ public final class StartsWithFilter extends PredicateFilter {
             }
         }
     }
-    
-    
+
+
     /**
      * Prefix for this "starts with" filter. <br/>
      * <b>Created on:</b> <i>11:55:47 PM Jul 22, 2015</i>
      */
     private final String prefix;
-    
+
     /**
      * Ignore case flag for this filter. <br/>
      * <b>Created on:</b> <i>11:55:59 PM Jul 22, 2015</i>
      */
     private final boolean ignoreCase;
-    
-    
-    /**
-     * Validator for name. <br/>
-     * <b>PRE-conditions:</b> NONE <br/>
-     * <b>POST-conditions:</b> NONE <br/>
-     * <b>Side-effects:</b> NONE <br/>
-     * <b>Created on:</b> <i>12:20:50 AM Jul 23, 2015</i>
-     *
-     * @param name
-     *            name to be validated
-     * @return true if name is valid
-     * @throws IllegalArgumentException
-     *             if name is valid
-     */
-    private static final boolean validateName(final String name) {
-        return Validators.nonNull(name);
-    }
-    
+
+
     /**
      * Validator for prefix. <br/>
      * <b>PRE-conditions:</b> NONE <br/>
@@ -181,9 +164,8 @@ public final class StartsWithFilter extends PredicateFilter {
     public StartsWithFilter(final String name, final String prefix, final boolean ignoreCase) {
         super(name, new StartsWithPredicate(prefix, ignoreCase));
 
-        validateName(name);
         validatePrefix(prefix);
-        
+
         this.prefix = prefix;
         this.ignoreCase = ignoreCase;
     }
@@ -223,5 +205,5 @@ public final class StartsWithFilter extends PredicateFilter {
         sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();
     }
-    
+
 }
