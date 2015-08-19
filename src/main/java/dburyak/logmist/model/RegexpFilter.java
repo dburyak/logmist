@@ -40,6 +40,10 @@ public final class RegexpFilter extends PredicateFilter {
      * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
      * @version 0.1
      */
+    @Immutable
+    @ThreadSafe
+    @javax.annotation.concurrent.Immutable
+    @javax.annotation.concurrent.ThreadSafe
     private static final class RegexpPredicate implements Predicate<LogEntry>, Serializable {
 
         /**

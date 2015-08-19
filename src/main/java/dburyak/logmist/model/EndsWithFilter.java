@@ -23,14 +23,14 @@ import net.jcip.annotations.ThreadSafe;
 @javax.annotation.concurrent.Immutable
 @javax.annotation.concurrent.ThreadSafe
 public final class EndsWithFilter extends PredicateFilter {
-    
+
     /**
      * Serialization version ID. <br/>
      * <b>Created on:</b> <i>1:38:05 AM Jul 23, 2015</i>
      */
     private static final long serialVersionUID = 1L;
-    
-    
+
+
     /**
      * Project : logmist.<br/>
      * Ends-with predicate to test ending of log message to given string. <br/>
@@ -39,27 +39,31 @@ public final class EndsWithFilter extends PredicateFilter {
      * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
      * @version 0.1
      */
+    @Immutable
+    @ThreadSafe
+    @javax.annotation.concurrent.Immutable
+    @javax.annotation.concurrent.ThreadSafe
     private static final class EndsWithPredicate implements Predicate<LogEntry>, Serializable {
-        
+
         /**
          * Serial version ID. <br/>
          * <b>Created on:</b> <i>1:38:54 AM Jul 23, 2015</i>
          */
         private static final long serialVersionUID = 1L;
-        
-        
+
+
         /**
          * Suffix for this predicate. <br/>
          * <b>Created on:</b> <i>1:45:40 AM Jul 23, 2015</i>
          */
         private final String suffix;
-        
+
         /**
          * Suffix in lower case for this predicate. <br/>
          * <b>Created on:</b> <i>1:45:47 AM Jul 23, 2015</i>
          */
         private final String suffixLowerCase;
-        
+
         /**
          * Indicates whether case is ignored. <br/>
          * <b>Created on:</b> <i>1:46:06 AM Jul 23, 2015</i>
@@ -83,12 +87,12 @@ public final class EndsWithFilter extends PredicateFilter {
         @SuppressWarnings("synthetic-access")
         private EndsWithPredicate(final String suffix, final boolean ignoreCase) {
             assert(EndsWithFilter.validateSuffix(suffix)) : AssertConst.ASRT_INVALID_ARG;
-            
+
             this.suffix = suffix;
             this.suffixLowerCase = suffix.toLowerCase();
             this.ignoreCase = ignoreCase;
         }
-        
+
         /**
          * Tests whether given log entry ends with suffix from this predicate. <br/>
          * <b>PRE-conditions:</b> non-null arg <br/>
@@ -110,8 +114,8 @@ public final class EndsWithFilter extends PredicateFilter {
             }
         }
     }
-    
-    
+
+
     /**
      * Suffix for this filter. <br/>
      * <b>Created on:</b> <i>1:58:56 AM Jul 23, 2015</i>
@@ -141,8 +145,8 @@ public final class EndsWithFilter extends PredicateFilter {
     private static final boolean validateSuffix(final String suffix) {
         return Validators.nonEmpty(suffix);
     }
-    
-    
+
+
     /**
      * Constructor for class : [logmist] dburyak.logmist.model.EndsWithFilter.<br/>
      * <br/>
@@ -201,5 +205,5 @@ public final class EndsWithFilter extends PredicateFilter {
         sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();
     }
-    
+
 }

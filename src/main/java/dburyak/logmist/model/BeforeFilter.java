@@ -20,8 +20,8 @@ import net.jcip.annotations.ThreadSafe;
  * @version 0.1
  */
 @Immutable
-@javax.annotation.concurrent.Immutable
 @ThreadSafe
+@javax.annotation.concurrent.Immutable
 @javax.annotation.concurrent.ThreadSafe
 public final class BeforeFilter extends TimeFilter {
 
@@ -45,8 +45,8 @@ public final class BeforeFilter extends TimeFilter {
      * @return new "before" predicate that represents : before instant within duration
      */
     private static final Predicate<LogEntry> newBeforePredicate(final LocalDateTime instant, final Duration duration) {
-        assert(TimeFilter.validateInstant(instant));
-        assert(TimeFilter.validateDuration(duration));
+        TimeFilter.validateInstant(instant);
+        TimeFilter.validateDuration(duration);
         final Duration durOver = duration.plusNanos(1L);
         return (log) -> {
             return log.getTime().isBefore(instant)
@@ -68,8 +68,8 @@ public final class BeforeFilter extends TimeFilter {
      * @return new "before" predicate that represents : before log within duration
      */
     private static final Predicate<LogEntry> newBeforePredicate(final LogEntry log, final Duration duration) {
-        assert(TimeFilter.validateLog(log));
-        assert(TimeFilter.validateDuration(duration));
+        TimeFilter.validateLog(log);
+        TimeFilter.validateDuration(duration);
         final Duration durOver = duration.plusNanos(1L);
         return (logEntry) -> {
             return logEntry.getTime().isBefore(log.getTime())

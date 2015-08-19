@@ -27,8 +27,8 @@ import net.jcip.annotations.ThreadSafe;
  * @version 0.1
  */
 @Immutable
-@javax.annotation.concurrent.Immutable
 @ThreadSafe
+@javax.annotation.concurrent.Immutable
 @javax.annotation.concurrent.ThreadSafe
 abstract class TimeFilter extends PredicateFilter {
 

@@ -5,6 +5,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.function.Predicate;
 
+import net.jcip.annotations.Immutable;
+import net.jcip.annotations.ThreadSafe;
+
 
 /**
  * Project : logmist.<br/>
@@ -16,6 +19,10 @@ import java.util.function.Predicate;
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
  * @version 0.1
  */
+@Immutable
+@ThreadSafe
+@javax.annotation.concurrent.Immutable
+@javax.annotation.concurrent.ThreadSafe
 public final class AroundFilter extends TimeFilter {
 
     /**

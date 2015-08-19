@@ -39,6 +39,10 @@ public final class StartsWithFilter extends PredicateFilter {
      * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
      * @version 0.1
      */
+    @Immutable
+    @ThreadSafe
+    @javax.annotation.concurrent.Immutable
+    @javax.annotation.concurrent.ThreadSafe
     private static final class StartsWithPredicate implements Predicate<LogEntry>, Serializable {
 
         /**
