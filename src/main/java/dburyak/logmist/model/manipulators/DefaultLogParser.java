@@ -6,6 +6,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import dburyak.jtools.Validators;
 import dburyak.logmist.model.LogEntry;
 import net.jcip.annotations.Immutable;
@@ -26,6 +29,13 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 @javax.annotation.concurrent.ThreadSafe
 public final class DefaultLogParser implements ILogFileParser {
+
+    /**
+     * Default logger for this class.
+     * <br/><b>Created on:</b> <i>12:21:28 AM Aug 21, 2015</i>
+     */
+    private static final Logger LOG = LogManager.getFormatterLogger(DefaultLogParser.class);
+
 
     /**
      * Can parse any existing and accessible file.
@@ -61,11 +71,17 @@ public final class DefaultLogParser implements ILogFileParser {
      */
     @Override
     public Collection<LogEntry> parse(final Path filePath) {
+        LOG.entry(filePath);
+
+
         final Collection<LogEntry> resultLogs = new LinkedList<>();
+        if (!Files.exists(filePath) || Files.isDirectory(filePath) || !Files.isReadable(filePath)) {
+            LOG.error("cannot read : file = [%s]", filePath); //$NON-NLS-1$
+            // TODO : currently implementing here .................
+            return resultLogs;
+        }
 
-        // TODO : currently implementing here ......
-
-        return resultLogs;
+        return LOG.exit(resultLogs);
     }
 
 
