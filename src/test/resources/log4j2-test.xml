@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
 	<Appenders>
-		<Console name="SystemLogger" target="SYSTEM_OUT">
+		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout
 				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
 		</Console>
-		<RandomAccessFile name="LogFile"
-			fileName="./src/test/resources/test.log">
-			<PatternLayout
-				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
-		</RandomAccessFile>
-		<RandomAccessFile name="REPORT_LOGGER_APNDR"
+		<RandomAccessFile name="ReportFile"
 			fileName="./src/test/resources/report.log">
 			<PatternLayout
 				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
@@ -18,73 +13,11 @@
 	</Appenders>
 	<Loggers>
 		<Root level="info">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
+			<AppenderRef ref="Console" />
 		</Root>
-		<Logger name="REPORT_LOGGER" level="debug" additivity="false">
-			<AppenderRef ref="REPORT_LOGGER_APNDR" />
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.web.impl.TestWebAuthUltrasport"
-			level="info" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger name="com.gargoylesoftware.htmlunit" level="info"
-			additivity="false">
-			<!-- no appender, logs are swallowed -->
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.web.impl.TestItemsSearchUltrasport"
-			level="info" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.web.impl.UltrasportUtils"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger
-			name="dburyak.amor.siteupdater.web.impl.TestUltrasportSearchAllCheckPrice"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.web.impl.Lexic" level="info"
-			additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.web.impl.UltrasportSiteUpdater"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger
-			name="dburyak.amor.siteupdater.web.impl.UltrasportSiteUpdater.OneItemUpdate"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.web.SiteCredentialsRegistry"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.web.impl.TestUltrasportGenUpdts"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger
-			name="dburyak.amor.siteupdater.web.impl.UltrasportSiteUpdater$OneItemUpdate"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
-		</Logger>
-		<Logger name="dburyak.amor.siteupdater.xlsreader.impl.SportTopRowParser"
-			level="debug" additivity="false">
-			<AppenderRef ref="SystemLogger" />
-			<AppenderRef ref="LogFile" />
+		<Logger name="REPORT" level="debug" additivity="false">
+			<!-- Sends messages to report file -->
+			<AppenderRef ref="ReportFile" />
 		</Logger>
 	</Loggers>
 </Configuration>

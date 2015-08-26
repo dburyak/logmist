@@ -4,6 +4,7 @@ package dburyak.logmist.model.manipulators;
 import java.nio.file.Path;
 import java.util.Collection;
 
+import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.model.LogEntry;
 
 
@@ -41,7 +42,9 @@ public interface ILogFileParser {
      * @param filePath
      *            path to the log file to be parsed
      * @return collection of parsed log entries; empty collection
+     * @throws InaccessibleFileException
+     *             if file cannot be opened for read
      */
-    public Collection<LogEntry> parse(final Path filePath);
+    public Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException;
 
 }

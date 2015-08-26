@@ -137,6 +137,7 @@
 									<excludes>
 										<exclude>dburyak/logmist/exceptions/*</exclude>
 										<exclude>dburyak/logmist/model/Test*</exclude>
+										<exclude>dburyak/logmist/model/manipulators/LogFileParserUtils.java</exclude>
 									</excludes>
 									<limits>
 										<limit>
