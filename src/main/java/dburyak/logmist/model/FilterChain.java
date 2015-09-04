@@ -4,8 +4,8 @@ package dburyak.logmist.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 
 import dburyak.jtools.InstanceBuilder;
 import dburyak.jtools.Validators;
@@ -228,27 +228,39 @@ public final class FilterChain implements IFilter {
          * 
          * @param chain
          *            filter chain to be validated
+         * @param traversed
+         *            stack of traversed complex joints
          * @return true if chain is valid
          * @throws IllegalArgumentException
          *             if chain is invalid
          */
-        private static final boolean validateChain(final Collection<FilterJoint> chain) {
-            // FIXME : wrong logic
-            boolean result = Validators.nonNull(chain);
-            final List<IFilter> traversed = new LinkedList<>();
+        @SuppressWarnings("synthetic-access")
+        private static final boolean validateChain(
+            final Collection<FilterJoint> chain,
+            final Deque<IFilter> traversed) {
+
+            boolean isValidChain = Validators.nonNull(chain);
+            Deque<IFilter> traversedInternal = traversed;
+            if (traversedInternal == null) {
+                traversedInternal = new LinkedList<>();
+            }
             for (final FilterJoint joint : chain) {
-                if (!traversed.contains(joint.getFilter())) { // not traversed yet
-                    traversed.add(joint.getFilter());
-                } else { // cirle detected - same filter in chain
-                    // FIXME : false alarms on same filters in chain (non-circles, just re-use)
-                    result = false;
-                    break;
+                if (isComplex(joint)) { // consider only complex filters, non-complex ones cannot create circles
+                    isValidChain = isValidChain && !traversedInternal.contains(joint.getFilter());
+                    if (!isValidChain) {
+                        throw new IllegalArgumentException();
+                    }
+
+                    traversedInternal.push(joint.getFilter());
+                    isValidChain = isValidChain
+                        && validateChain(((FilterChain) joint.getFilter()).chain, traversedInternal);
+                    traversedInternal.pop();
                 }
             }
-            if (!result) {
+            if (!isValidChain) {
                 throw new IllegalArgumentException();
             }
-            return result;
+            return isValidChain;
         }
 
         /**
@@ -345,7 +357,7 @@ public final class FilterChain implements IFilter {
         public final FilterChain build() throws IllegalStateException {
             try {
                 validateName(name);
-                validateChain(chain);
+                validateChain(chain, null);
                 return new FilterChain(name, chain);
             } catch (final IllegalArgumentException ex) {
                 throw new IllegalStateException(ex);
@@ -367,7 +379,7 @@ public final class FilterChain implements IFilter {
         public final boolean isValid() {
             boolean result;
             try {
-                result = validateName(name) && validateChain(chain);
+                result = validateName(name) && validateChain(chain, null);
             } catch (@SuppressWarnings("unused") final IllegalArgumentException e) {
                 result = false;
             }
@@ -473,7 +485,7 @@ public final class FilterChain implements IFilter {
      *            filter joint to be tested
      * @return true if given joint contains sub-elements
      */
-    private static final boolean isJointComplex(final FilterJoint joint) {
+    private static final boolean isComplex(final FilterJoint joint) {
         assert(Validators.nonNull(joint));
 
         return (joint.getFilter() instanceof FilterChain);
@@ -528,7 +540,7 @@ public final class FilterChain implements IFilter {
     private final int getNumOfJoints() {
         int result = 0;
         for (final FilterJoint joint : chain) {
-            if (isJointComplex(joint)) {
+            if (isComplex(joint)) {
                 result += getNumJointsFromComplex(joint);
             } else {
                 result++;
