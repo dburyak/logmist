@@ -265,8 +265,9 @@ public final class LogParser1 implements ILogFileParser {
         LOG.entry();
         final StringBuilder sb = (new StringBuilder("^(?<")).append(PATTERN_GROUP_NAME_MONTH).append(">"); //
 
-        // FIXME : this may be NOT thread safe (visibility problem)
-        Arrays.stream(Month.values()).forEachOrdered(month -> sb.append(month.getName()).append("|")); // Month name
+        for (final Month month : Month.values()) {
+            sb.append(month.getName()).append("|");
+        }
         sb.deleteCharAt(sb.length() - 1); // delete last unnecessary "|" symbol
         sb.append(")");
 
@@ -513,7 +514,7 @@ public final class LogParser1 implements ILogFileParser {
                 lineNum++;
                 matcher.reset(line);
                 if (!matcher.matches()) { // line is of wrong format
-                    LOG.warn("line is not recognized : filePath = [%s] ; parser = [%s] ; lineNum = [%d] ; line = [%s]",                                               //$NON-NLS-1$
+                    LOG.warn("line is not recognized : filePath = [%s] ; parser = [%s] ; lineNum = [%d] ; line = [%s]",                                                 //$NON-NLS-1$
                         filePath, getClass().getSimpleName(), lineNum, line);
                     continue;
                 }
