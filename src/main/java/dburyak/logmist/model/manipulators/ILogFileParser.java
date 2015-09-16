@@ -20,7 +20,7 @@ public interface ILogFileParser {
 
     /**
      * Check if parser supports log format of given log file.
-     * <br/><b>PRE-conditions:</b> <code>filePath</code> is a file and can be opened for read
+     * <br/><b>PRE-conditions:</b> <code>filePath</code> non-null arg
      * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> I/O operations are performed (open file, read, close file)
      * <br/><b>Created on:</b> <i>4:17:46 AM Aug 20, 2015</i>
@@ -28,8 +28,10 @@ public interface ILogFileParser {
      * @param filePath
      *            path to the log file to be tested
      * @return true if this parser supports log format of given log file, false otherwise
+     * @throws InaccessibleFileException
+     *             if file cannot be opened or read
      */
-    public boolean canParse(final Path filePath);
+    public boolean canParse(final Path filePath) throws InaccessibleFileException;
 
     /**
      * Parse the whole file.

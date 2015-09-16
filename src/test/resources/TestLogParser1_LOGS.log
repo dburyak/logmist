@@ -1,0 +1,14 @@
+Nov 12 23:22:47   message1
+Nov 12 23:22:48   message2
+Nov 12 23:25:03   message3
+Jan 1 00:02:11    message4
+Feb 5 18:09:09 syslog: message5
+Mar 25 22:51:21   message6
+Apr 1 14:49:51  message7
+May 2 13:41:06    message8
+Jun 21 14:46:34  FATAL message9
+Jul 11 15:01:17   [component1] DEBUG - message10
+Aug 21 19:09:59  INFO message11
+Sep 4 17:07:52    comp2[2906]: [MyClass] - message12
+Oct 13 13:09:45   message13
+Dec 30 13:16:04   comp3[1802]: message14

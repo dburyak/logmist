@@ -1,4 +1,4 @@
-package dburyak.logmist.model;
+package dburyak.logmist.model.manipulators;
 
 
 import java.nio.file.Files;
@@ -16,7 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dburyak.logmist.exceptions.InaccessibleFileException;
-import dburyak.logmist.model.manipulators.DefaultLogParser;
+import dburyak.logmist.model.LogEntry;
 
 
 /**
@@ -139,9 +139,12 @@ public class TestDefaultLogParser {
 
     /**
      * Test method for {@link dburyak.logmist.model.manipulators.DefaultLogParser#canParse(java.nio.file.Path)}.
+     * 
+     * @throws InaccessibleFileException
+     *             not expected to be thrown for this test
      */
     @Test
-    public final void testCanParse() {
+    public final void testCanParse() throws InaccessibleFileException {
         Assert.assertTrue(parser.canParse(FILE_LOGS));
     }
 
@@ -154,8 +157,12 @@ public class TestDefaultLogParser {
      */
     @Test(expected = IllegalArgumentException.class)
     public final void testCanParseInvalid1() {
-        parser.canParse(null);
-        Assert.fail();
+        try {
+            parser.canParse(null);
+            Assert.fail();
+        } catch (@SuppressWarnings("unused") final InaccessibleFileException ex) {
+            Assert.fail();
+        }
     }
 
     /**
@@ -164,12 +171,15 @@ public class TestDefaultLogParser {
      * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE
      * <br/><b>Created on:</b> <i>1:47:01 AM Aug 27, 2015</i>
+     * 
+     * @throws InaccessibleFileException
+     *             should be thrown for non-existent file
      */
-    @Test()
-    public final void testCanParseInvalid1_v2() {
+    @Test(expected = InaccessibleFileException.class)
+    public final void testCanParseInvalid1_v2() throws InaccessibleFileException {
         assert(!Files.exists(FILE_NONEXISTENT));
-        final boolean canParse = parser.canParse(FILE_NONEXISTENT);
-        Assert.assertFalse(canParse);
+        @SuppressWarnings("unused") final boolean canParse = parser.canParse(FILE_NONEXISTENT);
+        Assert.fail();
     }
 
     /**
@@ -178,21 +188,28 @@ public class TestDefaultLogParser {
      * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE
      * <br/><b>Created on:</b> <i>1:47:01 AM Aug 27, 2015</i>
+     * 
+     * @throws InaccessibleFileException
+     *             should be thrown for directory
      */
-    @Test()
-    public final void testCanParseInvalid1_v3() {
+    @Test(expected = InaccessibleFileException.class)
+    public final void testCanParseInvalid1_v3() throws InaccessibleFileException {
         assert(Files.isDirectory(FILE_DIR));
-        final boolean canParse = parser.canParse(FILE_DIR);
-        Assert.assertFalse(canParse);
+        @SuppressWarnings("unused") final boolean canParse = parser.canParse(FILE_DIR);
+        Assert.fail();
     }
-
 
     /**
      * Test method for {@link dburyak.logmist.model.manipulators.DefaultLogParser#parse(java.nio.file.Path)}.
      */
     @Test
     public final void testParse() {
-        assert(parser.canParse(FILE_LOGS));
+        try {
+            assert(parser.canParse(FILE_LOGS));
+        } catch (@SuppressWarnings("unused") final InaccessibleFileException e) {
+            Assert.fail();
+        }
+
         try {
             final Collection<LogEntry> logsActual = parser.parse(FILE_LOGS);
             assert(LOG_EXPECTED != null);
@@ -253,6 +270,18 @@ public class TestDefaultLogParser {
 
         parser.parse(FILE_DIR); // expected to throw InaccessibleFileException
         Assert.fail();
+    }
+
+    /**
+     * Test method for {@link DefaultLogParser#toString()}.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>12:31:55 AM Sep 17, 2015</i>
+     */
+    @Test
+    public final void testToString() {
+        Assert.assertEquals(DefaultLogParser.class.getSimpleName(), parser.toString());
     }
 
 }

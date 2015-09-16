@@ -40,7 +40,7 @@ import net.jcip.annotations.ThreadSafe;
 public final class DefaultLogParser implements ILogFileParser {
 
     /**
-     * Default logger for this class.
+     * Default system logger for this class.
      * <br/><b>Created on:</b> <i>12:21:28 AM Aug 21, 2015</i>
      */
     private static final Logger LOG = LogManager.getFormatterLogger(DefaultLogParser.class);
@@ -100,14 +100,20 @@ public final class DefaultLogParser implements ILogFileParser {
      * @param filePath
      *            file to be tested
      * @return true if file can be parsed by this parser (always if file is readable)
+     * @throws InaccessibleFileException
+     *             if file cannot be accessed
      */
     @SuppressWarnings("boxing")
     @Override
-    public boolean canParse(final Path filePath) {
+    public boolean canParse(final Path filePath) throws InaccessibleFileException {
         LOG.entry(filePath);
 
-        Validators.nonNull(filePath);
-        return LOG.exit(LogFileParserUtils.isAccessibleReadable(filePath));
+        validateFilePath(filePath);
+        if (!LogFileParserUtils.isAccessibleReadable(filePath)) {
+            throw LOG.throwing(Level.DEBUG, new InaccessibleFileException(filePath));
+        }
+
+        return LOG.exit(true);
     }
 
     /**
@@ -128,7 +134,7 @@ public final class DefaultLogParser implements ILogFileParser {
     @Override
     public Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException {
         LOG.entry(filePath);
-        Validators.nonNull(filePath);
+        validateFilePath(filePath);
 
         if (!LogFileParserUtils.isAccessibleReadable(filePath)) {
             LOG.warn("file is not accessible : file = [%s]", filePath); //$NON-NLS-1$
@@ -152,5 +158,36 @@ public final class DefaultLogParser implements ILogFileParser {
         return LOG.exit(resultLogs);
     }
 
+    /**
+     * Validator for "filePath" parameter.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>10:22:59 PM Sep 16, 2015</i>
+     * 
+     * @param filePath
+     *            parameter to be validated
+     * @return true if filePath is non-null
+     * @throws IllegalArgumentException
+     *             if filePath is null
+     */
+    private static final boolean validateFilePath(final Path filePath) {
+        return Validators.nonNull(filePath);
+    }
+
+    /**
+     * String representation of this parser.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> non-empty string
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>12:44:37 AM Sep 17, 2015</i>
+     * 
+     * @see java.lang.Object#toString()
+     * @return string representation of this parser
+     */
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
 }

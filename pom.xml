@@ -106,6 +106,7 @@
 				<configuration>
 					<enableAssertions>true</enableAssertions>
 					<forkCount>1C</forkCount>
+					<!-- <debugForkedProcess>false</debugForkedProcess> -->
 				</configuration>
 			</plugin>
 			<plugin>
