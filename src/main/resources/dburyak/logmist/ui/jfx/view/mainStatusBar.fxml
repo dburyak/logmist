@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<HBox fx:id="statusBar" xmlns:fx="http://javafx.com/fxml" alignment="CENTER_LEFT" spacing="3">
+	<padding>
+		<Insets left="3" right="3" top="3" bottom="3" />
+	</padding>
+	<HBox>
+		<Label text="%main.statusBar.selected.name" />
+		<Label text="%main.statusBar.selected.def_value" />
+	</HBox>
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
+	<HBox>
+		<Label text="%main.statusBar.logsTotal.name" />
+		<Label text="0" />
+	</HBox>
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
+	<HBox>
+		<Label text="%main.statusBar.logsFiltered.name" />
+		<Label text="0" />
+	</HBox>
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
+	<HBox>
+		<Label text="%main.statusBar.selectedCat.name" />
+		<Label text="%main.statusBar.selectedCat.def_value" />
+	</HBox>
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
+	<ProgressBar disable="true" progress="0" />
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
+	<HBox>
+		<ToggleButton text="%main.statusBar.rightPanelType.quick.name" textAlignment="CENTER" />
+		<ToggleButton text="%main.statusBar.rightPanelType.library.name" textAlignment="CENTER" />
+	</HBox>
+</HBox>

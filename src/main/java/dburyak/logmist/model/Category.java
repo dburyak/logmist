@@ -11,7 +11,7 @@ import net.jcip.annotations.ThreadSafe;
 /**
  * Project : logmist.<br/>
  * Represents log category. It can be a simple category. Or it can be a composite, i.e. be an aggregate of multiple
- * sub-categories. This relationship is stored in this class. <br/>
+ * sub-categories. This relationship is NOT stored in this class. <br/>
  * <b>Created on:</b> <i>11:18:24 PM Jul 21, 2015</i>
  *
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>

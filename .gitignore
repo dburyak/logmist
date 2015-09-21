@@ -13,4 +13,4 @@ hs_err_pid*
 
 .settings
 target/
-src/test/resources/report.log
+src/test/resources/test_report.log

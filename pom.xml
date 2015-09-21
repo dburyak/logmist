@@ -80,6 +80,16 @@
 			<artifactId>jacoco-maven-plugin</artifactId>
 			<version>0.7.5.201505241946</version>
 		</dependency>
+		<dependency>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>exec-maven-plugin</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zenjava</groupId>
+			<artifactId>javafx-maven-plugin</artifactId>
+			<version>8.1.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -91,6 +101,7 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+					<encoding>UTF-8</encoding>
 					<showDeprecation>true</showDeprecation>
 					<showWarnings>true</showWarnings>
 					<compilerArgs>
@@ -152,6 +163,23 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<configuration>
+					<mainClass>dburyak.logmist.ui.App</mainClass>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.zenjava</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>8.1.4</version>
+				<configuration>
+					<mainClass>dburyak.logmist.ui.App</mainClass>
+					<jfxMainAppJarName>logmist.jar</jfxMainAppJarName>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
