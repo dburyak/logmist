@@ -14,29 +14,40 @@
 	<padding>
 		<Insets left="3" right="3" top="3" bottom="3" />
 	</padding>
-	<HBox>
+	
+	<HBox alignment="CENTER" >
 		<Label text="%main.statusBar.selected.name" />
 		<Label text="%main.statusBar.selected.def_value" />
 	</HBox>
-	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
-	<HBox>
+	
+	<Separator orientation="VERTICAL" valignment="CENTER" />
+	
+	<HBox alignment="CENTER">
 		<Label text="%main.statusBar.logsTotal.name" />
 		<Label text="0" />
 	</HBox>
-	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
-	<HBox>
+	
+	<Separator orientation="VERTICAL" valignment="CENTER" />
+	
+	<HBox alignment="CENTER">
 		<Label text="%main.statusBar.logsFiltered.name" />
 		<Label text="0" />
 	</HBox>
-	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
-	<HBox>
+	
+	<Separator orientation="VERTICAL" valignment="CENTER" />
+	
+	<HBox alignment="CENTER">
 		<Label text="%main.statusBar.selectedCat.name" />
 		<Label text="%main.statusBar.selectedCat.def_value" />
 	</HBox>
-	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
-	<ProgressBar disable="true" progress="0" />
-	<Separator orientation="VERTICAL" valignment="CENTER" halignment="LEFT" />
-	<HBox>
+	
+	<Separator orientation="VERTICAL" valignment="CENTER" />
+	
+	<ProgressBar disable="true" progress="0" HBox.hgrow="ALWAYS" maxWidth="10000" />
+	
+	<Separator orientation="VERTICAL" valignment="CENTER" />
+	
+	<HBox spacing="5" alignment="CENTER" >
 		<ToggleButton text="%main.statusBar.rightPanelType.quick.name" textAlignment="CENTER" />
 		<ToggleButton text="%main.statusBar.rightPanelType.library.name" textAlignment="CENTER" />
 	</HBox>
