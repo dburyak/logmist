@@ -9,45 +9,63 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import java.lang.Double ?>
+<?import com.sun.javafx.scene.control.skin.DoubleField?>
 
-<HBox fx:id="statusBar" xmlns:fx="http://javafx.com/fxml" alignment="CENTER_LEFT" spacing="3">
+<HBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER_LEFT" spacing="3"
+	fx:controller="dburyak.logmist.ui.jfx.controllers.StatusBarController">
 	<padding>
 		<Insets left="3" right="3" top="3" bottom="3" />
 	</padding>
-	
-	<HBox alignment="CENTER" >
+
+	<HBox alignment="CENTER">
 		<Label text="%main.statusBar.selected.name" />
 		<Label text="%main.statusBar.selected.def_value" />
 	</HBox>
-	
-	<Separator orientation="VERTICAL" valignment="CENTER" />
-	
+
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
+
 	<HBox alignment="CENTER">
 		<Label text="%main.statusBar.logsTotal.name" />
 		<Label text="0" />
 	</HBox>
-	
-	<Separator orientation="VERTICAL" valignment="CENTER" />
-	
+
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
+
 	<HBox alignment="CENTER">
 		<Label text="%main.statusBar.logsFiltered.name" />
 		<Label text="0" />
 	</HBox>
-	
-	<Separator orientation="VERTICAL" valignment="CENTER" />
-	
+
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
+
 	<HBox alignment="CENTER">
 		<Label text="%main.statusBar.selectedCat.name" />
 		<Label text="%main.statusBar.selectedCat.def_value" />
 	</HBox>
-	
-	<Separator orientation="VERTICAL" valignment="CENTER" />
-	
-	<ProgressBar disable="true" progress="0" HBox.hgrow="ALWAYS" maxWidth="10000" />
-	
-	<Separator orientation="VERTICAL" valignment="CENTER" />
-	
-	<HBox spacing="5" alignment="CENTER" >
+
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
+
+	<ProgressBar fx:id="mainStatusBarProgressBar" minWidth="70" disable="true" progress="0" HBox.hgrow="ALWAYS">
+	   <maxWidth><Double fx:constant="POSITIVE_INFINITY"></Double></maxWidth>
+	</ProgressBar>
+
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
+
+	<StackPane>
+		<ProgressBar fx:id="mainStatusBarHeapBar" disable="false" minWidth="70" StackPane.alignment="CENTER"/>
+		<HBox alignment="CENTER" StackPane.alignment="CENTER" spacing="2">
+			<Label text="%main.statusBar.heapBar.name" />
+			<Label fx:id="mainStatusBarHeapUsed"/>
+			<Label text="%main.statusBar.heapBar.separator" />
+			<Label fx:id="mainStatusBarHeapAll"/>
+		</HBox>
+	</StackPane>
+
+	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
+
+	<HBox spacing="5" alignment="CENTER">
 		<ToggleButton text="%main.statusBar.rightPanelType.quick.name" textAlignment="CENTER" />
 		<ToggleButton text="%main.statusBar.rightPanelType.library.name" textAlignment="CENTER" />
 	</HBox>

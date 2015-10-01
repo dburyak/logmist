@@ -2,24 +2,21 @@
 <Configuration status="WARN">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout
-				pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
 		</Console>
+		<RandomAccessFile name="ReportFile" fileName="system.log">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
+		</RandomAccessFile>
 	</Appenders>
 	<Loggers>
-		<Root level="debug">
+		<Root level="trace">
 			<AppenderRef ref="Console" />
+<!-- 			<AppenderRef ref="ReportFile" /> -->
 		</Root>
-		<Logger
-			name="com.intropro.dtvla.dburyak.logparser.heapanalyser.parser.DumpFileParser"
-			level="warn" additivity="true">
+		<Logger name="dburyak.logmist.model.manipulators.DefaultLogParser" level="info" additivity="false">
+			<AppenderRef ref="Console" />
 		</Logger>
-		<Logger name="com.intropro.dtvla.dburyak.logparser.heapanalyser.app.App"
-			level="info" additivity="true">
-		</Logger>
-		<Logger
-			name="com.intropro.dtvla.dburyak.logparser.heapanalyser.analysis.impl.ObjUsedMemOverallGrowthAnalyzer"
-			level="debug" additivity="false">
+		<Logger name="dburyak.logmist.model.manipulators.LogParser1" level="info" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
 	</Loggers>

@@ -1,6 +1,7 @@
 package dburyak.logmist.model.manipulators;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,8 +10,12 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +28,7 @@ import dburyak.logmist.model.LogEntry;
 import net.jcip.annotations.Immutable;
 import net.jcip.annotations.ThreadSafe;
 
-
+// TODO : code style, move common code to LogParserBase (abstract)
 /**
  * Project : logmist.<br/>
  * Default implementation of {@link ILogFileParser}. Uses generated time stamps starting from the epoch and incrementing
@@ -49,7 +54,9 @@ public final class DefaultLogParser implements ILogFileParser {
      * Time point where the count starts.
      * <br/><b>Created on:</b> <i>1:15:05 AM Aug 27, 2015</i>
      */
-    private static final LocalDateTime TIME_START = LocalDateTime.of(1970, Month.JANUARY, 1, 0, 0, 0);
+    private static final LocalDateTime TIME_START_DEFAULT = LocalDateTime.of(1970, Month.JANUARY, 1, 0, 0, 0);
+    
+    private static final Duration TICK_DEFAULT = Duration.ofSeconds(1);
 
 
     /**
@@ -61,8 +68,12 @@ public final class DefaultLogParser implements ILogFileParser {
      * 
      * @return time when this parser starts counting
      */
-    public static final LocalDateTime getTimeStart() {
-        return TIME_START;
+    public static final LocalDateTime getDefaultTimeStart() {
+        return TIME_START_DEFAULT;
+    }
+    
+    public static final Duration getDefaultTick() {
+        return TICK_DEFAULT;
     }
 
 
@@ -71,9 +82,16 @@ public final class DefaultLogParser implements ILogFileParser {
      * <br/><b>Created on:</b> <i>5:05:12 AM Aug 22, 2015</i>
      */
     private final Duration tickDuration;
+    
+    private final LocalDateTime timeStart;
+    
+    private final Set<ILogParseEventHandler> listeners = new HashSet<>();
 
 
-    // private final Time
+    public DefaultLogParser() {
+        tickDuration = getDefaultTick();
+        timeStart = getDefaultTimeStart();
+    }
 
     /**
      * Constructor for class : [logmist] dburyak.logmist.model.manipulators.DefaultLogParser.<br/>
@@ -87,6 +105,17 @@ public final class DefaultLogParser implements ILogFileParser {
      */
     public DefaultLogParser(final Duration tickDuration) {
         this.tickDuration = tickDuration;
+        timeStart = getDefaultTimeStart();
+    }
+    
+    public DefaultLogParser(final LocalDateTime timeStart) {
+        tickDuration = getDefaultTick();
+        this.timeStart = timeStart;
+    }
+    
+    public DefaultLogParser(final LocalDateTime timeStart, final Duration tickDuration) {
+        this.tickDuration = tickDuration;
+        this.timeStart = timeStart;
     }
 
     /**
@@ -143,11 +172,20 @@ public final class DefaultLogParser implements ILogFileParser {
 
         Collection<LogEntry> resultLogs = new LinkedList<>();
         try {
-            LocalDateTime timeStamp = getTimeStart();
-            final List<String> lines = Files.readAllLines(filePath);
-            for (final String line : lines) {
-                resultLogs.add(new LogEntry(timeStamp, line));
-                timeStamp = timeStamp.plus(tickDuration);
+            final Collection<String> allLines = Files.readAllLines(filePath);
+            LocalDateTime timeStamp = timeStart;
+            final long linesTotal = allLines.size();
+            long linesRead = 0;
+            notifyParseEvent(new LogParseEvent(linesTotal, linesRead)); // initialize parse status
+            for (final String line : allLines) {
+                linesRead++;
+                if (line.isEmpty()) {
+                    LOG.warn("empty line read : lineNum = [%s]", linesRead);
+                } else {
+                    resultLogs.add(new LogEntry(timeStamp, line));
+                    timeStamp = timeStamp.plus(tickDuration);
+                    notifyParseEvent(new LogParseEvent(linesTotal, linesRead));
+                }
             }
         } catch (final IOException ex) {
             LOG.error("error when reading file : file = [%s]", filePath, ex); //$NON-NLS-1$
@@ -189,5 +227,23 @@ public final class DefaultLogParser implements ILogFileParser {
     public String toString() {
         return getClass().getSimpleName();
     }
+    
+    @Override
+    public boolean isTimeAware() {
+        return false;
+    }
 
+    @Override
+    public void addListener(final ILogParseEventHandler handler) {
+        listeners.add(handler);
+    }
+    
+    @Override
+    public void removeListener(final ILogParseEventHandler handler) {
+        assert(listeners.remove(handler));
+    }
+    
+    private void notifyParseEvent(final LogParseEvent event) {
+        listeners.stream().forEach(listener -> listener.handleLogParseEvent(event));
+    }
 }

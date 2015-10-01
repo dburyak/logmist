@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.geometry.Insets?>
+
+<TableView xmlns:fx="http://javafx.com/fxml" fx:controller="dburyak.logmist.ui.jfx.controllers.LogsController"
+	fx:id="mainLogsTable">
+	<placeholder>
+		<VBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER" spacing="7">
+			<padding>
+				<Insets bottom="3" left="3" right="3" top="3" />
+			</padding>
+			<Label text="%main.logsTable.placeholder.text" />
+			<Button fx:id="logsTableOpenBtn" onAction="#handleOpenBtn" text="%main.logsTable.placeholder.btn.text" />
+			<ProgressIndicator fx:id="logsTableProgressIndicator" visible="false" />
+		</VBox>
+	</placeholder>
+</TableView>

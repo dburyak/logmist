@@ -9,8 +9,10 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +24,7 @@ import dburyak.jtools.Validators;
 import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.model.LogEntry;
 
-
+// TODO : code style
 /**
  * Project : logmist.<br/>
  * <br/><b>Created on:</b> <i>10:04:08 AM Sep 4, 2015</i>
@@ -367,6 +369,8 @@ public final class LogParser1 implements ILogFileParser {
      * <br/><b>Created on:</b> <i>9:21:00 PM Sep 16, 2015</i>
      */
     private final int defaultYear;
+    
+    private final Set<ILogParseEventHandler> listeners = new HashSet<>();
 
 
     /**
@@ -506,16 +510,18 @@ public final class LogParser1 implements ILogFileParser {
 
         final Collection<LogEntry> resultLogs = new LinkedList<>();
         try {
-            final Collection<String> lines = Files.readAllLines(filePath);
-            long lineNum = 0;
+            final Collection<String> allLines = Files.readAllLines(filePath);
+            final long linesTotal = allLines.size();
+            long linesRead = 0;
+            notifyParseEvent(new LogParseEvent(linesTotal, linesRead)); // initialize parse status
             final Matcher matcher = getRegexp().matcher(""); //$NON-NLS-1$
             final Matcher matcherTime = getRegexpTime().matcher(""); //$NON-NLS-1$
-            for (final String line : lines) {
-                lineNum++;
+            for (final String line : allLines) {
+                linesRead++;
                 matcher.reset(line);
                 if (!matcher.matches()) { // line is of wrong format
                     LOG.warn("line is not recognized : filePath = [%s] ; parser = [%s] ; lineNum = [%d] ; line = [%s]",                                                 //$NON-NLS-1$
-                        filePath, getClass().getSimpleName(), lineNum, line);
+                        filePath, getClass().getSimpleName(), linesRead, line);
                     continue;
                 }
                 // line is valid and was matched, let's extract elements
@@ -540,6 +546,7 @@ public final class LogParser1 implements ILogFileParser {
                 if (!matcherTime.matches()) {
                     LOG.warn("time format not recognized, line ignored : filePath = [%s] ; line = [%s]",
                         filePath, line);
+                    continue;
                 }
                 final int timeHour = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_HOUR));
                 final int timeMin = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_MIN));
@@ -553,6 +560,9 @@ public final class LogParser1 implements ILogFileParser {
                 final LogEntry log = new LogEntry(timeStamp, msgStr, line);
                 LOG.debug("line parsed : line = [%s] ; log = [%s]", line, log);
                 resultLogs.add(log);
+                
+                // notify listeners
+                notifyParseEvent(new LogParseEvent(linesTotal, linesRead));
             }
         } catch (@SuppressWarnings("unused") final IOException e) {
             LOG.error("error when reading file : file = [%s]", filePath); //$NON-NLS-1$
@@ -575,5 +585,23 @@ public final class LogParser1 implements ILogFileParser {
     public final String toString() {
         return getClass().getSimpleName();
     }
+    
+    @Override
+    public final boolean isTimeAware() {
+        return true;
+    }
 
+    private void notifyParseEvent(final LogParseEvent event) {
+        listeners.stream().forEach(listener -> listener.handleLogParseEvent(event));
+    }
+    
+    @Override
+    public void addListener(final ILogParseEventHandler handler) {
+        listeners.add(handler);
+    }
+    
+    @Override
+    public void removeListener(final ILogParseEventHandler handler) {
+        assert(listeners.remove(handler));
+    }
 }

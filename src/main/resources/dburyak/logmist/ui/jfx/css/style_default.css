@@ -1,0 +1,10 @@
+.cell {
+    -fx-alignment : center-left ;
+    -fx-text-alignment : left ;
+    -fx-wrap-text : false ;
+    -fx-cell-size : 19px ;
+    -fx-font-family : monospace ;
+    -fx-font-size : 12px ;
+    -fx-font-style : normal ;
+    -fx-font-weight : normal ;
+}

@@ -81,7 +81,7 @@ public class TestDefaultLogParser {
         FILE_DIR = Paths.get("src", "test", "java");
         tickDuration = Duration.ofSeconds(1L);
 
-        LocalDateTime timeStmp = DefaultLogParser.getTimeStart();
+        LocalDateTime timeStmp = DefaultLogParser.getDefaultTimeStart();
 
         LOG_EXPECTED = new LogEntry[] {
             new LogEntry(timeStmp, "message1"),

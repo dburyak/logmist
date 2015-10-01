@@ -3,11 +3,12 @@ package dburyak.logmist.model.manipulators;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.EventListener;
 
 import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.model.LogEntry;
 
-
+// TODO : code style
 /**
  * Project : logmist.<br/>
  * Log file parser. Can be used for testing parser on given file and for parsing.
@@ -17,6 +18,11 @@ import dburyak.logmist.model.LogEntry;
  * @version 0.1
  */
 public interface ILogFileParser {
+    
+    /**
+     * Indicates whether file format of this parser has time stamps.
+     */
+    public boolean isTimeAware();
 
     /**
      * Check if parser supports log format of given log file.
@@ -48,5 +54,9 @@ public interface ILogFileParser {
      *             if file cannot be opened for read
      */
     public Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException;
+    
+    public void addListener(final ILogParseEventHandler handler);
+    
+    public void removeListener(final ILogParseEventHandler handler);
 
 }

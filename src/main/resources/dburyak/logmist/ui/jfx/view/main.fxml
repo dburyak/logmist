@@ -3,24 +3,25 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
+<?import java.lang.String?>
+<?import java.net.URL?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:id="main_root_borderPane">
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="dburyak.logmist.ui.jfx.controllers.MainController">
+    <stylesheets>/dburyak/logmist/ui/jfx/css/style_default.css</stylesheets>
+    
 	<center>
-		<ScrollPane fx:id="main_logs_scrollPane" fitToWidth="true" fitToHeight="true" vbarPolicy="ALWAYS"
-			hbarPolicy="ALWAYS">
-
-			<TableView fx:id="main_logs_table">
-				<placeholder>
-					<fx:include source="mainLogsPlaceholder.fxml" />
-				</placeholder>
-			</TableView>
+		<ScrollPane fitToWidth="true" fitToHeight="true" vbarPolicy="ALWAYS" hbarPolicy="ALWAYS">
+			<fx:include fx:id="mainLogsTable" source="mainLogsTable.fxml" />
 		</ScrollPane>
 	</center>
+
+	<top>
+	</top>
 
 	<right>
 	</right>
 
 	<bottom>
-		<fx:include source="mainStatusBar.fxml" />
+		<fx:include fx:id="mainStatusBar" source="mainStatusBar.fxml" />
 	</bottom>
 </BorderPane>
