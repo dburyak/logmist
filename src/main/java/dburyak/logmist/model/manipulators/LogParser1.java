@@ -24,6 +24,7 @@ import dburyak.jtools.Validators;
 import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.model.LogEntry;
 
+
 // TODO : code style
 /**
  * Project : logmist.<br/>
@@ -369,7 +370,7 @@ public final class LogParser1 implements ILogFileParser {
      * <br/><b>Created on:</b> <i>9:21:00 PM Sep 16, 2015</i>
      */
     private final int defaultYear;
-    
+
     private final Set<ILogParseEventHandler> listeners = new HashSet<>();
 
 
@@ -520,7 +521,7 @@ public final class LogParser1 implements ILogFileParser {
                 linesRead++;
                 matcher.reset(line);
                 if (!matcher.matches()) { // line is of wrong format
-                    LOG.warn("line is not recognized : filePath = [%s] ; parser = [%s] ; lineNum = [%d] ; line = [%s]",                                                 //$NON-NLS-1$
+                    LOG.warn("line is not recognized : filePath = [%s] ; parser = [%s] ; lineNum = [%d] ; line = [%s]",                                                  //$NON-NLS-1$
                         filePath, getClass().getSimpleName(), linesRead, line);
                     continue;
                 }
@@ -560,7 +561,7 @@ public final class LogParser1 implements ILogFileParser {
                 final LogEntry log = new LogEntry(timeStamp, msgStr, line);
                 LOG.debug("line parsed : line = [%s] ; log = [%s]", line, log);
                 resultLogs.add(log);
-                
+
                 // notify listeners
                 notifyParseEvent(new LogParseEvent(linesTotal, linesRead));
             }
@@ -585,7 +586,7 @@ public final class LogParser1 implements ILogFileParser {
     public final String toString() {
         return getClass().getSimpleName();
     }
-    
+
     @Override
     public final boolean isTimeAware() {
         return true;
@@ -594,12 +595,12 @@ public final class LogParser1 implements ILogFileParser {
     private void notifyParseEvent(final LogParseEvent event) {
         listeners.stream().forEach(listener -> listener.handleLogParseEvent(event));
     }
-    
+
     @Override
     public void addListener(final ILogParseEventHandler handler) {
         listeners.add(handler);
     }
-    
+
     @Override
     public void removeListener(final ILogParseEventHandler handler) {
         assert(listeners.remove(handler));

@@ -1,4 +1,4 @@
-/** 
+/**
  * TODO : code style
  * UI model layer.
  */

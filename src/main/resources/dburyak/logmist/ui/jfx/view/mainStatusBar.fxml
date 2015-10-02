@@ -48,18 +48,20 @@
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
 	<ProgressBar fx:id="mainStatusBarProgressBar" minWidth="70" disable="true" progress="0" HBox.hgrow="ALWAYS">
-	   <maxWidth><Double fx:constant="POSITIVE_INFINITY"></Double></maxWidth>
+		<maxWidth>
+			<Double fx:constant="POSITIVE_INFINITY"></Double>
+		</maxWidth>
 	</ProgressBar>
 
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
 	<StackPane>
-		<ProgressBar fx:id="mainStatusBarHeapBar" disable="false" minWidth="70" StackPane.alignment="CENTER"/>
+		<ProgressBar fx:id="mainStatusBarHeapBar" disable="false" minWidth="70" StackPane.alignment="CENTER" />
 		<HBox alignment="CENTER" StackPane.alignment="CENTER" spacing="2">
 			<Label text="%main.statusBar.heapBar.name" />
-			<Label fx:id="mainStatusBarHeapUsed"/>
+			<Label fx:id="mainStatusBarHeapUsed" />
 			<Label text="%main.statusBar.heapBar.separator" />
-			<Label fx:id="mainStatusBarHeapAll"/>
+			<Label fx:id="mainStatusBarHeapAll" />
 		</HBox>
 	</StackPane>
 

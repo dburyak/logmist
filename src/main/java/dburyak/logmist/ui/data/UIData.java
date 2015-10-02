@@ -1,5 +1,6 @@
 package dburyak.logmist.ui.data;
 
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -18,17 +19,19 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 @javax.annotation.concurrent.ThreadSafe
 public abstract class UIData<T> {
+
     private static final Logger LOG = LogManager.getFormatterLogger(UIData.class);
 
     @GuardedBy("rwLock")
     private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private final long RW_LOCK_TIMEOUT_MS;
-    
+
+
     public UIData() {
         final Resources res = Resources.getInstance();
         RW_LOCK_TIMEOUT_MS = Long.parseLong(res.getConfigProp(ConfigID.CORE_UIDATA_RWLOCK_TIMEOUT_MS));
     }
-    
+
     public final void updateData(final T newValue) {
         boolean acquired = false;
         try {
@@ -50,9 +53,9 @@ public abstract class UIData<T> {
             }
         }
     }
-    
+
     protected abstract void doUpdateData(final T newValue);
-    
+
     public final T getData() {
         T result = null;
         boolean acquired = false;
@@ -76,7 +79,7 @@ public abstract class UIData<T> {
         }
         return result;
     }
-    
+
     protected abstract T doGetData();
-    
+
 }

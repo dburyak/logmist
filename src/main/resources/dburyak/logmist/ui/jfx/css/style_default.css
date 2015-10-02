@@ -1,10 +1,22 @@
+.root {
+    -fx-font-family : monospace ;
+    -fx-font-size : 11px ;
+}
+
+.text {
+    -fx-smooth : false;
+}
+
 .cell {
-    -fx-alignment : center-left ;
+    -fx-alignment : baseline-left ;
     -fx-text-alignment : left ;
     -fx-wrap-text : false ;
-    -fx-cell-size : 19px ;
     -fx-font-family : monospace ;
-    -fx-font-size : 12px ;
+    -fx-font-size : 11px ;
     -fx-font-style : normal ;
     -fx-font-weight : normal ;
+    -fx-graphic-text-gap : 0 ;
+    -fx-label-padding : 0 0 0 0 ;
+    -fx-content-display : text-only ;
+    -fx-text-overrun : clip ;
 }

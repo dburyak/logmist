@@ -3,13 +3,14 @@
  */
 package dburyak.logmist.exceptions;
 
+
 import dburyak.jtools.Validators;
+
 
 // FIXME : code style
 
 /**
  * @author Андрей
- *
  */
 public final class UnableToLaunchException extends LogmistException {
 
@@ -17,6 +18,7 @@ public final class UnableToLaunchException extends LogmistException {
      * 
      */
     private static final long serialVersionUID = 1L;
+
 
     /**
      * @param message

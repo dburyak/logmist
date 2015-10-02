@@ -6,9 +6,10 @@
 <?import java.lang.String?>
 <?import java.net.URL?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="dburyak.logmist.ui.jfx.controllers.MainController">
-    <stylesheets>/dburyak/logmist/ui/jfx/css/style_default.css</stylesheets>
-    
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="dburyak.logmist.ui.jfx.controllers.MainController"
+	styleClass="root">
+	<stylesheets>/dburyak/logmist/ui/jfx/css/style_default.css</stylesheets>
+
 	<center>
 		<ScrollPane fitToWidth="true" fitToHeight="true" vbarPolicy="ALWAYS" hbarPolicy="ALWAYS">
 			<fx:include fx:id="mainLogsTable" source="mainLogsTable.fxml" />

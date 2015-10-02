@@ -2,10 +2,12 @@ package dburyak.logmist.model;
 
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.annotation.concurrent.Immutable;
 
 import dburyak.jtools.AssertConst;
+import dburyak.jtools.Validators;
 import net.jcip.annotations.ThreadSafe;
 
 
@@ -15,7 +17,7 @@ import net.jcip.annotations.ThreadSafe;
  * <b>Created on:</b> <i>12:12:39 PM Jul 15, 2015</i>
  *
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
- * @version 0.1
+ * @version 0.2
  */
 @Immutable
 @ThreadSafe
@@ -29,6 +31,12 @@ public final class LogEntry implements Comparable<LogEntry> {
      * <b>Created on:</b> <i>11:04:47 AM Jul 19, 2015</i>
      */
     private static final String SYNTAX_TIME_MSG_SEPARATOR = " - "; //$NON-NLS-1$
+
+    /**
+     * Special time stamp that indicates "no timestamp" situation.
+     * <br/><b>Created on:</b> <i>1:51:41 AM Oct 2, 2015</i>
+     */
+    private static final LocalDateTime NO_TIME = LocalDateTime.MIN;
 
 
     /**
@@ -50,6 +58,12 @@ public final class LogEntry implements Comparable<LogEntry> {
      * <b>Created on:</b> <i>8:42:13 PM Jul 18, 2015</i>
      */
     private final String msgFull;
+
+    /**
+     * Line number in log file.
+     * <br/><b>Created on:</b> <i>2:38:24 AM Oct 2, 2015</i>
+     */
+    private final long lineNum;
 
 
     /**
@@ -113,6 +127,43 @@ public final class LogEntry implements Comparable<LogEntry> {
     }
 
     /**
+     * Validator for lineNum parameter. Non-negative lineNum is valid.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>2:40:11 AM Oct 2, 2015</i>
+     * 
+     * @param lineNum
+     *            lineNum parameter to be validated
+     * @return true if lineNum is valid
+     * @throws IllegalArgumentException
+     *             if lineNum is invalid
+     */
+    private static final boolean validateLineNum(final long lineNum) {
+        if (lineNum < 0) {
+            throw new IllegalArgumentException();
+        }
+        return true;
+    }
+
+    /**
+     * Validator for timeFormat. Non-null timeFormat is valid.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>2:07:21 AM Oct 2, 2015</i>
+     * 
+     * @param timeFormat
+     *            time formatter to be validated
+     * @return true if formatter is valid
+     * @throws IllegalArgumentException
+     *             if timeFormat is invalid
+     */
+    private static final boolean validateTimeFormat(final DateTimeFormatter timeFormat) {
+        return Validators.nonNull(timeFormat);
+    }
+
+    /**
      * Create full message from time and msg. Usually, this method should be used when log entry is created without full
      * message, i.e. user provides only time and msg. <br/>
      * <b>PRE-conditions:</b> valid time and msg (validators are used) <br/>
@@ -124,16 +175,23 @@ public final class LogEntry implements Comparable<LogEntry> {
      *            time stamp of log entry
      * @param msg
      *            message of log log entry (without stamp)
+     * @param timeFormat
+     *            time formatter for formatting time stamp string
      * @return full message for log entry constructed from given params
      * @throws IllegalArgumentException
      *             if any of parameters is illegal
      */
-    private static final String getFullMsg(final LocalDateTime time, final String msg) {
+    private static final String buildFullMsg(
+        final LocalDateTime time,
+        final String msg,
+        final DateTimeFormatter timeFormat) {
+
         // check pre-conditions
         assert(LogEntry.validateTime(time)) : AssertConst.ASRT_INVALID_ARG;
         assert(LogEntry.validateMsg(msg)) : AssertConst.ASRT_INVALID_ARG;
+        assert(LogEntry.validateTimeFormat(timeFormat)) : AssertConst.ASRT_INVALID_ARG;
 
-        final StringBuilder sb = new StringBuilder(time.toString());
+        final StringBuilder sb = new StringBuilder(time.format(timeFormat));
         sb.append(SYNTAX_TIME_MSG_SEPARATOR);
         sb.append(msg);
         final String msgFull = sb.toString();
@@ -156,16 +214,31 @@ public final class LogEntry implements Comparable<LogEntry> {
      *            time stamp of log entry
      * @param msg
      *            message of log entry (without time stamp)
+     * @param timeFormat
+     *            time formatter for building full message for this log
+     * @param lineNum
+     *            line number in log file of this log entry
      */
-    public LogEntry(final LocalDateTime time, final String msg) {
+    public LogEntry(
+        final LocalDateTime time,
+        final String msg,
+        final DateTimeFormatter timeFormat,
+        final long lineNum) {
+
         // check pre-conditions
         LogEntry.validateTime(time);
         LogEntry.validateMsg(msg);
+        LogEntry.validateTimeFormat(timeFormat);
+        LogEntry.validateLineNum(lineNum);
+
+        final String msgFullBuilt = LogEntry.buildFullMsg(time, msg, timeFormat);
+        LogEntry.validateMsgFull(msgFullBuilt);
 
         this.time = time;
         this.msg = msg;
-        this.msgFull = LogEntry.getFullMsg(time, msg);
-        LogEntry.validateMsgFull(msgFull);
+        this.msgFull = msgFullBuilt;
+        this.lineNum = lineNum;
+
     }
 
     /**
@@ -183,16 +256,45 @@ public final class LogEntry implements Comparable<LogEntry> {
      *            message of log entry (without time stamp)
      * @param msgFull
      *            full message of log entry (usually this is the original string from log file)
+     * @param lineNum
+     *            line number in log file of this log entry
      */
-    public LogEntry(final LocalDateTime time, final String msg, final String msgFull) {
+    public LogEntry(final LocalDateTime time, final String msg, final String msgFull, final long lineNum) {
         // check pre-conditions
         LogEntry.validateTime(time);
         LogEntry.validateMsg(msg);
         LogEntry.validateMsgFull(msgFull);
+        LogEntry.validateLineNum(lineNum);
 
         this.time = time;
         this.msg = msg;
         this.msgFull = msgFull;
+        this.lineNum = lineNum;
+    }
+
+    /**
+     * Constructor for class : [logmist] dburyak.logmist.model.LogEntry.<br/>
+     * Create a simple log message without time stamp.
+     * <br/><b>PRE-conditions:</b> non-null arg
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>1:58:00 AM Oct 2, 2015</i>
+     * 
+     * @param msgFull
+     *            full message of log entry (usually this is the original string from log file)
+     * @param lineNum
+     *            line number in log file of this log entry
+     */
+    public LogEntry(final String msgFull, final long lineNum) {
+        LogEntry.validateTime(NO_TIME);
+        LogEntry.validateMsgFull(msgFull);
+        LogEntry.validateMsg(msgFull);
+        LogEntry.validateLineNum(lineNum);
+
+        this.time = NO_TIME;
+        this.msg = msgFull;
+        this.msgFull = msgFull;
+        this.lineNum = lineNum;
     }
 
     /**
@@ -235,6 +337,34 @@ public final class LogEntry implements Comparable<LogEntry> {
      */
     public final String getMsgFull() {
         return msgFull;
+    }
+
+    /**
+     * Getter method. <br/>
+     * Get line number of this log entry in log file.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> non-negative result
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>2:43:15 AM Oct 2, 2015</i>
+     * 
+     * @return line number of this log entry in log file
+     */
+    public final long getLineNum() {
+        return this.lineNum;
+    }
+
+    /**
+     * Indicates whether this log entry has a time stamp. If it doesn't have one, then {@link LogEntry#getTime()} method
+     * will return not reliable value (some default time stamp).
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>1:52:55 AM Oct 2, 2015</i>
+     * 
+     * @return true if this log entry has a time stamp
+     */
+    public final boolean hasTimeStamp() {
+        return (time != NO_TIME);
     }
 
     /**

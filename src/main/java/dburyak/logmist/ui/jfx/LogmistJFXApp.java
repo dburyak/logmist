@@ -1,5 +1,6 @@
 package dburyak.logmist.ui.jfx;
 
+
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,44 +29,46 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+
 // FIXME : code style
 
 public final class LogmistJFXApp extends Application {
-    
+
     private static final Logger LOG = LogManager.getFormatterLogger(LogmistJFXApp.class);
     private static LogmistJFXApp INSTANCE = null;
-    
+
     private Stage stage = null;
     private final HashSet<ScheduledService<?>> services = new HashSet<>();
     private ExecutorService threadPool;
-    
+
+
     public static final LogmistJFXApp getInstance() {
         if (INSTANCE == null) {
             throw LOG.throwing(Level.DEBUG, new AssertionError());
         }
         return INSTANCE;
     }
-    
+
     public final ExecutorService getThreadPool() {
         return threadPool;
     }
-    
+
     public final boolean registerService(final ScheduledService<?> service) {
         return services.add(service);
     }
-    
+
     public final boolean unregisterService(final ScheduledService<?> service) {
         return services.remove(service);
     }
-    
+
     private final void initThreadPool() {
         final int numProc = Runtime.getRuntime().availableProcessors();
         final int numThreadsAdd = Integer.parseInt(Resources.getInstance().getConfigProp(
-                ConfigID.CORE_THREAD_POOL_SIZE_ADD));
+            ConfigID.CORE_THREAD_POOL_SIZE_ADD));
         threadPool = Executors.newFixedThreadPool(numProc + numThreadsAdd);
         LOG.debug("thread pool inited : numThreads = [%d]", numProc + numThreadsAdd);
     }
-    
+
     @Override
     public void start(final Stage primaryStage) throws UnableToLaunchException {
         INSTANCE = this;
@@ -77,7 +80,7 @@ public final class LogmistJFXApp extends Application {
             }
             checkUserConfigFilesStatus();
             initThreadPool();
-            
+
             final Parent root = buildRootPane();
             final Scene scene = buildScene(root);
             initStage(primaryStage, scene);
@@ -88,7 +91,7 @@ public final class LogmistJFXApp extends Application {
             throw LOG.throwing(Level.DEBUG, new UnableToLaunchException(getClass().getSimpleName(), e));
         }
     }
-    
+
     private final int stopServices() {
         services.stream().forEach(srv -> {
             if (srv.cancel()) {
@@ -99,7 +102,7 @@ public final class LogmistJFXApp extends Application {
         });
         return services.size();
     }
-    
+
     private final void initLogmistJFXApp(final LogmistJFXApp app) {
         app.getStage().setOnCloseRequest(event -> {
             final int numServices = stopServices();
@@ -113,25 +116,25 @@ public final class LogmistJFXApp extends Application {
                 LOG.catching(Level.TRACE, e);
                 LOG.error("error while waiting application thread pool termination", e);
             }
-            
+
             try { // persist user config
                 final Resources res = Resources.getInstance();
                 final Stage stage = app.getStage();
-                
+
                 // save maximized state
                 final boolean isMaximized = stage.isMaximized();
                 res.setUIProp(UIConfigID.MAIN_WINDOW_MAXIMIZED, Boolean.toString(isMaximized));
-                
+
                 if (!isMaximized) {
                     // save position
                     res.setUIProp(UIConfigID.MAIN_WINDOW_XPOS, Double.toString(stage.getX()));
                     res.setUIProp(UIConfigID.MAIN_WINDOW_YPOS, Double.toString(stage.getY()));
-                    
+
                     // save dimensions
                     res.setUIProp(UIConfigID.MAIN_WINDOW_WIDTH, Double.toString(stage.getWidth()));
                     res.setUIProp(UIConfigID.MAIN_WINDOW_HEIGHT, Double.toString(stage.getHeight()));
                 }
-                
+
                 Resources.getInstance().persist();
             } catch (final Exception e) {
                 LOG.error("user config was not saved", e);
@@ -141,17 +144,17 @@ public final class LogmistJFXApp extends Application {
                 System.exit(0);
             }
         });
-        
+
         app.getStage().maximizedProperty().addListener(
-                (final ObservableValue<? extends Boolean> ov, final Boolean oldValue, final Boolean newValue) -> {
-                    if (oldValue == false && newValue == true) { // normal -> maximized
-                        final Resources res = Resources.getInstance();
-                        final double width = app.getStage().getWidth();
-                        final double height = app.getStage().getHeight();
-                        res.setUIProp(UIConfigID.MAIN_WINDOW_WIDTH, Double.toString(width));
-                        res.setUIProp(UIConfigID.MAIN_WINDOW_HEIGHT, Double.toString(height));
-                    }
-        });
+            (final ObservableValue<? extends Boolean> ov, final Boolean oldValue, final Boolean newValue) -> {
+                if (oldValue == false && newValue == true) { // normal -> maximized
+                    final Resources res = Resources.getInstance();
+                    final double width = app.getStage().getWidth();
+                    final double height = app.getStage().getHeight();
+                    res.setUIProp(UIConfigID.MAIN_WINDOW_WIDTH, Double.toString(width));
+                    res.setUIProp(UIConfigID.MAIN_WINDOW_HEIGHT, Double.toString(height));
+                }
+            });
     }
 
     public final Stage getStage() {
@@ -160,8 +163,12 @@ public final class LogmistJFXApp extends Application {
         }
         return stage;
     }
-    
-    private final void showStartupAlert(final AlertType type, final String header, final String text, final boolean blocking) {
+
+    private final void showStartupAlert(
+        final AlertType type,
+        final String header,
+        final String text,
+        final boolean blocking) {
         final Alert dialog = new Alert(type);
         dialog.setTitle(type.name());
         dialog.setHeaderText(header);
@@ -172,17 +179,17 @@ public final class LogmistJFXApp extends Application {
             dialog.show();
         }
     }
-    
+
     private final boolean checkResources() {
         try {
-            @SuppressWarnings("unused")
-            final Resources res = Resources.getInstance();
+            @SuppressWarnings("unused") final Resources res = Resources.getInstance();
             return true;
         } catch (final AssertionError | RuntimeException e) {
             LOG.catching(Level.DEBUG, e);
             // resources cannot be initialized, thus use hard-code (actually, locale is stored in config file)
             final String header = "Resources Error";
-            final String text = "Important resource file not found. This happened due to incorrectly built application. "
+            final String text =
+                "Important resource file not found. This happened due to incorrectly built application. "
                     + "Logmist cannot be started. Please, contact developers for more information.\n"
                     + "https://github.com/dburyak/logmist\n"
                     + "dmytro.buryak@gmail.com";
@@ -190,7 +197,7 @@ public final class LogmistJFXApp extends Application {
             return false;
         }
     }
-    
+
     private final void checkUserConfigFilesStatus() {
         final UserFileStatus config = Resources.getInstance().getConfigStatus();
         final Resources res = Resources.getInstance();
@@ -210,7 +217,7 @@ public final class LogmistJFXApp extends Application {
                 showStartupAlert(AlertType.INFORMATION, header, text, true);
             }
         }
-        
+
         final UserFileStatus ui = Resources.getInstance().getUIConfigStatus();
         if (!ui.exists()) {
             final String header = res.getMsg(MsgID.APP_RESOURCES_NO_UI_CONFIG_TITLE);
@@ -229,11 +236,11 @@ public final class LogmistJFXApp extends Application {
             }
         }
     }
-    
+
     private final void initStage(final Stage primaryStage, final Scene scene) {
         primaryStage.setScene(scene);
         primaryStage.setTitle(Resources.getInstance().getMsg(Resources.MsgID.APP_TITLE));
-        
+
         // determine position on screen
         final Resources res = Resources.getInstance();
         if (res.isUndefined(UIConfigID.MAIN_WINDOW_XPOS) || res.isUndefined(UIConfigID.MAIN_WINDOW_YPOS)) {
@@ -243,7 +250,7 @@ public final class LogmistJFXApp extends Application {
             primaryStage.setX(Double.parseDouble(res.getUIProp(UIConfigID.MAIN_WINDOW_XPOS)));
             primaryStage.setY(Double.parseDouble(res.getUIProp(UIConfigID.MAIN_WINDOW_YPOS)));
         }
-        
+
         // determine dimensions
         double winWidth = 100.0D;
         double winHeight = 100.0D;
@@ -251,12 +258,12 @@ public final class LogmistJFXApp extends Application {
             // not configured, use default values
             final double scrWidth = Screen.getPrimary().getVisualBounds().getWidth();
             final double scrHeight = Screen.getPrimary().getVisualBounds().getHeight();
-            
+
             final double winWidthStartFactor = Double.parseDouble(Resources.getInstance().getUIProp(
-                    Resources.UIConfigID.MAIN_WINDOW_START_WIDTH_FACTOR));
+                Resources.UIConfigID.MAIN_WINDOW_START_WIDTH_FACTOR));
             final double winHeightStartFactor = Double.parseDouble(Resources.getInstance().getUIProp(
-                    Resources.UIConfigID.MAIN_WINDOW_START_HEIGHT_FACTOR));
-            
+                Resources.UIConfigID.MAIN_WINDOW_START_HEIGHT_FACTOR));
+
             winWidth = scrWidth * winWidthStartFactor;
             winHeight = scrHeight * winHeightStartFactor;
         } else {
@@ -266,7 +273,7 @@ public final class LogmistJFXApp extends Application {
         }
         primaryStage.setWidth(winWidth);
         primaryStage.setHeight(winHeight);
-        
+
         // determine maximized state
         boolean isMaximized = Boolean.parseBoolean(res.getUIProp(UIConfigID.MAIN_WINDOW_MAXIMIZED));
         primaryStage.setMaximized(isMaximized);
@@ -281,9 +288,9 @@ public final class LogmistJFXApp extends Application {
         // all parts of the UI are build and composed here into one result root pane
         // FIXME : temporary, for early development, later will be split into modules (separate FXML pages)
         // or maybe main.fxml will include other fxml pages of separate modules
-        return FXMLLoader.load(LogmistJFXApp.class.getResource("/dburyak/logmist/ui/jfx/view/main.fxml"), 
-                Resources.getInstance().getMsgBundle());
+        return FXMLLoader.load(LogmistJFXApp.class.getResource("/dburyak/logmist/ui/jfx/view/main.fxml"),
+            Resources.getInstance().getMsgBundle());
         // TODO : externalize resource
     }
-    
+
 }

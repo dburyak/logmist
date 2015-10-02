@@ -1,21 +1,15 @@
 package dburyak.logmist.model.manipulators;
 
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +21,7 @@ import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.model.LogEntry;
 import net.jcip.annotations.Immutable;
 import net.jcip.annotations.ThreadSafe;
+
 
 // TODO : code style, move common code to LogParserBase (abstract)
 /**
@@ -50,73 +45,8 @@ public final class DefaultLogParser implements ILogFileParser {
      */
     private static final Logger LOG = LogManager.getFormatterLogger(DefaultLogParser.class);
 
-    /**
-     * Time point where the count starts.
-     * <br/><b>Created on:</b> <i>1:15:05 AM Aug 27, 2015</i>
-     */
-    private static final LocalDateTime TIME_START_DEFAULT = LocalDateTime.of(1970, Month.JANUARY, 1, 0, 0, 0);
-    
-    private static final Duration TICK_DEFAULT = Duration.ofSeconds(1);
-
-
-    /**
-     * Get time when counting starts.
-     * <br/><b>PRE-conditions:</b> NONE
-     * <br/><b>POST-conditions:</b> non-null result
-     * <br/><b>Side-effects:</b> NONE
-     * <br/><b>Created on:</b> <i>1:15:17 AM Aug 27, 2015</i>
-     * 
-     * @return time when this parser starts counting
-     */
-    public static final LocalDateTime getDefaultTimeStart() {
-        return TIME_START_DEFAULT;
-    }
-    
-    public static final Duration getDefaultTick() {
-        return TICK_DEFAULT;
-    }
-
-
-    /**
-     * Duration of one tick to be used when generating time stamps.
-     * <br/><b>Created on:</b> <i>5:05:12 AM Aug 22, 2015</i>
-     */
-    private final Duration tickDuration;
-    
-    private final LocalDateTime timeStart;
-    
     private final Set<ILogParseEventHandler> listeners = new HashSet<>();
 
-
-    public DefaultLogParser() {
-        tickDuration = getDefaultTick();
-        timeStart = getDefaultTimeStart();
-    }
-
-    /**
-     * Constructor for class : [logmist] dburyak.logmist.model.manipulators.DefaultLogParser.<br/>
-     * <br/><b>PRE-conditions:</b> non-null, non-negative, non-zero
-     * <br/><b>POST-conditions:</b> NONE
-     * <br/><b>Side-effects:</b> NONE
-     * <br/><b>Created on:</b> <i>5:04:54 AM Aug 22, 2015</i>
-     * 
-     * @param tickDuration
-     *            duration of one tick to be used when generating time stamps
-     */
-    public DefaultLogParser(final Duration tickDuration) {
-        this.tickDuration = tickDuration;
-        timeStart = getDefaultTimeStart();
-    }
-    
-    public DefaultLogParser(final LocalDateTime timeStart) {
-        tickDuration = getDefaultTick();
-        this.timeStart = timeStart;
-    }
-    
-    public DefaultLogParser(final LocalDateTime timeStart, final Duration tickDuration) {
-        this.tickDuration = tickDuration;
-        this.timeStart = timeStart;
-    }
 
     /**
      * Can parse any existing and accessible file.
@@ -227,7 +157,7 @@ public final class DefaultLogParser implements ILogFileParser {
     public String toString() {
         return getClass().getSimpleName();
     }
-    
+
     @Override
     public boolean isTimeAware() {
         return false;
@@ -237,12 +167,12 @@ public final class DefaultLogParser implements ILogFileParser {
     public void addListener(final ILogParseEventHandler handler) {
         listeners.add(handler);
     }
-    
+
     @Override
     public void removeListener(final ILogParseEventHandler handler) {
         assert(listeners.remove(handler));
     }
-    
+
     private void notifyParseEvent(final LogParseEvent event) {
         listeners.stream().forEach(listener -> listener.handleLogParseEvent(event));
     }

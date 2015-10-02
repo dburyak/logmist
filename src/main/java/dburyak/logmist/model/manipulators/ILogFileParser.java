@@ -3,10 +3,10 @@ package dburyak.logmist.model.manipulators;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.EventListener;
 
 import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.model.LogEntry;
+
 
 // TODO : code style
 /**
@@ -18,9 +18,15 @@ import dburyak.logmist.model.LogEntry;
  * @version 0.1
  */
 public interface ILogFileParser {
-    
+
     /**
      * Indicates whether file format of this parser has time stamps.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>3:14:58 AM Oct 2, 2015</i>
+     * 
+     * @return true if this log parser format deals with time stamps
      */
     public boolean isTimeAware();
 
@@ -54,9 +60,29 @@ public interface ILogFileParser {
      *             if file cannot be opened for read
      */
     public Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException;
-    
+
+    /**
+     * Register a handler to be notified about {@link LogParseEvent} events.
+     * <br/><b>PRE-conditions:</b> non-null arg
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> IMPLEMENTATION DEPENDENT
+     * <br/><b>Created on:</b> <i>3:15:46 AM Oct 2, 2015</i>
+     * 
+     * @param handler
+     *            log parse event handler to be registered
+     */
     public void addListener(final ILogParseEventHandler handler);
-    
+
+    /**
+     * Unregister a handler from receiving notifications about {@link LogParseEvent} events from this parser.
+     * <br/><b>PRE-conditions:</b> non-null arg
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> IMPLEMENTATION DEPENDENT
+     * <br/><b>Created on:</b> <i>3:17:21 AM Oct 2, 2015</i>
+     * 
+     * @param handler
+     *            log parse event handler to be unregistered
+     */
     public void removeListener(final ILogParseEventHandler handler);
 
 }

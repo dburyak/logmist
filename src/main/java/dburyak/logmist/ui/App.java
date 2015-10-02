@@ -3,6 +3,7 @@
  */
 package dburyak.logmist.ui;
 
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,15 +12,16 @@ import dburyak.logmist.ui.jfx.LogmistJFXApp;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import javafx.application.Application;
 
+
 // FIXME : code style
 
 /**
  * @author Андрей
- *
  */
 public final class App {
 
     private static final Logger LOG = LogManager.getFormatterLogger(App.class);
+
 
     /**
      * @param args
@@ -29,7 +31,7 @@ public final class App {
         try {
             // TODO : add logic for choosing front-end (JFX/Console)
             // no arguments needed
-            
+
             Application.launch(appClass, new String[] {});
         } catch (final Throwable t) {
             LOG.catching(Level.DEBUG, t);
