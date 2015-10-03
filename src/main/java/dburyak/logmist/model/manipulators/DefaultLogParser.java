@@ -1,43 +1,28 @@
 package dburyak.logmist.model.manipulators;
 
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
-
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import dburyak.jtools.AssertConst;
 import dburyak.jtools.Validators;
-import dburyak.logmist.exceptions.InaccessibleFileException;
+import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
-import net.jcip.annotations.Immutable;
-import net.jcip.annotations.ThreadSafe;
+import net.jcip.annotations.NotThreadSafe;
 
 
-// TODO : code style, move common code to LogParserBase (abstract)
 /**
  * Project : logmist.<br/>
- * Default implementation of {@link ILogFileParser}. Uses generated time stamps starting from the epoch and incrementing
- * by time unit for each next log.
+ * Default implementation of {@link ILogFileParser}, can parse any log format, but is not time aware (doesn't recognize
+ * time stamps). This is fallback implementation, meaning that if none of registered parsers cannot recognize log
+ * format, then {@link DefaultLogParser} is used.
  * <br/><b>Created on:</b> <i>4:26:11 AM Aug 20, 2015</i>
  * 
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
  * @version 0.1
  */
-@Immutable
-@ThreadSafe
-@javax.annotation.concurrent.Immutable
-@javax.annotation.concurrent.ThreadSafe
-public final class DefaultLogParser implements ILogFileParser {
+@NotThreadSafe
+@javax.annotation.concurrent.NotThreadSafe
+public final class DefaultLogParser extends LogFileParserBase {
 
     /**
      * Default system logger for this class.
@@ -45,135 +30,83 @@ public final class DefaultLogParser implements ILogFileParser {
      */
     private static final Logger LOG = LogManager.getFormatterLogger(DefaultLogParser.class);
 
-    private final Set<ILogParseEventHandler> listeners = new HashSet<>();
-
 
     /**
-     * Can parse any existing and accessible file.
-     * <br/><b>PRE-conditions:</b> is a file and can be read
-     * <br/><b>POST-conditions:</b> NONE
-     * <br/><b>Side-effects:</b> I/O operations are performed
-     * <br/><b>Created on:</b> <i>4:52:05 AM Aug 20, 2015</i>
-     * 
-     * @see dburyak.logmist.model.manipulators.ILogFileParser#canParse(java.nio.file.Path)
-     * @param filePath
-     *            file to be tested
-     * @return true if file can be parsed by this parser (always if file is readable)
-     * @throws InaccessibleFileException
-     *             if file cannot be accessed
-     */
-    @SuppressWarnings("boxing")
-    @Override
-    public boolean canParse(final Path filePath) throws InaccessibleFileException {
-        LOG.entry(filePath);
-
-        validateFilePath(filePath);
-        if (!LogFileParserUtils.isAccessibleReadable(filePath)) {
-            throw LOG.throwing(Level.DEBUG, new InaccessibleFileException(filePath));
-        }
-
-        return LOG.exit(true);
-    }
-
-    /**
-     * Parse given file.
-     * <br/><b>PRE-conditions:</b> is file and is readable
-     * <br/><b>POST-conditions:</b> non-null result; can be empty
-     * <br/><b>Side-effects:</b> I/O operations are performed; may lead to significant memory consumption growth
-     * depending on file size
-     * <br/><b>Created on:</b> <i>5:15:35 AM Aug 20, 2015</i>
-     * 
-     * @see dburyak.logmist.model.manipulators.ILogFileParser#parse(java.nio.file.Path)
-     * @param filePath
-     *            file to be parsed
-     * @return parsed log entries
-     * @throws InaccessibleFileException
-     *             if file cannot be opened for read
-     */
-    @Override
-    public Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException {
-        LOG.entry(filePath);
-        validateFilePath(filePath);
-
-        if (!LogFileParserUtils.isAccessibleReadable(filePath)) {
-            LOG.warn("file is not accessible : file = [%s]", filePath); //$NON-NLS-1$
-            throw LOG.throwing(Level.DEBUG, new InaccessibleFileException(filePath));
-        }
-
-        Collection<LogEntry> resultLogs = new LinkedList<>();
-        try {
-            final Collection<String> allLines = Files.readAllLines(filePath);
-            LocalDateTime timeStamp = timeStart;
-            final long linesTotal = allLines.size();
-            long linesRead = 0;
-            notifyParseEvent(new LogParseEvent(linesTotal, linesRead)); // initialize parse status
-            for (final String line : allLines) {
-                linesRead++;
-                if (line.isEmpty()) {
-                    LOG.warn("empty line read : lineNum = [%s]", linesRead);
-                } else {
-                    resultLogs.add(new LogEntry(timeStamp, line));
-                    timeStamp = timeStamp.plus(tickDuration);
-                    notifyParseEvent(new LogParseEvent(linesTotal, linesRead));
-                }
-            }
-        } catch (final IOException ex) {
-            LOG.error("error when reading file : file = [%s]", filePath, ex); //$NON-NLS-1$
-            resultLogs = Collections.emptyList();
-        }
-
-        assert(resultLogs != null) : AssertConst.ASRT_NULL_RESULT;
-        return LOG.exit(resultLogs);
-    }
-
-    /**
-     * Validator for "filePath" parameter.
+     * Validator for "line" parameter. Non-empty is expected.
      * <br/><b>PRE-conditions:</b> NONE
      * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE
-     * <br/><b>Created on:</b> <i>10:22:59 PM Sep 16, 2015</i>
+     * <br/><b>Created on:</b> <i>2:55:19 PM Oct 3, 2015</i>
      * 
-     * @param filePath
-     *            parameter to be validated
-     * @return true if filePath is non-null
+     * @param line
+     *            line parameter to be tested
+     * @return true if line is valid
      * @throws IllegalArgumentException
-     *             if filePath is null
+     *             if line is invalid
      */
-    private static final boolean validateFilePath(final Path filePath) {
-        return Validators.nonNull(filePath);
+    private static final boolean validateLine(final String line) {
+        return Validators.nonEmpty(line);
     }
 
     /**
-     * String representation of this parser.
+     * Validator for "lineNum" parameter. Positive is expected.
      * <br/><b>PRE-conditions:</b> NONE
-     * <br/><b>POST-conditions:</b> non-empty string
+     * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE
-     * <br/><b>Created on:</b> <i>12:44:37 AM Sep 17, 2015</i>
+     * <br/><b>Created on:</b> <i>2:54:03 PM Oct 3, 2015</i>
      * 
-     * @see java.lang.Object#toString()
-     * @return string representation of this parser
+     * @param lineNum
+     *            lineNum parameter to be validated
+     * @return true if lineNum is valid
+     * @throws IllegalArgumentException
+     *             if lineNum is invalid
      */
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
+    private static final boolean validateLineNum(final long lineNum) {
+        return Validators.positive(lineNum);
     }
 
+    /**
+     * This logger is NOT time aware, meaning that id doesn't recognize time stamps in logs.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>2:28:21 PM Oct 3, 2015</i>
+     * 
+     * @see dburyak.logmist.model.manipulators.ILogFileParser#isTimeAware()
+     * @return false, indicating that this logger is NOT time aware
+     */
     @Override
-    public boolean isTimeAware() {
+    public final boolean isTimeAware() {
         return false;
     }
 
+    /**
+     * Perform parsing of one given line.
+     * {@link LogEntry} is constructed "as is" - just from picking given line and lineNumber.
+     * <br/><b>PRE-conditions:</b> non-empty line, positive lineNum
+     * <br/><b>POST-conditions:</b> non-null result
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>2:30:03 PM Oct 3, 2015</i>
+     * 
+     * @see dburyak.logmist.model.manipulators.LogFileParserBase#doParseLine(java.lang.String, long)
+     * @param line
+     *            line to be parsed
+     * @param lineNum
+     *            line number of this line in log file
+     * @return new {@link LogEntry} parsed from given line and line number
+     * @throws ParseException
+     *             never
+     */
+    @SuppressWarnings("boxing")
     @Override
-    public void addListener(final ILogParseEventHandler handler) {
-        listeners.add(handler);
+    protected final LogEntry doParseLine(final String line, final long lineNum) throws ParseException {
+        LOG.entry(line, lineNum);
+
+        validateLine(line);
+        validateLineNum(lineNum);
+        final LogEntry result = new LogEntry(line, lineNum);
+
+        return LOG.exit(result);
     }
 
-    @Override
-    public void removeListener(final ILogParseEventHandler handler) {
-        assert(listeners.remove(handler));
-    }
-
-    private void notifyParseEvent(final LogParseEvent event) {
-        listeners.stream().forEach(listener -> listener.handleLogParseEvent(event));
-    }
 }

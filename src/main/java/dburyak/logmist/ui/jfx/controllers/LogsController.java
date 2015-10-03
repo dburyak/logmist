@@ -98,7 +98,7 @@ public final class LogsController {
         // instantiate secondary parsers and add them to the list
         final String[] secClassesStr = res.getConfigProp(ConfigID.CORE_PARSERS_SECONDARY).split(",");
         LOG.debug("secondary log parsers in config : num = [%d]", secClassesStr.length);
-        Arrays.stream(secClassesStr).forEach(classStr -> {
+        Arrays.stream(secClassesStr).forEachOrdered(classStr -> {
             try {
                 final ILogFileParser parser = (ILogFileParser) Class.forName(classStr).newInstance();
                 parsers.add(parser);

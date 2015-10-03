@@ -1,18 +1,11 @@
 package dburyak.logmist.model.manipulators;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,14 +14,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import dburyak.jtools.Validators;
-import dburyak.logmist.exceptions.InaccessibleFileException;
+import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
+import net.jcip.annotations.NotThreadSafe;
 
 
-// TODO : code style
 /**
  * Project : logmist.<br/>
- * <br/><b>Created on:</b> <i>10:04:08 AM Sep 4, 2015</i>
  * Log file parser for format:
  * 
  * <pre>
@@ -36,10 +28,14 @@ import dburyak.logmist.model.LogEntry;
  * Nov 12 23:22:48   message2
  * </pre>
  * 
+ * <br/><b>Created on:</b> <i>10:04:08 AM Sep 4, 2015</i>
+ * 
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
  * @version 0.1
  */
-public final class LogParser1 implements ILogFileParser {
+@NotThreadSafe
+@javax.annotation.concurrent.NotThreadSafe
+public final class LogParser1 extends LogFileParserBase {
 
     /**
      * Default system logger for this class.
@@ -137,7 +133,7 @@ public final class LogParser1 implements ILogFileParser {
         private final String nameStr;
 
         /**
-         * Corresponding Java standard lib month.
+         * Corresponding Java month from java.time package.
          * <br/><b>Created on:</b> <i>12:38:26 AM Sep 13, 2015</i>
          */
         private final java.time.Month monthJava;
@@ -204,7 +200,7 @@ public final class LogParser1 implements ILogFileParser {
 
 
     /**
-     * Mapping of month's names to month enum entries.
+     * Mapping of month's names to month enum entries. Used for parsing.
      * <br/><b>Created on:</b> <i>12:41:39 AM Sep 13, 2015</i>
      */
     private static final Map<String, Month> MONTHS = new HashMap<>();
@@ -212,7 +208,7 @@ public final class LogParser1 implements ILogFileParser {
 
     // initialize MONTHS map
     static {
-        Arrays.stream(Month.values()).forEach(month -> MONTHS.put(month.getName(), month));
+        Arrays.stream(Month.values()).parallel().forEach(month -> MONTHS.put(month.getName(), month));
     }
 
 
@@ -255,6 +251,13 @@ public final class LogParser1 implements ILogFileParser {
 
 
     /**
+     * Instance of regexp pattern for this parser.
+     * <br/><b>Created on:</b> <i>3:33:56 PM Oct 3, 2015</i>
+     */
+    private static Pattern PATTERN = null;
+
+
+    /**
      * Compose regular expression for matching the whole log line.
      * <br/><b>PRE-conditions:</b> NONE
      * <br/><b>POST-conditions:</b> non-null result
@@ -266,6 +269,10 @@ public final class LogParser1 implements ILogFileParser {
     @SuppressWarnings("nls")
     private static final Pattern getRegexp() {
         LOG.entry();
+        if (PATTERN != null) {
+            return PATTERN;
+        }
+
         final StringBuilder sb = (new StringBuilder("^(?<")).append(PATTERN_GROUP_NAME_MONTH).append(">"); //
 
         for (final Month month : Month.values()) {
@@ -286,8 +293,9 @@ public final class LogParser1 implements ILogFileParser {
         final String patternStr = sb.toString();
         LOG.debug("regexp pattern for parser : parser = [%s] ; pattern = [%s]",
             LogParser1.class.getSimpleName(), patternStr);
+        PATTERN = Pattern.compile(patternStr);
 
-        return LOG.exit(Pattern.compile(patternStr));
+        return LOG.exit(PATTERN);
     }
 
 
@@ -309,6 +317,12 @@ public final class LogParser1 implements ILogFileParser {
      */
     private static final String PATTERN_GROUP_NAME_TIME_SEC = "second"; //$NON-NLS-1$
 
+    /**
+     * Regexp pattern instance for parsing time stamps of this log format.
+     * <br/><b>Created on:</b> <i>3:35:49 PM Oct 3, 2015</i>
+     */
+    private static Pattern PATTERN_TIME = null;
+
 
     /**
      * Compose pattern for matching time stamps.
@@ -322,6 +336,10 @@ public final class LogParser1 implements ILogFileParser {
     @SuppressWarnings("nls")
     private static final Pattern getRegexpTime() {
         LOG.entry();
+        if (PATTERN_TIME != null) {
+            return PATTERN_TIME;
+        }
+
         final StringBuilder sb = (new StringBuilder("^(?<")).append(PATTERN_GROUP_NAME_TIME_HOUR).append(">\\d{2}):(?<")
             .append(PATTERN_GROUP_NAME_TIME_MIN).append(">\\d{2}):(?<")
             .append(PATTERN_GROUP_NAME_TIME_SEC).append(">\\d{2})");
@@ -329,9 +347,32 @@ public final class LogParser1 implements ILogFileParser {
         final String patternStr = sb.toString();
         LOG.debug("regexp pattern for time string : parser = [%s] ; pattern = [%s]",
             LogParser1.class.getSimpleName(), patternStr);
+        PATTERN_TIME = Pattern.compile(patternStr);
 
-        return LOG.exit(Pattern.compile(patternStr));
+        return LOG.exit(PATTERN_TIME);
     }
+
+
+    /**
+     * {@link DateTimeFormatter} to be used when printing out log entries.
+     * <br/><b>Created on:</b> <i>5:10:25 PM Oct 3, 2015</i>
+     */
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("MMM d HH:mm:ss"); //$NON-NLS-1$
+
+
+    /**
+     * Get {@link DateTimeFormatter} that should be used when printing out log entries.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> non-null result
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>5:11:14 PM Oct 3, 2015</i>
+     * 
+     * @return date-time formatter that should be used for printing out log entries
+     */
+    private static final DateTimeFormatter getTimeFormatter() {
+        return TIME_FORMATTER;
+    }
+
 
     /**
      * Log format of this parser does not use years. So this parser uses some default value this method returns.
@@ -371,8 +412,6 @@ public final class LogParser1 implements ILogFileParser {
      */
     private final int defaultYear;
 
-    private final Set<ILogParseEventHandler> listeners = new HashSet<>();
-
 
     /**
      * Constructor for class : [logmist] dburyak.logmist.model.manipulators.LogParser1.<br/>
@@ -404,205 +443,86 @@ public final class LogParser1 implements ILogFileParser {
     }
 
     /**
-     * Test if given file can be parsed by this parser (checks if format is acceptable).
-     * <br/><b>PRE-conditions:</b> non-null arg
-     * <br/><b>POST-conditions:</b> NONE
-     * <br/><b>Side-effects:</b> I/O operations are performed (check permissions, open, read, close)
-     * <br/><b>Created on:</b> <i>10:04:09 AM Sep 4, 2015</i>
-     * 
-     * @see dburyak.logmist.model.manipulators.ILogFileParser#canParse(java.nio.file.Path)
-     * @param filePath
-     *            log file to be tested
-     * @return true if given log file can be parsed by this parser
-     */
-    @SuppressWarnings({ "nls", "boxing" })
-    @Override
-    public final boolean canParse(final Path filePath) throws InaccessibleFileException {
-        LOG.entry(filePath);
-        validateFilePath(filePath);
-
-        boolean canParse = LogFileParserUtils.isAccessibleReadable(filePath);
-        if (!canParse) {
-            throw LOG.throwing(Level.DEBUG, new InaccessibleFileException(filePath));
-        }
-
-        // test line of log file against pattern
-        // if there's second line, test it too (just to be sure)
-        try (final BufferedReader in = Files.newBufferedReader(filePath)) {
-            final String line1 = in.readLine();
-            if ((line1 == null) || line1.isEmpty()) {
-                LOG.warn("empty file : file = [%s]", filePath);
-                canParse = false;
-            } else { // test first line
-                final Pattern pattern = getRegexp();
-                canParse = pattern.matcher(line1).matches();
-                final String line2 = in.readLine();
-                if (canParse && (line2 != null) && !line2.isEmpty()) { // test second line
-                    canParse = pattern.matcher(line2).matches();
-                }
-            }
-        } catch (@SuppressWarnings("unused") final IOException e) {
-            LOG.error("error when reading file : file = [%s]", filePath);
-        }
-
-        return LOG.exit(canParse);
-    }
-
-    /**
-     * Validator for "filePath" parameter.
-     * <br/><b>PRE-conditions:</b> non-null filePath
-     * <br/><b>POST-conditions:</b> NONE
-     * <br/><b>Side-effects:</b> NONE
-     * <br/><b>Created on:</b> <i>10:34:27 PM Sep 16, 2015</i>
-     * 
-     * @param filePath
-     *            parameter to be validated
-     * @return true if filePath is non-null
-     * @throws IllegalArgumentException
-     *             if filePath is null
-     */
-    private static final boolean validateFilePath(final Path filePath) {
-        return Validators.nonNull(filePath);
-    }
-
-    /**
-     * Parse given log file into collection of {@link LogEntry} objects.
-     * Syntax example:
-     * 
-     * <pre>
-     * Nov 12 23:22:47   message1
-     * Nov 12 23:22:48   message2
-     * Now 12 23:25:03   message3
-     * Jan 1 00:02:11    message4
-     * Feb 5 18:09:09 syslog: message5
-     * Mar 25 22:51:21   message6
-     * Apr 1 14:49:51  message7
-     * May 2 13:41:06    message8
-     * Jun 21 14:46:34  FATAL message9
-     * Jul 11 15:01:17   [component1] DEBUG - message10
-     * Aug 21 19:09:59  INFO message11
-     * Sep 4 17:07:52    comp2[2906]: [MyClass] - message12
-     * Oct 13 13:09:45   message13
-     * Dec 30 13:16:04   comp3[1802]: message14
-     * </pre>
-     * 
-     * <br/><b>PRE-conditions:</b> non-null arg
-     * <br/><b>POST-conditions:</b> non-null result
-     * <br/><b>Side-effects:</b> I/O operations are performed (check permissions, open, read, close)
-     * <br/><b>Created on:</b> <i>10:04:09 AM Sep 4, 2015</i>
-     * 
-     * @see dburyak.logmist.model.manipulators.ILogFileParser#parse(java.nio.file.Path)
-     * @param filePath
-     *            log file to be parsed
-     * @return collection of parsed log entries
-     * @throws InaccessibleFileException
-     *             if file cannot be accessed
-     */
-    @SuppressWarnings({ "boxing", "nls" })
-    @Override
-    public final Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException {
-        LOG.entry(filePath);
-        validateFilePath(filePath);
-
-        if (!LogFileParserUtils.isAccessibleReadable(filePath)) {
-            LOG.warn("file is not accessible : file = [%s]", filePath); //$NON-NLS-1$
-            throw LOG.throwing(Level.DEBUG, new InaccessibleFileException(filePath));
-        }
-
-        final Collection<LogEntry> resultLogs = new LinkedList<>();
-        try {
-            final Collection<String> allLines = Files.readAllLines(filePath);
-            final long linesTotal = allLines.size();
-            long linesRead = 0;
-            notifyParseEvent(new LogParseEvent(linesTotal, linesRead)); // initialize parse status
-            final Matcher matcher = getRegexp().matcher(""); //$NON-NLS-1$
-            final Matcher matcherTime = getRegexpTime().matcher(""); //$NON-NLS-1$
-            for (final String line : allLines) {
-                linesRead++;
-                matcher.reset(line);
-                if (!matcher.matches()) { // line is of wrong format
-                    LOG.warn("line is not recognized : filePath = [%s] ; parser = [%s] ; lineNum = [%d] ; line = [%s]",                                                  //$NON-NLS-1$
-                        filePath, getClass().getSimpleName(), linesRead, line);
-                    continue;
-                }
-                // line is valid and was matched, let's extract elements
-                // month
-                final String monthStr = matcher.group(PATTERN_GROUP_NAME_MONTH);
-
-                final Month monthParsed = MONTHS.get(monthStr);
-                if (monthParsed == null) {
-                    LOG.warn("cannot recognize month, line ignored : filePath = [%s] ; line = [%s]",
-                        filePath, line);
-                    continue;
-                }
-                final java.time.Month monthJava = monthParsed.getMonthJava();
-
-                // day of month
-                final String dayOfMonthStr = matcher.group(PATTERN_GROUP_NAME_DAY_OF_MONTH);
-                final int dayOfMonth = Integer.parseInt(dayOfMonthStr);
-
-                // time
-                final String timeStr = matcher.group(PATTERN_GROUP_NAME_TIME);
-                matcherTime.reset(timeStr);
-                if (!matcherTime.matches()) {
-                    LOG.warn("time format not recognized, line ignored : filePath = [%s] ; line = [%s]",
-                        filePath, line);
-                    continue;
-                }
-                final int timeHour = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_HOUR));
-                final int timeMin = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_MIN));
-                final int timeSec = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_SEC));
-                final LocalDateTime timeStamp = LocalDateTime.of(defaultYear, monthJava, dayOfMonth,
-                    timeHour, timeMin, timeSec);
-
-                // msg
-                final String msgStr = matcher.group(PATTERN_GROUP_NAME_MSG);
-
-                final LogEntry log = new LogEntry(timeStamp, msgStr, line);
-                LOG.debug("line parsed : line = [%s] ; log = [%s]", line, log);
-                resultLogs.add(log);
-
-                // notify listeners
-                notifyParseEvent(new LogParseEvent(linesTotal, linesRead));
-            }
-        } catch (@SuppressWarnings("unused") final IOException e) {
-            LOG.error("error when reading file : file = [%s]", filePath); //$NON-NLS-1$
-            throw LOG.throwing(new InaccessibleFileException(filePath));
-        }
-
-        return LOG.exit(resultLogs);
-    }
-
-    /**
-     * Get string representation of this log parser.
+     * This log parser is time aware.
      * <br/><b>PRE-conditions:</b> NONE
-     * <br/><b>POST-conditions:</b> non-empty result
+     * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE
-     * <br/><b>Created on:</b> <i>12:57:32 AM Sep 13, 2015</i>
+     * <br/><b>Created on:</b> <i>3:38:48 PM Oct 3, 2015</i>
      * 
-     * @return name of this log parser
+     * @see dburyak.logmist.model.manipulators.ILogFileParser#isTimeAware()
+     * @return true, indicating that this log parser can recognize time stamps
      */
-    @Override
-    public final String toString() {
-        return getClass().getSimpleName();
-    }
-
     @Override
     public final boolean isTimeAware() {
         return true;
     }
 
-    private void notifyParseEvent(final LogParseEvent event) {
-        listeners.stream().forEach(listener -> listener.handleLogParseEvent(event));
+    /**
+     * Parse one line from log file.
+     * <br/><b>PRE-conditions:</b> non-empty line, positive lineNum
+     * <br/><b>POST-conditions:</b> non-null result
+     * <br/><b>Side-effects:</b> NONE
+     * <br/><b>Created on:</b> <i>4:30:43 PM Oct 3, 2015</i>
+     * 
+     * @see dburyak.logmist.model.manipulators.LogFileParserBase#doParseLine(java.lang.String, long)
+     * @param line
+     *            line from log file to be parsed
+     * @param lineNum
+     *            line number of given line in log file
+     * @return parsed log entry
+     * @throws ParseException
+     *             if given line has unexpected format
+     */
+    @SuppressWarnings({ "boxing", "nls" })
+    @Override
+    protected final LogEntry doParseLine(final String line, final long lineNum) throws ParseException {
+        LOG.entry(line, lineNum);
+
+        // validators
+
+        final Matcher matcher = getRegexp().matcher(line);
+        if (!matcher.matches()) { // line is of wrong format
+            LOG.warn("line is not recognized : parser = [%s] ; lineNum = [%d] ; line = [%s]",
+                toString(), lineNum, line);
+            throw LOG.throwing(Level.TRACE, new ParseException(toString(), line));
+        }
+
+        // line is valid and was matched, let's extract elements
+        // 1. month
+        final String monthStr = matcher.group(PATTERN_GROUP_NAME_MONTH);
+
+        final Month monthParsed = MONTHS.get(monthStr);
+        if (monthParsed == null) {
+            LOG.warn("cannot recognize month : line = [%s]", line);
+            throw LOG.throwing(Level.TRACE, new ParseException(toString(), line));
+        }
+        final java.time.Month monthJava = monthParsed.getMonthJava();
+
+        // 2. day of month
+        final String dayOfMonthStr = matcher.group(PATTERN_GROUP_NAME_DAY_OF_MONTH);
+        final int dayOfMonth = Integer.parseInt(dayOfMonthStr);
+
+        // 3. time
+        final String timeStr = matcher.group(PATTERN_GROUP_NAME_TIME);
+        final Matcher matcherTime = getRegexpTime().matcher(timeStr);
+        if (!matcherTime.matches()) {
+            LOG.warn("time format not recognized : line = [%s]", line);
+            throw LOG.throwing(Level.TRACE, new ParseException(toString(), line));
+        }
+        final int timeHour = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_HOUR));
+        final int timeMin = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_MIN));
+        final int timeSec = Integer.parseInt(matcherTime.group(PATTERN_GROUP_NAME_TIME_SEC));
+        final LocalDateTime timeStamp = LocalDateTime.of(defaultYear, monthJava, dayOfMonth, timeHour, timeMin,
+            timeSec);
+
+        // 4. msg
+        final String msgStr = matcher.group(PATTERN_GROUP_NAME_MSG);
+
+        // construct result log entry
+        final LogEntry log = new LogEntry(timeStamp, msgStr, getTimeFormatter(), lineNum);
+        LOG.trace("line parsed : line = [%s] ; log = [%s]", line, log);
+
+        return LOG.exit(log);
     }
 
-    @Override
-    public void addListener(final ILogParseEventHandler handler) {
-        listeners.add(handler);
-    }
-
-    @Override
-    public void removeListener(final ILogParseEventHandler handler) {
-        assert(listeners.remove(handler));
-    }
 }

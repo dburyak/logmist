@@ -5,10 +5,10 @@ import java.nio.file.Path;
 import java.util.Collection;
 
 import dburyak.logmist.exceptions.InaccessibleFileException;
+import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
 
 
-// TODO : code style
 /**
  * Project : logmist.<br/>
  * Log file parser. Can be used for testing parser on given file and for parsing.
@@ -58,8 +58,10 @@ public interface ILogFileParser {
      * @return collection of parsed log entries; empty collection
      * @throws InaccessibleFileException
      *             if file cannot be opened for read
+     * @throws ParseException
+     *             when line with unexpected format encountered
      */
-    public Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException;
+    public Collection<LogEntry> parse(final Path filePath) throws InaccessibleFileException, ParseException;
 
     /**
      * Register a handler to be notified about {@link LogParseEvent} events.
