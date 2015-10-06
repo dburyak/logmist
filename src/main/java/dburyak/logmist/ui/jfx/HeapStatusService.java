@@ -1,4 +1,4 @@
-package dburyak.logmist.ui.jfx.controllers;
+package dburyak.logmist.ui.jfx;
 
 
 import org.apache.logging.log4j.LogManager;

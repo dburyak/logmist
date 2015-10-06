@@ -1,4 +1,4 @@
-package dburyak.logmist.ui.data;
+package dburyak.logmist.ui.data.signalers;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -6,7 +6,10 @@ import org.apache.logging.log4j.Logger;
 
 import dburyak.logmist.model.manipulators.ILogParseEventHandler;
 import dburyak.logmist.model.manipulators.LogParseEvent;
-import javafx.beans.property.DoubleProperty;
+import dburyak.logmist.ui.data.DataUpdEvent;
+import dburyak.logmist.ui.data.DataUpdEventDispatcher;
+import dburyak.logmist.ui.data.DataUpdEventType;
+import dburyak.logmist.ui.data.ProgressData;
 
 
 public final class ParseProgressHandler implements ILogParseEventHandler {
@@ -40,8 +43,7 @@ public final class ParseProgressHandler implements ILogParseEventHandler {
         ProgressData.getInstance().updateData(percent);
 
         // 2. send PROGRESS UPDATE notification
-        DataUpdEventDispatcher.getInstance().signal(
-            new DataUpdEvent(eventType, id, tick));
+        DataUpdEventDispatcher.getInstance().signal(new DataUpdEvent(eventType, id, tick));
         LOG.debug("parse data update : type = [%s] ; percent = [%f] ; eventID = [%d] ; tick = [%d]",
             eventType, percent, id, tick);
         tick++;

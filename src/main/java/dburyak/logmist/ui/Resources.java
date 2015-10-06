@@ -31,6 +31,7 @@ public final class Resources {
     private static final Logger LOG = LogManager.getFormatterLogger(Resources.class);
 
 
+    @SuppressWarnings("nls")
     public static enum MsgID {
             APP_TITLE("app.title"),
             MAIN_LOGS_PLACEHOLDER_TEXT("main.logsTable.placeholder.text"),
@@ -58,7 +59,9 @@ public final class Resources {
             MAIN_STATUS_BAR_SELECTED_CAT_VALUE("main.statusBar.selectedCat.def_value"),
             MAIN_STATUS_BAR_RIGHT_PANEL_TYPE_QUICK_NAME("main.statusBar.rightPanelType.quick.name"),
             MAIN_STATUS_BAR_RIGHT_PANEL_TYPE_LIBRARY_NAME("main.statusBar.rightPanelType.library.name"),
-            MAIN_LOGS_FILE_CHOOSER_TITLE("main.logsTable.fileChooser.title"),;
+            MAIN_LOGS_FILE_CHOOSER_TITLE("main.logsTable.fileChooser.title"),
+            MAIN_LOGS_COLUMN_LINENUM_NAME("main.logsTable.column.lineNum.name"),
+            MAIN_LOGS_COLUMN_LOG_NAME("main.logsTable.column.log.name"),;
 
         private final String name;
 
@@ -109,6 +112,7 @@ public final class Resources {
         }
     }
 
+    @SuppressWarnings("nls")
     public static enum ConfigID {
             LOCALE("core.locale"),
             MAIN_LOGS_FILE_CHOOSER_DIR("main.logsTable.fileChooser.dir"),
@@ -119,7 +123,8 @@ public final class Resources {
             CORE_UIDATA_EVENT_QUEUE_PUT_TIMEOUT_MS("core.UIDataEventQueue.putTimeoutMS"),
             CORE_UIDATA_EVENT_QUEUE_HANDLER_THREAD_POOL_SIZE("core.UIDataEventQueue.handlerThreadPoolSize"),
             CORE_UIDATA_EVENT_QUEUE_HANDLER_WAIT("core.UIDataEventQueue.handlerWait"),
-            CORE_UIDATA_RWLOCK_TIMEOUT_MS("core.UIData.rwLock.timoutMS"),;
+            CORE_UIDATA_RWLOCK_TIMEOUT_MS("core.UIData.rwLock.timoutMS"),
+            CORE_THREAD_POOL_AWAIT_TERMINATION_TIMEOUT_MS("core.threadPool.awaitTerminationTimeoutMS"),;
 
         private final String name;
 

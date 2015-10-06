@@ -18,9 +18,8 @@ import dburyak.logmist.ui.Resources.UIConfigID;
 import dburyak.logmist.ui.Resources.UserFileStatus;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Service;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -38,7 +37,7 @@ public final class LogmistJFXApp extends Application {
     private static LogmistJFXApp INSTANCE = null;
 
     private Stage stage = null;
-    private final HashSet<ScheduledService<?>> services = new HashSet<>();
+    private final HashSet<Service<?>> services = new HashSet<>();
     private ExecutorService threadPool;
 
 
@@ -53,11 +52,11 @@ public final class LogmistJFXApp extends Application {
         return threadPool;
     }
 
-    public final boolean registerService(final ScheduledService<?> service) {
+    public final boolean registerService(final Service<?> service) {
         return services.add(service);
     }
 
-    public final boolean unregisterService(final ScheduledService<?> service) {
+    public final boolean unregisterService(final Service<?> service) {
         return services.remove(service);
     }
 
@@ -74,7 +73,7 @@ public final class LogmistJFXApp extends Application {
         INSTANCE = this;
         stage = primaryStage;
         try {
-            boolean hasResources = checkResources();
+            final boolean hasResources = checkResources();
             if (!hasResources) {
                 return; // application exit
             }
@@ -92,12 +91,17 @@ public final class LogmistJFXApp extends Application {
         }
     }
 
+    @SuppressWarnings("nls")
     private final int stopServices() {
         services.stream().forEach(srv -> {
-            if (srv.cancel()) {
-                LOG.debug("service cancelled successfully : srv = [%s]", srv);
+            if (srv.isRunning()) {
+                if (srv.cancel()) {
+                    LOG.debug("service cancelled successfully : srv = [%s]", srv);
+                } else {
+                    LOG.warn("service cancel FAILED : srv = [%s]", srv);
+                }
             } else {
-                LOG.warn("service cancel FAILED : srv = [%s]", srv);
+                LOG.debug("service is not running, no need to stop it : srv = [%s]", srv);
             }
         });
         return services.size();
@@ -105,49 +109,12 @@ public final class LogmistJFXApp extends Application {
 
     private final void initLogmistJFXApp(final LogmistJFXApp app) {
         app.getStage().setOnCloseRequest(event -> {
-            final int numServices = stopServices();
-            LOG.debug("running services cancelled : numServices = [%d]", numServices);
-            threadPool.shutdown();
-            LOG.debug("waiting for running thread pool to be stopped ...");
-            try {
-                threadPool.awaitTermination(5, TimeUnit.SECONDS);
-                LOG.debug("all threads in pool stopped");
-            } catch (final Exception e) {
-                LOG.catching(Level.TRACE, e);
-                LOG.error("error while waiting application thread pool termination", e);
-            }
-
-            try { // persist user config
-                final Resources res = Resources.getInstance();
-                final Stage stage = app.getStage();
-
-                // save maximized state
-                final boolean isMaximized = stage.isMaximized();
-                res.setUIProp(UIConfigID.MAIN_WINDOW_MAXIMIZED, Boolean.toString(isMaximized));
-
-                if (!isMaximized) {
-                    // save position
-                    res.setUIProp(UIConfigID.MAIN_WINDOW_XPOS, Double.toString(stage.getX()));
-                    res.setUIProp(UIConfigID.MAIN_WINDOW_YPOS, Double.toString(stage.getY()));
-
-                    // save dimensions
-                    res.setUIProp(UIConfigID.MAIN_WINDOW_WIDTH, Double.toString(stage.getWidth()));
-                    res.setUIProp(UIConfigID.MAIN_WINDOW_HEIGHT, Double.toString(stage.getHeight()));
-                }
-
-                Resources.getInstance().persist();
-            } catch (final Exception e) {
-                LOG.error("user config was not saved", e);
-            } finally {
-                Platform.exit();
-                LOG.info("Platform exited, exiting Java");
-                System.exit(0);
-            }
+            exit();
         });
 
         app.getStage().maximizedProperty().addListener(
             (final ObservableValue<? extends Boolean> ov, final Boolean oldValue, final Boolean newValue) -> {
-                if (oldValue == false && newValue == true) { // normal -> maximized
+                if ((oldValue == false) && (newValue == true)) { // normal -> maximized
                     final Resources res = Resources.getInstance();
                     final double width = app.getStage().getWidth();
                     final double height = app.getStage().getHeight();
@@ -155,6 +122,57 @@ public final class LogmistJFXApp extends Application {
                     res.setUIProp(UIConfigID.MAIN_WINDOW_HEIGHT, Double.toString(height));
                 }
             });
+    }
+
+    /**
+     * Close logmist application.
+     * <br/><b>PRE-conditions:</b> NONE
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> IO activity (preferences files saving), exit from Java runtime (application close) is
+     * performed
+     * <br/><b>Created on:</b> <i>9:57:52 PM Oct 5, 2015</i>
+     */
+    @SuppressWarnings({ "nls", "boxing" })
+    public final void exit() {
+        final Resources res = Resources.getInstance();
+        final int numServices = stopServices();
+        LOG.debug("running services cancelled : numServices = [%d]", numServices);
+        threadPool.shutdown();
+        LOG.debug("waiting for running thread pool to be stopped ...");
+        try {
+            final long tpShutdownTimeoutMS = Long.parseLong(res.getConfigProp(
+                ConfigID.CORE_THREAD_POOL_AWAIT_TERMINATION_TIMEOUT_MS));
+            threadPool.awaitTermination(tpShutdownTimeoutMS, TimeUnit.MILLISECONDS);
+            LOG.debug("all threads in pool stopped");
+        } catch (final Exception e) {
+            LOG.catching(Level.TRACE, e);
+            LOG.error("error while waiting application thread pool termination", e);
+        }
+
+        try {
+            // persist user config
+            // save maximized state
+            final boolean isMaximized = stage.isMaximized();
+            res.setUIProp(UIConfigID.MAIN_WINDOW_MAXIMIZED, Boolean.toString(isMaximized));
+
+            if (!isMaximized) {
+                // save position
+                res.setUIProp(UIConfigID.MAIN_WINDOW_XPOS, Double.toString(stage.getX()));
+                res.setUIProp(UIConfigID.MAIN_WINDOW_YPOS, Double.toString(stage.getY()));
+
+                // save dimensions
+                res.setUIProp(UIConfigID.MAIN_WINDOW_WIDTH, Double.toString(stage.getWidth()));
+                res.setUIProp(UIConfigID.MAIN_WINDOW_HEIGHT, Double.toString(stage.getHeight()));
+            }
+
+            Resources.getInstance().persist();
+        } catch (final Exception e) {
+            LOG.error("user config was not saved", e);
+        } finally {
+            Platform.exit();
+            LOG.info("Platform exited, exiting Java");
+            System.exit(0);
+        }
     }
 
     public final Stage getStage() {
@@ -275,7 +293,7 @@ public final class LogmistJFXApp extends Application {
         primaryStage.setHeight(winHeight);
 
         // determine maximized state
-        boolean isMaximized = Boolean.parseBoolean(res.getUIProp(UIConfigID.MAIN_WINDOW_MAXIMIZED));
+        final boolean isMaximized = Boolean.parseBoolean(res.getUIProp(UIConfigID.MAIN_WINDOW_MAXIMIZED));
         primaryStage.setMaximized(isMaximized);
     }
 

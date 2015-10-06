@@ -208,7 +208,8 @@ public final class LogParser1 extends LogFileParserBase {
 
     // initialize MONTHS map
     static {
-        Arrays.stream(Month.values()).parallel().forEach(month -> MONTHS.put(month.getName(), month));
+        // cannot use parallel() here, cause MONTHS is not thread safe (can cause deadlocks)
+        Arrays.stream(Month.values()).forEach(month -> MONTHS.put(month.getName(), month));
     }
 
 

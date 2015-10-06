@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -237,7 +236,7 @@ public abstract class LogFileParserBase implements ILogFileParser {
             throw LOG.throwing(Level.DEBUG, new InaccessibleFileException(filePath));
         }
 
-        Collection<LogEntry> resultLogs = new LinkedList<>();
+        final Collection<LogEntry> resultLogs = new LinkedList<>();
         try {
             final Collection<String> allLines = Files.readAllLines(filePath);
             final long linesTotal = allLines.size();
@@ -255,7 +254,7 @@ public abstract class LogFileParserBase implements ILogFileParser {
             }
         } catch (final IOException ex) {
             LOG.error("error when reading file : file = [%s]", filePath, ex); //$NON-NLS-1$
-            resultLogs = Collections.emptyList();
+            throw new ParseException(toString(), "");
         }
 
         assert(resultLogs != null) : AssertConst.ASRT_NULL_RESULT;

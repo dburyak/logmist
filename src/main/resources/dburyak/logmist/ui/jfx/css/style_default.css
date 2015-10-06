@@ -1,6 +1,7 @@
 .root {
-    -fx-font-family : monospace ;
+    /*-fx-font-family : monospace ; */
     -fx-font-size : 11px ;
+    -fx-smooth : false;
 }
 
 .text {
@@ -19,4 +20,8 @@
     -fx-label-padding : 0 0 0 0 ;
     -fx-content-display : text-only ;
     -fx-text-overrun : clip ;
+}
+
+.columnLineNum {
+    -fx-text-fill : lightgrey ;
 }

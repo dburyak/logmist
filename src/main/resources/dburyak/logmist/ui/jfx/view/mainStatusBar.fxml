@@ -19,28 +19,28 @@
 		<Insets left="3" right="3" top="3" bottom="3" />
 	</padding>
 
-	<HBox alignment="CENTER">
+	<HBox alignment="CENTER" minWidth="130">
 		<Label text="%main.statusBar.selected.name" />
 		<Label text="%main.statusBar.selected.def_value" />
 	</HBox>
 
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
-	<HBox alignment="CENTER">
+	<HBox alignment="CENTER" minWidth="90">
 		<Label text="%main.statusBar.logsTotal.name" />
 		<Label text="0" />
 	</HBox>
 
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
-	<HBox alignment="CENTER">
+	<HBox alignment="CENTER" minWidth="110">
 		<Label text="%main.statusBar.logsFiltered.name" />
 		<Label text="0" />
 	</HBox>
 
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
-	<HBox alignment="CENTER">
+	<HBox alignment="CENTER" minWidth="190">
 		<Label text="%main.statusBar.selectedCat.name" />
 		<Label text="%main.statusBar.selectedCat.def_value" />
 	</HBox>
@@ -56,7 +56,7 @@
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
 	<StackPane>
-		<ProgressBar fx:id="mainStatusBarHeapBar" disable="false" minWidth="70" StackPane.alignment="CENTER" />
+		<ProgressBar fx:id="mainStatusBarHeapBar" disable="false" minWidth="120" StackPane.alignment="CENTER" />
 		<HBox alignment="CENTER" StackPane.alignment="CENTER" spacing="2">
 			<Label text="%main.statusBar.heapBar.name" />
 			<Label fx:id="mainStatusBarHeapUsed" />
@@ -67,7 +67,7 @@
 
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
-	<HBox spacing="5" alignment="CENTER">
+	<HBox spacing="5" alignment="CENTER" minWidth="130">
 		<ToggleButton text="%main.statusBar.rightPanelType.quick.name" textAlignment="CENTER" />
 		<ToggleButton text="%main.statusBar.rightPanelType.library.name" textAlignment="CENTER" />
 	</HBox>

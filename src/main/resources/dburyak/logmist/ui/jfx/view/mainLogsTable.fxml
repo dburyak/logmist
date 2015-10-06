@@ -4,9 +4,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.geometry.Insets?>
+<?import dburyak.logmist.ui.jfx.AutoSizableLogTableView?>
 
-<TableView xmlns:fx="http://javafx.com/fxml" fx:controller="dburyak.logmist.ui.jfx.controllers.LogsController"
-	fx:id="mainLogsTable">
+<AutoSizableLogTableView xmlns:fx="http://javafx.com/fxml" fx:controller="dburyak.logmist.ui.jfx.controllers.LogsController"
+	fx:id="mainLogsTable" >
+	<columnResizePolicy><TableView fx:constant="UNCONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
 	<placeholder>
 		<VBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER" spacing="7">
 			<padding>
@@ -17,4 +19,4 @@
 			<ProgressIndicator fx:id="logsTableProgressIndicator" visible="false" />
 		</VBox>
 	</placeholder>
-</TableView>
+</AutoSizableLogTableView>

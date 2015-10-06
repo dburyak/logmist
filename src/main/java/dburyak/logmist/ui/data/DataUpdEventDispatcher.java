@@ -2,14 +2,10 @@ package dburyak.logmist.ui.data;
 
 
 import java.util.Arrays;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -144,6 +140,7 @@ public final class DataUpdEventDispatcher {
         LOG.exit();
     }
 
+    @SuppressWarnings({ "nls", "boxing" })
     public final boolean unregister(final DataUpdEventType eventType, final DataUpdEventHandler handler) {
         LOG.entry(eventType, handler);
         final ConcurrentMap<Integer, DataUpdEventHandler> handlersForType = handlers.get(eventType);
@@ -152,6 +149,9 @@ public final class DataUpdEventDispatcher {
         if (!wasRemoved) {
             LOG.warn("requested unregister of not-registered handler : eventType = [%s] ; handler = [%s]", eventType,
                 handler);
+        } else {
+            LOG.debug("handler was removed from set : eventType = [%s] ; newSize = [%d] ; handler = [%s]",
+                eventType, handlersForType.size(), handler);
         }
         return LOG.exit(wasRemoved);
     }
