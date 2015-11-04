@@ -2,10 +2,10 @@
 <Configuration status="WARN">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t] %-20.20logger.%-20.20M - %msg%n" />
 		</Console>
 		<RandomAccessFile name="ReportFile" fileName="system.log">
-			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %-20.20logger.%-20.20M - %msg%n" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t] %-20.20logger.%-20.20M - %msg%n" />
 		</RandomAccessFile>
 	</Appenders>
 	<Loggers>

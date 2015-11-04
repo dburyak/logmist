@@ -557,7 +557,6 @@ public final class ParseService extends Service<Void> {
                     logsTable.refresh();
                     logsTable.requestLayout();
 
-                    // TODO : currently here ......... move this to a separate service
                     logsTable.autoSizeFitContent();
 
                     final boolean unregisterSuccessful = unregisterUIHandlers();

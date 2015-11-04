@@ -4,8 +4,6 @@ package dburyak.logmist.model.manipulators;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Collection;
 
 import org.junit.After;
@@ -16,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dburyak.logmist.exceptions.InaccessibleFileException;
+import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
 
 
@@ -54,12 +53,6 @@ public class TestDefaultLogParser {
     private static LogEntry[] LOG_EXPECTED;
 
     /**
-     * Tick duration for parser.
-     * <br/><b>Created on:</b> <i>2:24:44 AM Aug 27, 2015</i>
-     */
-    private static Duration tickDuration;
-
-    /**
      * Log parser.
      * <br/><b>Created on:</b> <i>3:41:33 AM Aug 22, 2015</i>
      */
@@ -79,21 +72,18 @@ public class TestDefaultLogParser {
         FILE_LOGS = Paths.get("src", "test", "resources", "TestDefaultLogParser_LOGS.log");
         FILE_NONEXISTENT = Paths.get("abracadabra");
         FILE_DIR = Paths.get("src", "test", "java");
-        tickDuration = Duration.ofSeconds(1L);
-
-        LocalDateTime timeStmp = DefaultLogParser.getDefaultTimeStart();
 
         LOG_EXPECTED = new LogEntry[] {
-            new LogEntry(timeStmp, "message1"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "message2"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "message3"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "message4"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "message5"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "log6"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "log7"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "log8"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "log9"),
-            new LogEntry((timeStmp = timeStmp.plus(tickDuration)), "log10")
+            new LogEntry("message1", 1),
+            new LogEntry("message2", 2),
+            new LogEntry("message3", 3),
+            new LogEntry("message4", 4),
+            new LogEntry("message5", 5),
+            new LogEntry("log6", 6),
+            new LogEntry("log7", 7),
+            new LogEntry("log8", 8),
+            new LogEntry("log9", 9),
+            new LogEntry("log10", 10)
         };
     }
 
@@ -110,7 +100,6 @@ public class TestDefaultLogParser {
         FILE_NONEXISTENT = null;
         FILE_DIR = null;
         LOG_EXPECTED = null;
-        tickDuration = null;
     }
 
     /**
@@ -122,7 +111,7 @@ public class TestDefaultLogParser {
      */
     @Before
     public void setUp() {
-        parser = new DefaultLogParser(tickDuration);
+        parser = new DefaultLogParser();
     }
 
     /**
@@ -177,7 +166,7 @@ public class TestDefaultLogParser {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testCanParseInvalid1_v2() throws InaccessibleFileException {
-        assert(!Files.exists(FILE_NONEXISTENT));
+        assert (!Files.exists(FILE_NONEXISTENT));
         @SuppressWarnings("unused") final boolean canParse = parser.canParse(FILE_NONEXISTENT);
         Assert.fail();
     }
@@ -194,7 +183,7 @@ public class TestDefaultLogParser {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testCanParseInvalid1_v3() throws InaccessibleFileException {
-        assert(Files.isDirectory(FILE_DIR));
+        assert (Files.isDirectory(FILE_DIR));
         @SuppressWarnings("unused") final boolean canParse = parser.canParse(FILE_DIR);
         Assert.fail();
     }
@@ -205,17 +194,19 @@ public class TestDefaultLogParser {
     @Test
     public final void testParse() {
         try {
-            assert(parser.canParse(FILE_LOGS));
+            assert (parser.canParse(FILE_LOGS));
         } catch (@SuppressWarnings("unused") final InaccessibleFileException e) {
             Assert.fail();
         }
 
         try {
             final Collection<LogEntry> logsActual = parser.parse(FILE_LOGS);
-            assert(LOG_EXPECTED != null);
-            assert(logsActual.size() == LOG_EXPECTED.length);
+            assert (LOG_EXPECTED != null);
+            assert (logsActual.size() == LOG_EXPECTED.length);
             Assert.assertArrayEquals(LOG_EXPECTED, logsActual.toArray(new LogEntry[logsActual.size()]));
         } catch (@SuppressWarnings("unused") final InaccessibleFileException ex) {
+            Assert.fail();
+        } catch (@SuppressWarnings("unused") final ParseException ex) {
             Assert.fail();
         }
     }
@@ -226,13 +217,16 @@ public class TestDefaultLogParser {
      * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE
      * <br/><b>Created on:</b> <i>4:37:32 AM Aug 22, 2015</i>
-     * 
-     * @throws InaccessibleFileException
-     *             if file cannot be accessed
      */
     @Test(expected = IllegalArgumentException.class)
-    public final void testParseInvalid1() throws InaccessibleFileException {
-        parser.parse(null);
+    public final void testParseInvalid1() {
+        try {
+            parser.parse(null);
+        } catch (@SuppressWarnings("unused") final ParseException e) {
+            Assert.fail();
+        } catch (@SuppressWarnings("unused") final InaccessibleFileException e) {
+            Assert.fail();
+        }
         Assert.fail();
     }
 
@@ -248,9 +242,13 @@ public class TestDefaultLogParser {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testParseInvalid1_v2() throws InaccessibleFileException {
-        assert(!Files.exists(FILE_NONEXISTENT));
+        assert (!Files.exists(FILE_NONEXISTENT));
 
-        parser.parse(FILE_NONEXISTENT); // expected to throw InaccessibleFileException
+        try {
+            parser.parse(FILE_NONEXISTENT); // expected to throw InaccessibleFileException
+        } catch (@SuppressWarnings("unused") final ParseException e) {
+            Assert.fail();
+        }
         Assert.fail();
     }
 
@@ -266,9 +264,13 @@ public class TestDefaultLogParser {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testParseInvalid1_v3() throws InaccessibleFileException {
-        assert(Files.isDirectory(FILE_DIR));
+        assert (Files.isDirectory(FILE_DIR));
 
-        parser.parse(FILE_DIR); // expected to throw InaccessibleFileException
+        try {
+            parser.parse(FILE_DIR); // expected to throw InaccessibleFileException
+        } catch (@SuppressWarnings("unused") final ParseException e) {
+            Assert.fail();
+        }
         Assert.fail();
     }
 

@@ -7,6 +7,7 @@ import static java.lang.Boolean.TRUE;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -88,19 +89,21 @@ public final class TestAroundFilter {
     @SuppressWarnings("nls")
     @Before
     public final void setUp() {
-        final LogEntry log2 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 2), "message 2");
-        final LogEntry log8 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 8), "message 8");
+        final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMM d HH:mm:ss");
 
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 1), "message 1"));
+        final LogEntry log2 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 2), "message 2", timeFormat, 2);
+        final LogEntry log8 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 8), "message 8", timeFormat, 8);
+
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 1), "message 1", timeFormat, 1));
         logs.add(log2);
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 3), "message 3"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 4), "message 4"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 5), "message 5"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 6), "message 6"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 7), "message 7"));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 3), "message 3", timeFormat, 3));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 4), "message 4", timeFormat, 4));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 5), "message 5", timeFormat, 5));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 6), "message 6", timeFormat, 6));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 7), "message 7", timeFormat, 7));
         logs.add(log8);
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 9), "message 9"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 10), "message 10"));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 9), "message 9", timeFormat, 9));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 10), "message 10", timeFormat, 10));
 
         names.add("10sec around 10:06:45"); // none
         names.add("15sec around 10:06:50"); // 1,2,3,4,5
@@ -339,8 +342,8 @@ public final class TestAroundFilter {
         exp.add(new Boolean[] { FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE }); // 4
         exp.add(new Boolean[] { FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE }); // 5
 
-        assert(filters != null);
-        assert(exp.size() == filters.size());
+        assert (filters != null);
+        assert (exp.size() == filters.size());
 
         final Iterator<Boolean[]> itExp = exp.iterator();
         for (final AroundFilter filter : filters) {

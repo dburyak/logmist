@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 import org.junit.After;
@@ -315,14 +316,16 @@ public class TestStartsWithFilter {
     @SuppressWarnings({ "nls", "boxing" })
     @Test
     public final void testAccept() {
+        final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMM d HH:mm:ss");
+
         final LogEntry[] logs = {
-            new LogEntry(LocalDateTime.now(), fPrefix1 + "first msg from COMP1"),
-            new LogEntry(LocalDateTime.now(), fPrefix1.toLowerCase() + "second msg from COMP2"),
-            new LogEntry(LocalDateTime.now(), fPrefix2 + "msg 1 from COMP2"),
-            new LogEntry(LocalDateTime.now(), fPrefix2.toLowerCase() + "msg 2 from COMP2"),
-            new LogEntry(LocalDateTime.now(), fPrefix3 + "first message from TEST"),
-            new LogEntry(LocalDateTime.now(), fPrefix3.toLowerCase() + "second message from TEST"),
-            new LogEntry(LocalDateTime.now(), "some common msg")
+            new LogEntry(LocalDateTime.now(), fPrefix1 + "first msg from COMP1", timeFormat, 1),
+            new LogEntry(LocalDateTime.now(), fPrefix1.toLowerCase() + "second msg from COMP2", timeFormat, 2),
+            new LogEntry(LocalDateTime.now(), fPrefix2 + "msg 1 from COMP2", timeFormat, 3),
+            new LogEntry(LocalDateTime.now(), fPrefix2.toLowerCase() + "msg 2 from COMP2", timeFormat, 4),
+            new LogEntry(LocalDateTime.now(), fPrefix3 + "first message from TEST", timeFormat, 5),
+            new LogEntry(LocalDateTime.now(), fPrefix3.toLowerCase() + "second message from TEST", timeFormat, 6),
+            new LogEntry(LocalDateTime.now(), "some common msg", timeFormat, 7)
         };
 
         final Boolean[][] exp = {

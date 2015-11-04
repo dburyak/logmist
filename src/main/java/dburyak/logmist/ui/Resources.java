@@ -70,8 +70,7 @@ public final class Resources {
             this.name = name;
         }
 
-            String
-                    getName() {
+        String getName() {
             return name;
         }
 
@@ -101,8 +100,7 @@ public final class Resources {
             this.name = name;
         }
 
-            String
-                    getName() {
+        String getName() {
             return name;
         }
 
@@ -124,7 +122,9 @@ public final class Resources {
             CORE_UIDATA_EVENT_QUEUE_HANDLER_THREAD_POOL_SIZE("core.UIDataEventQueue.handlerThreadPoolSize"),
             CORE_UIDATA_EVENT_QUEUE_HANDLER_WAIT("core.UIDataEventQueue.handlerWait"),
             CORE_UIDATA_RWLOCK_TIMEOUT_MS("core.UIData.rwLock.timoutMS"),
-            CORE_THREAD_POOL_AWAIT_TERMINATION_TIMEOUT_MS("core.threadPool.awaitTerminationTimeoutMS"),;
+            CORE_THREAD_POOL_AWAIT_TERMINATION_TIMEOUT_MS("core.threadPool.awaitTerminationTimeoutMS"),
+            CORE_THREAD_POOL_KEEP_ALIVE_TIME_S("core.threadPool.keepAliveTimeS"),
+            CORE_THREAD_POOL_TASK_QUEUE_CAPACITY("core.threadPool.taskQueueCapacity"),;
 
         private final String name;
 
@@ -323,7 +323,7 @@ public final class Resources {
             // not found in user, search in defaults
             try {
                 final String defltVal = deflt.getString(key);
-                assert(defltVal != null);
+                assert (defltVal != null);
                 LOG.trace("found value in default : key = [%s] ; value = [%s]", key, defltVal);
                 return defltVal;
             } catch (final MissingResourceException e) {

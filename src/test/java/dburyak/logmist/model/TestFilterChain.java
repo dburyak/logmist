@@ -3,6 +3,7 @@ package dburyak.logmist.model;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
@@ -23,17 +24,23 @@ import dburyak.logmist.model.FilterChain.LinkType;
 public class TestFilterChain {
 
     /**
+     * Time formatter for synthetic log entries.
+     * <br/><b>Created on:</b> <i>8:04:43 PM Nov 2, 2015</i>
+     */
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("MMM d HH:mm:ss"); //$NON-NLS-1$
+
+    /**
      * Static data for tests.
      * <br/><b>Created on:</b> <i>11:11:57 AM Jul 30, 2015</i>
      */
-    private static final LogEntry[] LOGS_STATIC =
-        { new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef"),                                                                                                                                //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "acdef"),                                                                                                                                //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "adef"),                                                                                                                              //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "aef"),                                                                                                                              //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "af"),                                                                                                                               //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 9), "a"),  //$NON-NLS-1$
-        };
+    private static final LogEntry[] LOGS_STATIC = {
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef", TIME_FORMAT, 1), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "acdef", TIME_FORMAT, 2), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "adef", TIME_FORMAT, 3), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "aef", TIME_FORMAT, 4), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "af", TIME_FORMAT, 5), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 9), "a", TIME_FORMAT, 6), //$NON-NLS-1$
+    };
 
 
     /**
@@ -53,7 +60,7 @@ public class TestFilterChain {
         final FilterChain f1 = (new FilterChainBuilder("f1", a, LinkType.AND)).and(d).and(f).build(); //$NON-NLS-1$
         final boolean[] exp1 = { true, true, true, false, false, false };
         final boolean[] actual1 = new boolean[exp1.length];
-        assert((exp1.length == LOGS_STATIC.length) && (actual1.length == exp1.length));
+        assert ((exp1.length == LOGS_STATIC.length) && (actual1.length == exp1.length));
         for (int i = 0; i < LOGS_STATIC.length; i++) {
             actual1[i] = f1.accept(LOGS_STATIC[i]);
         }
@@ -64,7 +71,7 @@ public class TestFilterChain {
         final FilterChain f2 = (new FilterChainBuilder("f2", a, LinkType.AND)).or(d).and(f).build(); //$NON-NLS-1$
         final boolean[] exp2 = { true, true, true, false, false, false };
         final boolean[] actual2 = new boolean[exp2.length];
-        assert((exp2.length == LOGS_STATIC.length) && (actual2.length == exp2.length));
+        assert ((exp2.length == LOGS_STATIC.length) && (actual2.length == exp2.length));
         for (int i = 0; i < LOGS_STATIC.length; i++) {
             actual2[i] = f2.accept(LOGS_STATIC[i]);
         }
@@ -80,7 +87,7 @@ public class TestFilterChain {
             .build();
         final boolean[] exp3 = { true, true, true, false, false, false };
         final boolean[] actual3 = new boolean[exp3.length];
-        assert((exp3.length == LOGS_STATIC.length) && (actual3.length == exp3.length));
+        assert ((exp3.length == LOGS_STATIC.length) && (actual3.length == exp3.length));
         for (int i = 0; i < LOGS_STATIC.length; i++) {
             actual3[i] = f3.accept(LOGS_STATIC[i]);
         }
@@ -92,7 +99,7 @@ public class TestFilterChain {
         final FilterChain f4 = (new FilterChainBuilder("f4", a, LinkType.OR)).or(b).and(c).and(e).or(f).or(d).build(); //$NON-NLS-1$
         final boolean[] exp4 = { true, true, false, false, false, false };
         final boolean[] actual4 = new boolean[exp4.length];
-        assert((exp4.length == LOGS_STATIC.length) && (actual4.length == exp4.length));
+        assert ((exp4.length == LOGS_STATIC.length) && (actual4.length == exp4.length));
         for (int i = 0; i < LOGS_STATIC.length; i++) {
             actual4[i] = f4.accept(LOGS_STATIC[i]);
         }

@@ -1,6 +1,8 @@
 package dburyak.logmist.ui.data.signalers;
 
 
+// FIXME : this code (the whole aysnc table resizing) is unnecessary and should be removed
+
 /**
  * Project : logmist.<br/>
  * Handler for {@link TableResizeProgressEvent} events.

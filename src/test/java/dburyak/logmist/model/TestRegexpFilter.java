@@ -6,6 +6,7 @@ import static java.lang.Boolean.TRUE;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -92,7 +93,7 @@ public class TestRegexpFilter {
             "{pattern=[g],ignoreCase=[false],fullMatch=[false]}"
         };
 
-        assert(filters.length == exp.length) : AssertConst.ASRT_INVALID_VALUE;
+        assert (filters.length == exp.length) : AssertConst.ASRT_INVALID_VALUE;
 
         for (int i = 0; i < filters.length; i++) {
             Assert.assertEquals(exp[i], filters[i].predicateToString());
@@ -179,12 +180,14 @@ public class TestRegexpFilter {
     @SuppressWarnings({ "nls", "static-method" })
     @Test
     public final void testAccept() {
+        final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMM d HH:mm:ss");
+
         final LogEntry[] logs = {
-            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef"),
-            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "abcdf"),
-            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "abcf"),
-            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "abf"),
-            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "ab")
+            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef", timeFormat, 1),
+            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "abcdf", timeFormat, 2),
+            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "abcf", timeFormat, 3),
+            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "abf", timeFormat, 4),
+            new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "ab", timeFormat, 5)
         };
 
         final RegexpFilter[] filters = {
@@ -201,7 +204,7 @@ public class TestRegexpFilter {
             { FALSE, FALSE, FALSE, FALSE, TRUE }
         };
 
-        assert(filters.length == exp.length);
+        assert (filters.length == exp.length);
 
         for (int i = 0; i < filters.length; i++) {
             final RegexpFilter filter = filters[i];

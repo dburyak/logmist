@@ -7,6 +7,7 @@ import static java.lang.Boolean.TRUE;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,6 +18,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import dburyak.jtools.AssertConst;
 
 
 /**
@@ -119,7 +122,8 @@ public final class TestAfterFilter {
     }
 
     /**
-     * Initialization to be run before each test.
+     * Initialization to be run before each test.<br/>
+     * Create all the filters for the test.
      * <br/><b>PRE-conditions:</b> NONE
      * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE
@@ -128,19 +132,21 @@ public final class TestAfterFilter {
     @SuppressWarnings("nls")
     @Before
     public final void setUp() {
-        final LogEntry log2 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 2), "message 2");
-        final LogEntry log8 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 8), "message 8");
+        final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMM d HH:mm:ss");
 
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 1), "message 1"));
+        final LogEntry log2 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 2), "message 2", timeFormat, 2);
+        final LogEntry log8 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 8), "message 8", timeFormat, 8);
+
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 1), "message 1", timeFormat, 1));
         logs.add(log2);
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 3), "message 3"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 4), "message 4"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 5), "message 5"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 6), "message 6"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 7), "message 7"));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 3), "message 3", timeFormat, 3));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 4), "message 4", timeFormat, 4));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 5), "message 5", timeFormat, 5));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 6), "message 6", timeFormat, 6));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 7), "message 7", timeFormat, 7));
         logs.add(log8);
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 9), "message 9"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 10), "message 10"));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 9), "message 9", timeFormat, 9));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 10), "message 10", timeFormat, 10));
 
         fName1 = "10sec after 10:06:45";
         fName2 = "15sec after 10:06:50";
@@ -289,11 +295,12 @@ public final class TestAfterFilter {
      * {@link dburyak.logmist.model.AfterFilter#AfterFilter(java.lang.String, dburyak.logmist.model.LogEntry, java.time.Duration)}
      * .
      */
-    @SuppressWarnings({ "nls", "static-method" })
+    @SuppressWarnings({ "nls" })
     @Test
     public final void testAfterFilterStringLogEntryDuration() {
         final String name1 = "f1";
-        final LogEntry l1 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 05, 07), "message 1");
+        final LogEntry l1 = logs.iterator().next();
+        assert (l1 != null) : AssertConst.ASRT_NULL_VALUE;
         final Duration d1 = Duration.ofSeconds(5);
         final AfterFilter f1 = new AfterFilter(name1, l1, d1);
         Assert.assertNotNull(f1);
@@ -310,7 +317,7 @@ public final class TestAfterFilter {
     @Test(expected = IllegalArgumentException.class)
     public final void testAfterFilterStringLogEntryDurationInvalid1() {
         final LogEntry l1 = logs.iterator().next();
-        assert(l1 != null);
+        assert (l1 != null);
         final AfterFilter f1 = new AfterFilter("", l1, Duration.ofSeconds(10));
         Assert.fail();
     }
@@ -326,7 +333,7 @@ public final class TestAfterFilter {
     @Test(expected = IllegalArgumentException.class)
     public final void testAfterFilterStringLogEntryDurationInvalid1_v2() {
         final LogEntry l1 = logs.iterator().next();
-        assert(l1 != null);
+        assert (l1 != null);
         final AfterFilter f1 = new AfterFilter(null, l1, Duration.ofSeconds(10));
         Assert.fail();
     }
@@ -357,7 +364,7 @@ public final class TestAfterFilter {
     @Test(expected = IllegalArgumentException.class)
     public final void testAfterFilterStringLogEntryDurationInvalid3() {
         final LogEntry l1 = logs.iterator().next();
-        assert(l1 != null);
+        assert (l1 != null);
         final AfterFilter f1 = new AfterFilter("f1", l1, null);
         Assert.fail();
     }
@@ -373,7 +380,7 @@ public final class TestAfterFilter {
     @Test(expected = IllegalArgumentException.class)
     public final void testAfterFilterStringLogEntryDurationInvalid3_v2() {
         final LogEntry l1 = logs.iterator().next();
-        assert(l1 != null);
+        assert (l1 != null);
         final AfterFilter f1 = new AfterFilter("f1", l1, Duration.ofSeconds(-5));
         Assert.fail();
     }
@@ -389,7 +396,7 @@ public final class TestAfterFilter {
     @Test(expected = IllegalArgumentException.class)
     public final void testAfterFilterStringLogEntryDurationInvalid3_v3() {
         final LogEntry l1 = logs.iterator().next();
-        assert(l1 != null);
+        assert (l1 != null);
         final AfterFilter f1 = new AfterFilter("f1", l1, Duration.ofSeconds(0));
         Assert.fail();
     }
@@ -424,7 +431,7 @@ public final class TestAfterFilter {
             { FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE },  // 4
             { FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE } // 5
         };
-        assert(exp.length == filters.size());
+        assert (exp.length == filters.size());
 
         final Iterator<AfterFilter> itFilters = filters.iterator();
         for (int i = 0; i < filters.size(); i++) {

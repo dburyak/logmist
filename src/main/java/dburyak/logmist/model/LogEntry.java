@@ -187,9 +187,9 @@ public final class LogEntry implements Comparable<LogEntry> {
         final DateTimeFormatter timeFormat) {
 
         // check pre-conditions
-        assert(LogEntry.validateTime(time)) : AssertConst.ASRT_INVALID_ARG;
-        assert(LogEntry.validateMsg(msg)) : AssertConst.ASRT_INVALID_ARG;
-        assert(LogEntry.validateTimeFormat(timeFormat)) : AssertConst.ASRT_INVALID_ARG;
+        assert (LogEntry.validateTime(time)) : AssertConst.ASRT_INVALID_ARG;
+        assert (LogEntry.validateMsg(msg)) : AssertConst.ASRT_INVALID_ARG;
+        assert (LogEntry.validateTimeFormat(timeFormat)) : AssertConst.ASRT_INVALID_ARG;
 
         final StringBuilder sb = new StringBuilder(time.format(timeFormat));
         sb.append(SYNTAX_TIME_MSG_SEPARATOR);
@@ -197,7 +197,7 @@ public final class LogEntry implements Comparable<LogEntry> {
         final String msgFull = sb.toString();
 
         // post-conditions
-        assert(LogEntry.validateMsgFull(msgFull)) : AssertConst.ASRT_INVALID_RESULT;
+        assert (LogEntry.validateMsgFull(msgFull)) : AssertConst.ASRT_INVALID_RESULT;
 
         return msgFull;
     }
@@ -404,80 +404,8 @@ public final class LogEntry implements Comparable<LogEntry> {
             return comp;
         }
 
-        assert(this.equals(o)) : AssertConst.ASRT_INVALID_RESULT;
+        assert (this.equals(o)) : AssertConst.ASRT_INVALID_RESULT;
         return EQUAL;
-    }
-
-    /**
-     * Default generated implementation.
-     * <br/>
-     * <b>PRE-conditions:</b> NONE <br/>
-     * <b>POST-conditions:</b> NONE <br/>
-     * <b>Side-effects:</b> NONE <br/>
-     * <b>Created on:</b> <i>11:08:36 AM Jul 19, 2015</i>
-     *
-     * @see java.lang.Object#hashCode()
-     * @return hash code of this log entry
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = (prime * result) + ((msg == null) ? 0 : msg.hashCode());
-        result = (prime * result) + ((msgFull == null) ? 0 : msgFull.hashCode());
-        result = (prime * result) + ((time == null) ? 0 : time.hashCode());
-        return result;
-    }
-
-    /**
-     * Default generated implementation. <br/>
-     * <b>PRE-conditions:</b> NONE <br/>
-     * <b>POST-conditions:</b> NONE <br/>
-     * <b>Side-effects:</b> NONE <br/>
-     * <b>Created on:</b> <i>11:08:36 AM Jul 19, 2015</i>
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     * @param obj
-     *            other object to check equality with
-     * @return true if objects are equal
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof LogEntry)) {
-            return false;
-        }
-        final LogEntry other = (LogEntry) obj;
-        if (msg == null) {
-            if (other.msg != null) {
-                return false;
-            }
-        } else
-            if (!msg.equals(other.msg)) {
-            return false;
-        }
-        if (msgFull == null) {
-            if (other.msgFull != null) {
-                return false;
-            }
-        } else
-            if (!msgFull.equals(other.msgFull)) {
-            return false;
-        }
-        if (time == null) {
-            if (other.time != null) {
-                return false;
-            }
-        } else
-            if (!time.equals(other.time)) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -499,6 +427,7 @@ public final class LogEntry implements Comparable<LogEntry> {
             return msgFull;
         }
 
+        // dead code, actually
         // otherwise, construct string representation
         final StringBuilder sb = new StringBuilder(time.toString());
         sb.append(SYNTAX_TIME_MSG_SEPARATOR);
@@ -506,5 +435,78 @@ public final class LogEntry implements Comparable<LogEntry> {
 
         return sb.toString();
     }
+
+    /**
+     * Default generated implementation. <br/>
+     * <b>PRE-conditions:</b> NONE <br/>
+     * <b>POST-conditions:</b> NONE <br/>
+     * <b>Side-effects:</b> NONE <br/>
+     * <br/><b>Created on:</b> <i>8:52:04 PM Nov 2, 2015</i>
+     * 
+     * @see java.lang.Object#hashCode()
+     * @return hash code of this log entry
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + (int) (lineNum ^ (lineNum >>> 32));
+        result = (prime * result) + ((msg == null) ? 0 : msg.hashCode());
+        result = (prime * result) + ((msgFull == null) ? 0 : msgFull.hashCode());
+        result = (prime * result) + ((time == null) ? 0 : time.hashCode());
+        return result;
+    }
+
+    /**
+     * Default generated implementation. <br/>
+     * <b>PRE-conditions:</b> NONE <br/>
+     * <b>POST-conditions:</b> NONE <br/>
+     * <b>Side-effects:</b> NONE <br/>
+     * <br/><b>Created on:</b> <i>8:52:04 PM Nov 2, 2015</i>
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     * @param obj
+     *            other object to check equality with
+     * @return true if objects are equal
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof LogEntry)) {
+            return false;
+        }
+        final LogEntry other = (LogEntry) obj;
+        if (lineNum != other.lineNum) {
+            return false;
+        }
+        if (msg == null) {
+            if (other.msg != null) {
+                return false;
+            }
+        } else if (!msg.equals(other.msg)) {
+            return false;
+        }
+        if (msgFull == null) {
+            if (other.msgFull != null) {
+                return false;
+            }
+        } else if (!msgFull.equals(other.msgFull)) {
+            return false;
+        }
+        if (time == null) {
+            if (other.time != null) {
+                return false;
+            }
+        } else if (!time.equals(other.time)) {
+            return false;
+        }
+        return true;
+    }
+
 
 }

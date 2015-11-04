@@ -7,6 +7,7 @@ import static java.lang.Boolean.TRUE;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -129,19 +130,21 @@ public class TestBeforeFilter {
     @SuppressWarnings("nls")
     @Before
     public void setUp() {
-        final LogEntry log2 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 2), "message 2");
-        final LogEntry log8 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 8), "message 8");
+        final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMM d HH:mm:ss");
 
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 1), "message 1"));
+        final LogEntry log2 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 2), "message 2", timeFormat, 2);
+        final LogEntry log8 = new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 8), "message 8", timeFormat, 8);
+
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 1), "message 1", timeFormat, 1));
         logs.add(log2);
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 3), "message 3"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 4), "message 4"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 5), "message 5"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 6), "message 6"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 7), "message 7"));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 3), "message 3", timeFormat, 3));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 4), "message 4", timeFormat, 4));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 5), "message 5", timeFormat, 5));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 6), "message 6", timeFormat, 6));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 7), "message 7", timeFormat, 7));
         logs.add(log8);
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 9), "message 9"));
-        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 10), "message 10"));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 9), "message 9", timeFormat, 9));
+        logs.add(new LogEntry(LocalDateTime.of(2015, Month.JULY, 5, 10, 7, 10), "message 10", timeFormat, 10));
 
         fName1 = "10sec before 10:07:45";
         fName2 = "15sec before 10:07:20";
@@ -300,7 +303,7 @@ public class TestBeforeFilter {
     @SuppressWarnings({ "nls" })
     @Test
     public final void testBeforeFilterStringLogEntryDuration() {
-        assert(logs.size() > 0);
+        assert (logs.size() > 0);
         final BeforeFilter f1 = new BeforeFilter("f1", logs.iterator().next(), Duration.ofSeconds(15));
         Assert.assertNotNull(f1);
     }
@@ -315,7 +318,7 @@ public class TestBeforeFilter {
     @SuppressWarnings({ "nls", "unused" })
     @Test(expected = IllegalArgumentException.class)
     public final void testBeforeFilterStringLogEntryDurationInvalid1() {
-        assert(logs.size() > 0);
+        assert (logs.size() > 0);
         final BeforeFilter f1 = new BeforeFilter("", logs.iterator().next(), Duration.ofSeconds(10));
         Assert.fail();
     }
@@ -330,7 +333,7 @@ public class TestBeforeFilter {
     @SuppressWarnings({ "unused" })
     @Test(expected = IllegalArgumentException.class)
     public final void testBeforeFilterStringLogEntryDurationInvalid1_v2() {
-        assert(logs.size() > 0);
+        assert (logs.size() > 0);
         final BeforeFilter f1 = new BeforeFilter(null, logs.iterator().next(), Duration.ofSeconds(10));
         Assert.fail();
     }
@@ -360,7 +363,7 @@ public class TestBeforeFilter {
     @SuppressWarnings({ "unused", "nls" })
     @Test(expected = IllegalArgumentException.class)
     public final void testBeforeFilterStringLogEntryDurationInvalid3() {
-        assert(logs.size() > 0);
+        assert (logs.size() > 0);
         final BeforeFilter f1 = new BeforeFilter("f1", logs.iterator().next(), null);
         Assert.fail();
     }
@@ -375,7 +378,7 @@ public class TestBeforeFilter {
     @SuppressWarnings({ "unused", "nls" })
     @Test(expected = IllegalArgumentException.class)
     public final void testBeforeFilterStringLogEntryDurationInvalid3_v2() {
-        assert(logs.size() > 0);
+        assert (logs.size() > 0);
         final BeforeFilter f1 = new BeforeFilter("f1", logs.iterator().next(), Duration.ofSeconds(-5));
         Assert.fail();
     }
@@ -390,7 +393,7 @@ public class TestBeforeFilter {
     @SuppressWarnings({ "unused", "nls" })
     @Test(expected = IllegalArgumentException.class)
     public final void testBeforeFilterStringLogEntryDurationInvalid3_v3() {
-        assert(logs.size() > 0);
+        assert (logs.size() > 0);
         final BeforeFilter f1 = new BeforeFilter("f1", logs.iterator().next(), Duration.ofSeconds(0));
         Assert.fail();
     }
@@ -408,8 +411,8 @@ public class TestBeforeFilter {
             "{instant=[2015-07-05T10:07:02],duration=[PT7S]}",
             "{instant=[2015-07-05T10:06:55],duration=[PT3S]}",
         };
-        assert(filters != null);
-        assert(filters.size() == exp.length);
+        assert (filters != null);
+        assert (filters.size() == exp.length);
         final Object[] actuals = filters.stream().map(BeforeFilter::predicateToString).toArray();
         Assert.assertArrayEquals(exp, actuals);
     }
@@ -427,8 +430,8 @@ public class TestBeforeFilter {
         exp.add(new Boolean[] { TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE });
         exp.add(new Boolean[] { FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE });
 
-        assert(filters != null);
-        assert(exp.size() == filters.size());
+        assert (filters != null);
+        assert (exp.size() == filters.size());
 
         final Iterator<Boolean[]> itExp = exp.iterator();
         for (final BeforeFilter filter : filters) {
@@ -451,8 +454,8 @@ public class TestBeforeFilter {
             " 7sec before message 2",
             " 3sec before 10:06:55",
         };
-        assert(filters != null);
-        assert(filters.size() == exp.length);
+        assert (filters != null);
+        assert (filters.size() == exp.length);
         final Object[] actuals = filters.stream().map(BeforeFilter::getName).toArray();
         Assert.assertArrayEquals(exp, actuals);
     }
@@ -470,8 +473,8 @@ public class TestBeforeFilter {
             "{name=[ 7sec before message 2],type=[BeforeFilter],predicate=[{instant=[2015-07-05T10:07:02],duration=[PT7S]}]}",
             "{name=[ 3sec before 10:06:55],type=[BeforeFilter],predicate=[{instant=[2015-07-05T10:06:55],duration=[PT3S]}]}"
         };
-        assert(filters != null);
-        assert(filters.size() == exp.length);
+        assert (filters != null);
+        assert (filters.size() == exp.length);
         final Object[] actuals = filters.stream().map(BeforeFilter::toString).toArray();
         Assert.assertArrayEquals(exp, actuals);
     }

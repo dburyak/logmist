@@ -16,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import dburyak.logmist.exceptions.InaccessibleFileException;
+import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
 
 
@@ -79,64 +80,80 @@ public class TestLogParser1 {
             // Nov 12 23:22:47 message1
             new LogEntry(LocalDateTime.of(year, Month.NOVEMBER, 12, 23, 22, 47),
                 "message1",
-                "Nov 12 23:22:47   message1"),
+                "Nov 12 23:22:47   message1",
+                1),
 
             // Nov 12 23:22:48 message2
             new LogEntry(LocalDateTime.of(year, Month.NOVEMBER, 12, 23, 22, 48),
                 "message2",
-                "Nov 12 23:22:48   message2"),
+                "Nov 12 23:22:48   message2",
+                2),
 
             // Nov 12 23:25:03 message3
             new LogEntry(LocalDateTime.of(year, Month.NOVEMBER, 12, 23, 25, 3),
                 "message3",
-                "Nov 12 23:25:03   message3"),
+                "Nov 12 23:25:03   message3",
+                3),
 
             // Jan 1 00:02:11 message4
-            new LogEntry(LocalDateTime.of(year, Month.JANUARY, 1, 0, 2, 11), "message4", "Jan 1 00:02:11    message4"),
+            new LogEntry(LocalDateTime.of(year, Month.JANUARY, 1, 0, 2, 11),
+                "message4",
+                "Jan 1 00:02:11    message4",
+                4),
 
             // Feb 5 18:09:09 syslog: message5
             new LogEntry(LocalDateTime.of(year, Month.FEBRUARY, 5, 18, 9, 9),
                 "syslog: message5",
-                "Feb 5 18:09:09 syslog: message5"),
+                "Feb 5 18:09:09 syslog: message5",
+                5),
 
             // Mar 25 22:51:21 message6
-            new LogEntry(LocalDateTime.of(year, Month.MARCH, 25, 22, 51, 21), "message6", "Mar 25 22:51:21   message6"),
+            new LogEntry(LocalDateTime.of(year, Month.MARCH, 25, 22, 51, 21),
+                "message6",
+                "Mar 25 22:51:21   message6",
+                6),
 
             // Apr 1 14:49:51 message7
-            new LogEntry(LocalDateTime.of(year, Month.APRIL, 1, 14, 49, 51), "message7", "Apr 1 14:49:51  message7"),
+            new LogEntry(LocalDateTime.of(year, Month.APRIL, 1, 14, 49, 51), "message7", "Apr 1 14:49:51  message7", 7),
 
             // May 2 13:41:06 message8
-            new LogEntry(LocalDateTime.of(year, Month.MAY, 2, 13, 41, 6), "message8", "May 2 13:41:06    message8"),
+            new LogEntry(LocalDateTime.of(year, Month.MAY, 2, 13, 41, 6), "message8", "May 2 13:41:06    message8", 8),
 
             // Jun 21 14:46:34 FATAL message9
             new LogEntry(LocalDateTime.of(year, Month.JUNE, 21, 14, 46, 34),
                 "FATAL message9",
-                "Jun 21 14:46:34  FATAL message9"),
+                "Jun 21 14:46:34  FATAL message9",
+                9),
 
             // Jul 11 15:01:17 [component1] DEBUG - message10
             new LogEntry(LocalDateTime.of(year, Month.JULY, 11, 15, 1, 17),
                 "[component1] DEBUG - message10",
-                "Jul 11 15:01:17   [component1] DEBUG - message10"),
+                "Jul 11 15:01:17   [component1] DEBUG - message10",
+                10),
 
             // Aug 21 19:09:59 INFO message11
             new LogEntry(LocalDateTime.of(year, Month.AUGUST, 21, 19, 9, 59),
                 "INFO message11",
-                "Aug 21 19:09:59  INFO message11"),
+                "Aug 21 19:09:59  INFO message11",
+                11),
 
             // Sep 4 17:07:52 comp2[2906]: [MyClass] - message12
             new LogEntry(LocalDateTime.of(year, Month.SEPTEMBER, 4, 17, 7, 52),
                 "comp2[2906]: [MyClass] - message12",
-                "Sep 4 17:07:52    comp2[2906]: [MyClass] - message12"),
+                "Sep 4 17:07:52    comp2[2906]: [MyClass] - message12",
+                12),
 
             // Oct 13 13:09:45 message13
             new LogEntry(LocalDateTime.of(year, Month.OCTOBER, 13, 13, 9, 45),
                 "message13",
-                "Oct 13 13:09:45   message13"),
+                "Oct 13 13:09:45   message13",
+                13),
 
             // Dec 30 13:16:04 comp3[1802]: message14
             new LogEntry(LocalDateTime.of(year, Month.DECEMBER, 30, 13, 16, 4),
                 "comp3[1802]: message14",
-                "Dec 30 13:16:04   comp3[1802]: message14"),
+                "Dec 30 13:16:04   comp3[1802]: message14",
+                14),
         };
     }
 
@@ -258,7 +275,7 @@ public class TestLogParser1 {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testCanParseInvalid1_v2() throws InaccessibleFileException {
-        assert(!Files.exists(FILE_NONEXISTENT));
+        assert (!Files.exists(FILE_NONEXISTENT));
         @SuppressWarnings("unused") final boolean canParse = parser.canParse(FILE_NONEXISTENT);
         Assert.fail();
     }
@@ -275,7 +292,7 @@ public class TestLogParser1 {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testCanParseInvalid1_v3() throws InaccessibleFileException {
-        assert(Files.isDirectory(FILE_DIR));
+        assert (Files.isDirectory(FILE_DIR));
         @SuppressWarnings("unused") final boolean canParse = parser.canParse(FILE_DIR);
         Assert.fail();
     }
@@ -286,17 +303,19 @@ public class TestLogParser1 {
     @Test
     public final void testParse() {
         try {
-            assert(parser.canParse(FILE_LOGS));
+            assert (parser.canParse(FILE_LOGS));
         } catch (@SuppressWarnings("unused") final InaccessibleFileException e) {
             Assert.fail();
         }
 
         try {
             final Collection<LogEntry> logsActual = parser.parse(FILE_LOGS);
-            assert(LOG_EXPECTED != null);
-            assert(logsActual.size() == LOG_EXPECTED.length);
+            assert (LOG_EXPECTED != null);
+            assert (logsActual.size() == LOG_EXPECTED.length);
             Assert.assertArrayEquals(LOG_EXPECTED, logsActual.toArray(new LogEntry[logsActual.size()]));
         } catch (@SuppressWarnings("unused") final InaccessibleFileException ex) {
+            Assert.fail();
+        } catch (@SuppressWarnings("unused") final ParseException ex) {
             Assert.fail();
         }
     }
@@ -313,7 +332,11 @@ public class TestLogParser1 {
      */
     @Test(expected = IllegalArgumentException.class)
     public final void testParseInvalid1() throws InaccessibleFileException {
-        parser.parse(null);
+        try {
+            parser.parse(null);
+        } catch (@SuppressWarnings("unused") final ParseException ex) {
+            Assert.fail();
+        }
         Assert.fail();
     }
 
@@ -329,9 +352,13 @@ public class TestLogParser1 {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testParseInvalid1_v2() throws InaccessibleFileException {
-        assert(!Files.exists(FILE_NONEXISTENT));
+        assert (!Files.exists(FILE_NONEXISTENT));
 
-        parser.parse(FILE_NONEXISTENT); // expected to throw InaccessibleFileException
+        try {
+            parser.parse(FILE_NONEXISTENT); // expected to throw InaccessibleFileException
+        } catch (@SuppressWarnings("unused") final ParseException ex) {
+            Assert.fail();
+        }
         Assert.fail();
     }
 
@@ -347,9 +374,13 @@ public class TestLogParser1 {
      */
     @Test(expected = InaccessibleFileException.class)
     public final void testParseInvalid1_v3() throws InaccessibleFileException {
-        assert(Files.isDirectory(FILE_DIR));
+        assert (Files.isDirectory(FILE_DIR));
 
-        parser.parse(FILE_DIR); // expected to throw InaccessibleFileException
+        try {
+            parser.parse(FILE_DIR); // expected to throw InaccessibleFileException
+        } catch (@SuppressWarnings("unused") final ParseException ex) {
+            Assert.fail();
+        }
         Assert.fail();
     }
 

@@ -6,6 +6,7 @@ import static java.lang.Boolean.TRUE;
 import static org.junit.Assert.fail;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
 import org.junit.After;
@@ -313,15 +314,17 @@ public class TestEndsWithFilter {
     @SuppressWarnings({ "nls", "boxing" })
     @Test
     public final void testAccept() {
+        final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("MMM d HH:mm:ss");
+
         final LogEntry[] logs = {
-            new LogEntry(LocalDateTime.now(), "[INFO] - first test"),
-            new LogEntry(LocalDateTime.now(), "[DEBUG] - second Test"),
-            new LogEntry(LocalDateTime.now(), "[FATAL] - third best"),
-            new LogEntry(LocalDateTime.now(), "[TRACE] - fourth BEST"),
-            new LogEntry(LocalDateTime.now(), "[ERROR] - fifth Best"),
-            new LogEntry(LocalDateTime.now(), "[INFO] - value1 = null"),
-            new LogEntry(LocalDateTime.now(), "[WARN] - value2 = NULL"),
-            new LogEntry(LocalDateTime.now(), "[ERROR] - no match")
+            new LogEntry(LocalDateTime.now(), "[INFO] - first test", timeFormat, 1),
+            new LogEntry(LocalDateTime.now(), "[DEBUG] - second Test", timeFormat, 2),
+            new LogEntry(LocalDateTime.now(), "[FATAL] - third best", timeFormat, 3),
+            new LogEntry(LocalDateTime.now(), "[TRACE] - fourth BEST", timeFormat, 4),
+            new LogEntry(LocalDateTime.now(), "[ERROR] - fifth Best", timeFormat, 5),
+            new LogEntry(LocalDateTime.now(), "[INFO] - value1 = null", timeFormat, 6),
+            new LogEntry(LocalDateTime.now(), "[WARN] - value2 = NULL", timeFormat, 7),
+            new LogEntry(LocalDateTime.now(), "[ERROR] - no match", timeFormat, 8)
         };
 
         final Boolean[][] exp = {
@@ -336,7 +339,7 @@ public class TestEndsWithFilter {
             filter3
         };
 
-        assert(filters.length == exp.length);
+        assert (filters.length == exp.length);
         for (int i = 0; i < filters.length; i++) {
             final int index = i;
             final Object[] actual = Arrays.stream(logs).map(log -> filters[index].accept(log)).toArray();
@@ -375,7 +378,7 @@ public class TestEndsWithFilter {
             "{name=[f2],type=[EndsWithFilter],predicate=[{suffix=[Best],ignoreCase=[false]}]}",
             "{name=[f3],type=[EndsWithFilter],predicate=[{suffix=[NULL],ignoreCase=[true]}]}"
         };
-        assert(filters.length == exp.length);
+        assert (filters.length == exp.length);
         for (int i = 0; i < filters.length; i++) {
             Assert.assertEquals(exp[i], filters[i].toString());
             Assert.assertEquals(exp[i], filters[i].toString());

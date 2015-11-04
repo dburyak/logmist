@@ -2,8 +2,11 @@ package dburyak.logmist.ui.jfx;
 
 
 import java.util.HashSet;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Level;
@@ -11,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import dburyak.logmist.exceptions.UnableToLaunchException;
+import dburyak.logmist.ui.LoggingExceptionHandlingThreadFactory;
 import dburyak.logmist.ui.Resources;
 import dburyak.logmist.ui.Resources.ConfigID;
 import dburyak.logmist.ui.Resources.MsgID;
@@ -60,12 +64,24 @@ public final class LogmistJFXApp extends Application {
         return services.remove(service);
     }
 
+    @SuppressWarnings("boxing")
     private final void initThreadPool() {
         final int numProc = Runtime.getRuntime().availableProcessors();
         final int numThreadsAdd = Integer.parseInt(Resources.getInstance().getConfigProp(
             ConfigID.CORE_THREAD_POOL_SIZE_ADD));
-        threadPool = Executors.newFixedThreadPool(numProc + numThreadsAdd);
-        LOG.debug("thread pool inited : numThreads = [%d]", numProc + numThreadsAdd);
+        final long keepAliveTimeS = Long.parseLong(Resources.getInstance().getConfigProp(
+            ConfigID.CORE_THREAD_POOL_KEEP_ALIVE_TIME_S));
+        final int taskQueueCapacity = Integer.parseInt(Resources.getInstance().getConfigProp(
+            ConfigID.CORE_THREAD_POOL_TASK_QUEUE_CAPACITY));
+
+        final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>(taskQueueCapacity);
+        final ThreadPoolExecutor wideInterfaceThreadPool = new ThreadPoolExecutor(
+            numProc, numProc + numThreadsAdd, keepAliveTimeS, TimeUnit.SECONDS, taskQueue);
+        final ThreadFactory exLoggingThreadFactory = new LoggingExceptionHandlingThreadFactory(
+            wideInterfaceThreadPool.getThreadFactory());
+        wideInterfaceThreadPool.setThreadFactory(exLoggingThreadFactory);
+        threadPool = wideInterfaceThreadPool; // upcast
+        LOG.debug("thread pool inited : numThreads = [%d]", (numProc + numThreadsAdd)); //$NON-NLS-1$
     }
 
     @Override

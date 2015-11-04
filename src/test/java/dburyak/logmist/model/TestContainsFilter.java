@@ -3,6 +3,7 @@ package dburyak.logmist.model;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,17 +20,23 @@ import org.junit.Test;
 public class TestContainsFilter {
 
     /**
+     * Time format to use for log entries.
+     * <br/><b>Created on:</b> <i>10:26:26 PM Nov 1, 2015</i>
+     */
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("MMM d HH:mm:ss"); //$NON-NLS-1$
+
+    /**
      * Static source data for testing.
      * <br/><b>Created on:</b> <i>12:10:30 AM Jul 30, 2015</i>
      */
-    private static final LogEntry[] LOGS_STATIC =
-        { new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef"),                                                                                                  //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "acdef"),                                                                                                  //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "adef"),                                                                                                //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "aef"),                                                                                                //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "af"),                                                                                                 //$NON-NLS-1$
-        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 9), "a"),  //$NON-NLS-1$
-        };
+    private static final LogEntry[] LOGS_STATIC = {
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 4), "abcdef", TIME_FORMAT, 1), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 5), "acdef", TIME_FORMAT, 2), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 6), "adef", TIME_FORMAT, 3), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 7), "aef", TIME_FORMAT, 4), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 8), "af", TIME_FORMAT, 5), //$NON-NLS-1$
+        new LogEntry(LocalDateTime.of(1970, Month.JANUARY, 1, 2, 3, 9), "a", TIME_FORMAT, 6), //$NON-NLS-1$
+    };
 
 
     /**
@@ -278,21 +285,23 @@ public class TestContainsFilter {
     @Test
     public final void testAccept() {
         final ContainsFilter[] filtersArray =
-            { new ContainsFilter("f1", "abc"),                //$NON-NLS-1$//$NON-NLS-2$
-            new ContainsFilter("f2", "cd", true),                //$NON-NLS-1$//$NON-NLS-2$
-            new ContainsFilter("f3", "de"),                //$NON-NLS-1$//$NON-NLS-2$
-            new ContainsFilter("f4", "a", true),                //$NON-NLS-1$//$NON-NLS-2$
-            new ContainsFilter("f5", "afg")  //$NON-NLS-1$//$NON-NLS-2$
+            {
+                new ContainsFilter("f1", "abc"),                //$NON-NLS-1$//$NON-NLS-2$
+                new ContainsFilter("f2", "cd", true),                //$NON-NLS-1$//$NON-NLS-2$
+                new ContainsFilter("f3", "de"),                //$NON-NLS-1$//$NON-NLS-2$
+                new ContainsFilter("f4", "a", true),                //$NON-NLS-1$//$NON-NLS-2$
+                new ContainsFilter("f5", "afg")  //$NON-NLS-1$//$NON-NLS-2$
             };
 
         final boolean[][] expArray =
-            { { true, false, false, false, false, false },        // "abc"
+            {
+                { true, false, false, false, false, false },        // "abc"
                 { true, true, false, false, false, false },        // "cd"
                 { true, true, true, false, false, false },        // "de"
                 { true, true, true, true, true, true },        // "a"
                 { false, false, false, false, false, false } // "afg"
             };
-        assert(filtersArray.length == expArray.length);
+        assert (filtersArray.length == expArray.length);
 
         for (int i = 0; i < filtersArray.length; i++) {
             final ContainsFilter filter = filtersArray[i];
