@@ -380,7 +380,7 @@ public final class LogEntry implements Comparable<LogEntry> {
      * @return -1 if this is less than other ; 0 if both are equal ; +1 if this is greater than other
      */
     @Override
-    public int compareTo(final LogEntry o) {
+    public final int compareTo(final LogEntry o) {
         // final int BEFORE = -1;
         final int EQUAL = 0;
         // final int AFTER = 1;
@@ -404,6 +404,11 @@ public final class LogEntry implements Comparable<LogEntry> {
             return comp;
         }
 
+        comp = Long.compare(this.lineNum, o.lineNum);
+        if (comp != EQUAL) {
+            return comp;
+        }
+
         assert (this.equals(o)) : AssertConst.ASRT_INVALID_RESULT;
         return EQUAL;
     }
@@ -421,7 +426,7 @@ public final class LogEntry implements Comparable<LogEntry> {
      * @return string representation of this log entry
      */
     @Override
-    public String toString() {
+    public final String toString() {
         // use msgFull if it is available
         if (msgFull != null) {
             return msgFull;
@@ -447,7 +452,7 @@ public final class LogEntry implements Comparable<LogEntry> {
      * @return hash code of this log entry
      */
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         final int prime = 31;
         int result = 1;
         result = (prime * result) + (int) (lineNum ^ (lineNum >>> 32));
@@ -470,7 +475,7 @@ public final class LogEntry implements Comparable<LogEntry> {
      * @return true if objects are equal
      */
     @Override
-    public boolean equals(final Object obj) {
+    public final boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
