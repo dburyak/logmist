@@ -22,6 +22,12 @@
     -fx-text-overrun : clip ;
 }
 
+#mainLogsTable .cell .text {
+    -fx-underline : true;
+    -fx-graphic-text-gap : 0;
+    -fx-label-padding : 0 0 0 0 ;
+}
+
 #mainLogsTable .column-header .label {
     -fx-alignment: CENTER_LEFT;
 }

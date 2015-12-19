@@ -1,5 +1,5 @@
 /**
- * Implementations of {@link dburyak.logmist.ui.data.DataUpdEventHandler}
+ * Implementations of {@link dburyak.logmist.ui.data.IDataUpdEventHandler}
  * interface for different {@link dburyak.logmist.ui.data.DataUpdEventType}
  * types.
  */

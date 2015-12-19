@@ -48,7 +48,7 @@ public final class DataUpdEventDispatcher {
     }
 
 
-    private final ConcurrentMap<DataUpdEventType, ConcurrentMap<Integer, DataUpdEventHandler>> handlers =
+    private final ConcurrentMap<DataUpdEventType, ConcurrentMap<Integer, IDataUpdEventHandler>> handlers =
         new ConcurrentHashMap<>();
     private final BlockingQueue<DataUpdEvent> eventQueue = new ArrayBlockingQueue<>(EVENT_QUEUE_SIZE, true);
     private final Executor handlerThreadPool;
@@ -61,8 +61,8 @@ public final class DataUpdEventDispatcher {
 
     private DataUpdEventDispatcher() {
         Arrays.stream(DataUpdEventType.values()).parallel().forEach(event -> {
-            final ConcurrentMap<Integer, DataUpdEventHandler> newSet = new ConcurrentHashMap<>();
-            final ConcurrentMap<Integer, DataUpdEventHandler> prevSet = handlers.putIfAbsent(event, newSet);
+            final ConcurrentMap<Integer, IDataUpdEventHandler> newSet = new ConcurrentHashMap<>();
+            final ConcurrentMap<Integer, IDataUpdEventHandler> prevSet = handlers.putIfAbsent(event, newSet);
             assert(prevSet == null);
         });
         final Resources res = Resources.getInstance();
@@ -106,7 +106,7 @@ public final class DataUpdEventDispatcher {
     }
 
     private final void notifyRegisteredHanlders(final DataUpdEvent event) {
-        final ConcurrentMap<Integer, DataUpdEventHandler> handlersForType = handlers.get(event.getType());
+        final ConcurrentMap<Integer, IDataUpdEventHandler> handlersForType = handlers.get(event.getType());
         assert(handlersForType != null);
         if (!EVENT_QUEUE_HANDLER_WAIT) {
             handlersForType.values().parallelStream().forEach(handler -> {
@@ -120,11 +120,11 @@ public final class DataUpdEventDispatcher {
         }
     }
 
-    public final void register(final DataUpdEventType eventType, final DataUpdEventHandler handler) {
+    public final void register(final DataUpdEventType eventType, final IDataUpdEventHandler handler) {
         // assert(handler instanceof Comparable<?>);
         LOG.entry(eventType, handler);
         try {
-            final ConcurrentMap<Integer, DataUpdEventHandler> handlersForType = handlers.get(eventType);
+            final ConcurrentMap<Integer, IDataUpdEventHandler> handlersForType = handlers.get(eventType);
             LOG.trace("found handlers for eventType : eventType = [%s] ; numHandlers = [%d]",
                 eventType, handlersForType.size());
             assert(handlersForType != null);
@@ -141,9 +141,9 @@ public final class DataUpdEventDispatcher {
     }
 
     @SuppressWarnings({ "nls", "boxing" })
-    public final boolean unregister(final DataUpdEventType eventType, final DataUpdEventHandler handler) {
+    public final boolean unregister(final DataUpdEventType eventType, final IDataUpdEventHandler handler) {
         LOG.entry(eventType, handler);
-        final ConcurrentMap<Integer, DataUpdEventHandler> handlersForType = handlers.get(eventType);
+        final ConcurrentMap<Integer, IDataUpdEventHandler> handlersForType = handlers.get(eventType);
         assert(handlersForType != null);
         final boolean wasRemoved = handlersForType.remove(handler.hashCode(), handler);
         if (!wasRemoved) {
@@ -156,7 +156,7 @@ public final class DataUpdEventDispatcher {
         return LOG.exit(wasRemoved);
     }
 
-    public final int unregister(final DataUpdEventHandler handler) {
+    public final int unregister(final IDataUpdEventHandler handler) {
         LOG.entry(handler);
         assert(handler != null);
         final AtomicInteger resCount = new AtomicInteger(0);

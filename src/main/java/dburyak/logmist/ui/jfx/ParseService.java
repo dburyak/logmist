@@ -19,7 +19,7 @@ import dburyak.logmist.ui.Resources;
 import dburyak.logmist.ui.Resources.MsgID;
 import dburyak.logmist.ui.Resources.UIConfigID;
 import dburyak.logmist.ui.data.DataUpdEventDispatcher;
-import dburyak.logmist.ui.data.DataUpdEventHandler;
+import dburyak.logmist.ui.data.IDataUpdEventHandler;
 import dburyak.logmist.ui.data.DataUpdEventType;
 import dburyak.logmist.ui.data.LogTableData;
 import dburyak.logmist.ui.data.ProgressData;
@@ -126,26 +126,26 @@ public final class ParseService extends Service<Void> {
      * UI updater that handles {@link DataUpdEventType#PARSE_PROGRESS_UPDATE} progress updates. Updates progress bar.
      * <br/><b>Created on:</b> <i>2:00:16 AM Oct 5, 2015</i>
      */
-    private DataUpdEventHandler parseProgressHandler;
+    private IDataUpdEventHandler parseProgressHandler;
 
     /**
      * UI updater that handles {@link DataUpdEventType#PARSE_FINISHED} event. Disables progress bar.
      * <br/><b>Created on:</b> <i>2:01:15 AM Oct 5, 2015</i>
      */
-    private DataUpdEventHandler parseFinishHandler;
+    private IDataUpdEventHandler parseFinishHandler;
 
     /**
      * UI updater that handles {@link DataUpdEventType#PARSE_ERROR} events.
      * <br/><b>Created on:</b> <i>2:04:51 AM Oct 5, 2015</i>
      */
-    private DataUpdEventHandler parseErrorHandler;
+    private IDataUpdEventHandler parseErrorHandler;
 
     /**
      * UI updater that handles {@link DataUpdEventType#LOG_TABLE_DATA_UPDATE} events. Prepares and sets data to be
      * displayed in the logs table.
      * <br/><b>Created on:</b> <i>2:05:37 AM Oct 5, 2015</i>
      */
-    private DataUpdEventHandler tableDataUpdateHandler;
+    private IDataUpdEventHandler tableDataUpdateHandler;
 
 
     /**

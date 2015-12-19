@@ -12,8 +12,10 @@ import com.sun.javafx.scene.control.skin.TableViewSkin;
 
 import dburyak.logmist.ui.jfx.controllers.LogEntryTableLine;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Skin;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -338,6 +340,20 @@ public final class AutoSizableLogTableView extends TableView<LogEntryTableLine> 
     private final AutoSizableLogTableViewSkin skin;
 
 
+    private final void init() {
+        getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        getSelectionModel().getSelectedItems().addListener((ListChangeListener<LogEntryTableLine>) c -> {
+            if (c.getList().size() == 1) {
+                LOG.info("single selection : line num = [%d]", c.getList().iterator().next().getLineNum());
+            } else if (c.getList().size() > 1) {
+                LOG.info("multiple selection : size = [%d]", c.getList().size());
+            } else {
+                LOG.warn("unexpected");
+            }
+        });
+    }
+
+
     /**
      * Constructor for class : [logmist] dburyak.logmist.ui.jfx.AutoSizableTableView.<br/>
      * <br/><b>PRE-conditions:</b> NONE
@@ -349,6 +365,7 @@ public final class AutoSizableLogTableView extends TableView<LogEntryTableLine> 
         super();
         skin = new AutoSizableLogTableViewSkin(this);
         setSkin(skin);
+        init();
     }
 
     /**
@@ -365,6 +382,7 @@ public final class AutoSizableLogTableView extends TableView<LogEntryTableLine> 
         super(items);
         skin = new AutoSizableLogTableViewSkin(this);
         setSkin(skin);
+        init();
     }
 
     /**
