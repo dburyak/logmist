@@ -1,4 +1,4 @@
-package dburyak.logmist.model.manipulators;
+package dburyak.logmist.model.parsers;
 
 
 import java.time.LocalDateTime;
@@ -18,6 +18,8 @@ import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
 import net.jcip.annotations.NotThreadSafe;
 
+
+// TODO : this should be a separate class that supports configuring (configuration describes log syntax)
 
 /**
  * Project : logmist.<br/>
@@ -140,7 +142,7 @@ public final class LogParser1 extends LogFileParserBase {
 
 
         /**
-         * Constructor for class : [logmist] dburyak.logmist.model.manipulators.Month.<br/>
+         * Constructor for class : [logmist] dburyak.logmist.model.parsers.Month.<br/>
          * <br/><b>PRE-conditions:</b> non-null args
          * <br/><b>POST-conditions:</b> NONE
          * <br/><b>Side-effects:</b> NONE
@@ -415,7 +417,7 @@ public final class LogParser1 extends LogFileParserBase {
 
 
     /**
-     * Constructor for class : [logmist] dburyak.logmist.model.manipulators.LogParser1.<br/>
+     * Constructor for class : [logmist] dburyak.logmist.model.parsers.LogParser1.<br/>
      * Use explicit default year.
      * <br/><b>PRE-conditions:</b> valid year
      * <br/><b>POST-conditions:</b> NONE
@@ -431,7 +433,7 @@ public final class LogParser1 extends LogFileParserBase {
     }
 
     /**
-     * Constructor for class : [logmist] dburyak.logmist.model.manipulators.LogParser1.<br/>
+     * Constructor for class : [logmist] dburyak.logmist.model.parsers.LogParser1.<br/>
      * Use implicit default year.
      * <br/><b>PRE-conditions:</b> NONE
      * <br/><b>POST-conditions:</b> NONE
@@ -440,7 +442,7 @@ public final class LogParser1 extends LogFileParserBase {
      */
     public LogParser1() {
         defaultYear = getDefaultYear();
-        assert(validateDefaultYear(defaultYear));
+        assert (validateDefaultYear(defaultYear));
     }
 
     /**
@@ -450,7 +452,7 @@ public final class LogParser1 extends LogFileParserBase {
      * <br/><b>Side-effects:</b> NONE
      * <br/><b>Created on:</b> <i>3:38:48 PM Oct 3, 2015</i>
      * 
-     * @see dburyak.logmist.model.manipulators.ILogFileParser#isTimeAware()
+     * @see dburyak.logmist.model.parsers.ILogFileParser#isTimeAware()
      * @return true, indicating that this log parser can recognize time stamps
      */
     @Override
@@ -465,7 +467,7 @@ public final class LogParser1 extends LogFileParserBase {
      * <br/><b>Side-effects:</b> NONE
      * <br/><b>Created on:</b> <i>4:30:43 PM Oct 3, 2015</i>
      * 
-     * @see dburyak.logmist.model.manipulators.LogFileParserBase#doParseLine(java.lang.String, long)
+     * @see dburyak.logmist.model.parsers.LogFileParserBase#doParseLine(java.lang.String, long)
      * @param line
      *            line from log file to be parsed
      * @param lineNum

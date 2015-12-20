@@ -6,4 +6,4 @@
  * @author <i>Dmytro Buryak &ltdmytro.buryak@gmail.com&gt</i>
  * @version 0.1
  */
-package dburyak.logmist.model.manipulators;
+package dburyak.logmist.model.parsers;

@@ -1,4 +1,4 @@
-package dburyak.logmist.model.manipulators;
+package dburyak.logmist.model.parsers;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -72,7 +72,7 @@ public final class DefaultLogParser extends LogFileParserBase {
      * <br/><b>Side-effects:</b> NONE
      * <br/><b>Created on:</b> <i>2:28:21 PM Oct 3, 2015</i>
      * 
-     * @see dburyak.logmist.model.manipulators.ILogFileParser#isTimeAware()
+     * @see dburyak.logmist.model.parsers.ILogFileParser#isTimeAware()
      * @return false, indicating that this logger is NOT time aware
      */
     @Override
@@ -88,7 +88,7 @@ public final class DefaultLogParser extends LogFileParserBase {
      * <br/><b>Side-effects:</b> NONE
      * <br/><b>Created on:</b> <i>2:30:03 PM Oct 3, 2015</i>
      * 
-     * @see dburyak.logmist.model.manipulators.LogFileParserBase#doParseLine(java.lang.String, long)
+     * @see dburyak.logmist.model.parsers.LogFileParserBase#doParseLine(java.lang.String, long)
      * @param line
      *            line to be parsed
      * @param lineNum
@@ -97,7 +97,7 @@ public final class DefaultLogParser extends LogFileParserBase {
      * @throws ParseException
      *             never
      */
-    @SuppressWarnings("boxing")
+    @SuppressWarnings({ "boxing", "unused" })
     @Override
     protected final LogEntry doParseLine(final String line, final long lineNum) throws ParseException {
         LOG.entry(line, lineNum);

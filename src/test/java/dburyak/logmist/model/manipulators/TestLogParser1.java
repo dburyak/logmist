@@ -18,6 +18,7 @@ import org.junit.Test;
 import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
+import dburyak.logmist.model.parsers.LogParser1;
 
 
 /**
@@ -236,7 +237,7 @@ public class TestLogParser1 {
     }
 
     /**
-     * Test method for {@link dburyak.logmist.model.manipulators.LogParser1#canParse(java.nio.file.Path)}.
+     * Test method for {@link dburyak.logmist.model.parsers.LogParser1#canParse(java.nio.file.Path)}.
      * 
      * @throws InaccessibleFileException
      *             is not expected to be thrown for this test
@@ -298,7 +299,7 @@ public class TestLogParser1 {
     }
 
     /**
-     * Test method for {@link dburyak.logmist.model.manipulators.LogParser1#parse(java.nio.file.Path)}.
+     * Test method for {@link dburyak.logmist.model.parsers.LogParser1#parse(java.nio.file.Path)}.
      */
     @Test
     public final void testParse() {

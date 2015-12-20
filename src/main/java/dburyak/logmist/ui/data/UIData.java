@@ -9,8 +9,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import dburyak.logmist.ui.Resources;
-import dburyak.logmist.ui.Resources.ConfigID;
+import dburyak.logmist.Resources;
+import dburyak.logmist.Resources.ConfigID;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 

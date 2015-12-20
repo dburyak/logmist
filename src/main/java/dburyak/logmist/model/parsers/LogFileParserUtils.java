@@ -1,4 +1,4 @@
-package dburyak.logmist.model.manipulators;
+package dburyak.logmist.model.parsers;
 
 
 import java.nio.file.Files;

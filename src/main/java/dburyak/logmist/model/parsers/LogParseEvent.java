@@ -1,4 +1,4 @@
-package dburyak.logmist.model.manipulators;
+package dburyak.logmist.model.parsers;
 
 
 import dburyak.jtools.Validators;
@@ -62,7 +62,7 @@ public final class LogParseEvent {
     }
 
     /**
-     * Constructor for class : [logmist] dburyak.logmist.model.manipulators.LogParseEvent.<br/>
+     * Constructor for class : [logmist] dburyak.logmist.model.parsers.LogParseEvent.<br/>
      * <br/><b>PRE-conditions:</b> non-negative parameters
      * <br/><b>POST-conditions:</b> NONE
      * <br/><b>Side-effects:</b> NONE

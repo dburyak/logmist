@@ -4,9 +4,9 @@ package dburyak.logmist.ui.jfx.controllers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import dburyak.logmist.ui.Resources;
-import dburyak.logmist.ui.Resources.ConfigID;
-import dburyak.logmist.ui.Resources.UIConfigID;
+import dburyak.logmist.Resources;
+import dburyak.logmist.Resources.ConfigID;
+import dburyak.logmist.Resources.UIConfigID;
 import dburyak.logmist.ui.jfx.HeapStatusService;
 import dburyak.logmist.ui.jfx.LogmistJFXApp;
 import javafx.application.Platform;

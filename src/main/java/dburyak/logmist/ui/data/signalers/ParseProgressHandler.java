@@ -4,8 +4,8 @@ package dburyak.logmist.ui.data.signalers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import dburyak.logmist.model.manipulators.ILogParseEventHandler;
-import dburyak.logmist.model.manipulators.LogParseEvent;
+import dburyak.logmist.model.parsers.ILogParseEventHandler;
+import dburyak.logmist.model.parsers.LogParseEvent;
 import dburyak.logmist.ui.data.DataUpdEvent;
 import dburyak.logmist.ui.data.DataUpdEventDispatcher;
 import dburyak.logmist.ui.data.DataUpdEventType;

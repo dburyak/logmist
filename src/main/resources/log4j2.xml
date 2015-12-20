@@ -13,10 +13,10 @@
 			<AppenderRef ref="Console" />
 <!-- 			<AppenderRef ref="ReportFile" /> -->
 		</Root>
-		<Logger name="dburyak.logmist.model.manipulators.DefaultLogParser" level="info" additivity="false">
+		<Logger name="dburyak.logmist.model.parsers.DefaultLogParser" level="info" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
-		<Logger name="dburyak.logmist.model.manipulators.LogParser1" level="info" additivity="false">
+		<Logger name="dburyak.logmist.model.parsers.LogParser1" level="info" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
 	</Loggers>

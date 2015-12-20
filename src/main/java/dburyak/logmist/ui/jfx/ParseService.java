@@ -11,13 +11,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import dburyak.logmist.Resources;
+import dburyak.logmist.Resources.MsgID;
+import dburyak.logmist.Resources.UIConfigID;
 import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
-import dburyak.logmist.model.manipulators.ILogFileParser;
-import dburyak.logmist.ui.Resources;
-import dburyak.logmist.ui.Resources.MsgID;
-import dburyak.logmist.ui.Resources.UIConfigID;
+import dburyak.logmist.model.parsers.ILogFileParser;
 import dburyak.logmist.ui.data.DataUpdEventDispatcher;
 import dburyak.logmist.ui.data.IDataUpdEventHandler;
 import dburyak.logmist.ui.data.DataUpdEventType;

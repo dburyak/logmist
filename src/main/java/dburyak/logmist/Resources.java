@@ -1,7 +1,7 @@
 /**
  * 
  */
-package dburyak.logmist.ui;
+package dburyak.logmist;
 
 
 import java.io.BufferedWriter;

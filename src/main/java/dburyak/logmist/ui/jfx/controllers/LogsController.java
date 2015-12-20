@@ -16,11 +16,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import dburyak.logmist.Resources;
+import dburyak.logmist.Resources.ConfigID;
+import dburyak.logmist.Resources.MsgID;
 import dburyak.logmist.exceptions.InaccessibleFileException;
-import dburyak.logmist.model.manipulators.ILogFileParser;
-import dburyak.logmist.ui.Resources;
-import dburyak.logmist.ui.Resources.ConfigID;
-import dburyak.logmist.ui.Resources.MsgID;
+import dburyak.logmist.model.parsers.ILogFileParser;
 import dburyak.logmist.ui.jfx.AutoSizableLogTableView;
 import dburyak.logmist.ui.jfx.LogmistJFXApp;
 import dburyak.logmist.ui.jfx.ParseService;

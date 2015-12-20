@@ -13,13 +13,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import dburyak.logmist.Resources;
+import dburyak.logmist.Resources.ConfigID;
+import dburyak.logmist.Resources.MsgID;
+import dburyak.logmist.Resources.UIConfigID;
+import dburyak.logmist.Resources.UserFileStatus;
 import dburyak.logmist.exceptions.UnableToLaunchException;
 import dburyak.logmist.ui.LoggingExceptionHandlingThreadFactory;
-import dburyak.logmist.ui.Resources;
-import dburyak.logmist.ui.Resources.ConfigID;
-import dburyak.logmist.ui.Resources.MsgID;
-import dburyak.logmist.ui.Resources.UIConfigID;
-import dburyak.logmist.ui.Resources.UserFileStatus;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
