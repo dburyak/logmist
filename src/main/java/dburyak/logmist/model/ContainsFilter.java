@@ -85,7 +85,7 @@ public final class ContainsFilter extends PredicateFilter {
          */
         @SuppressWarnings("synthetic-access")
         private ContainsPredicate(final String subStr, final boolean ignoreCase) {
-            assert(ContainsFilter.validateSubStr(subStr)) : AssertConst.ASRT_INVALID_ARG;
+            assert (ContainsFilter.validateSubStr(subStr)) : AssertConst.ASRT_INVALID_ARG;
 
             this.subStr = subStr;
             this.subStrLowerCase = subStr.toLowerCase();
@@ -106,7 +106,7 @@ public final class ContainsFilter extends PredicateFilter {
          * @return true if log entry contains substring from this predicate
          */
         @Override
-        public boolean test(final LogEntry t) {
+        public final boolean test(final LogEntry t) {
             if (ignoreCase) {
                 return t.getMsgFull().toLowerCase().contains(subStrLowerCase);
             } else {
@@ -200,7 +200,7 @@ public final class ContainsFilter extends PredicateFilter {
      * @return string representation of predicate for this filters
      */
     @Override
-    protected String predicateToString() {
+    final String predicateToString() {
         final StringBuilder sb = (new StringBuilder("{subStr=[")).append(subStr); //$NON-NLS-1$
         sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();

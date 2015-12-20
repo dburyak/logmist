@@ -82,7 +82,7 @@ public final class RegexpFilter extends PredicateFilter {
          */
         @SuppressWarnings("synthetic-access")
         private RegexpPredicate(final Pattern pattern, final boolean ignoreCase, final boolean fullMatch) {
-            assert(RegexpFilter.validatePattern(pattern)) : AssertConst.ASRT_INVALID_ARG;
+            assert (RegexpFilter.validatePattern(pattern)) : AssertConst.ASRT_INVALID_ARG;
 
             if (ignoreCase) {
                 this.pattern = Pattern.compile(pattern.pattern(), Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
@@ -108,7 +108,7 @@ public final class RegexpFilter extends PredicateFilter {
          *             if null is passed
          */
         @Override
-        public boolean test(final LogEntry t) {
+        public final boolean test(final LogEntry t) {
             if (!fullMatch) {
                 return pattern.matcher(t.getMsg()).find();
             } else {
@@ -230,7 +230,7 @@ public final class RegexpFilter extends PredicateFilter {
      * @return string representation of predicate for this regexp filter
      */
     @Override
-    protected String predicateToString() {
+    final String predicateToString() {
         final StringBuilder sb = (new StringBuilder("{pattern=[")).append(pattern.pattern()); //$NON-NLS-1$
         sb.append("],ignoreCase=[").append(ignoreCase); //$NON-NLS-1$
         sb.append("],fullMatch=[").append(fullMatch).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$

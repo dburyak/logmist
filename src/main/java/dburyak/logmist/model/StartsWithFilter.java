@@ -85,7 +85,7 @@ public final class StartsWithFilter extends PredicateFilter {
          */
         @SuppressWarnings("synthetic-access")
         private StartsWithPredicate(final String prefix, final boolean ignoreCase) {
-            assert(StartsWithFilter.validatePrefix(prefix)) : AssertConst.ASRT_INVALID_ARG;
+            assert (StartsWithFilter.validatePrefix(prefix)) : AssertConst.ASRT_INVALID_ARG;
 
             this.prefix = prefix;
             this.ignoreCase = ignoreCase;
@@ -107,7 +107,7 @@ public final class StartsWithFilter extends PredicateFilter {
          *             if null is passed
          */
         @Override
-        public boolean test(final LogEntry t) {
+        public final boolean test(final LogEntry t) {
             if (ignoreCase) {
                 return t.getMsg().toLowerCase().startsWith(prefixLowerCase);
             } else {
@@ -204,7 +204,7 @@ public final class StartsWithFilter extends PredicateFilter {
      * @return string representation of "starts with" predicate
      */
     @Override
-    protected String predicateToString() {
+    final String predicateToString() {
         final StringBuilder sb = (new StringBuilder("{prefix=[")).append(prefix); //$NON-NLS-1$
         sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();

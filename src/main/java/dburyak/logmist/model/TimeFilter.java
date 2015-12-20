@@ -177,7 +177,7 @@ abstract class TimeFilter extends PredicateFilter {
      * @return string representation of this time filter
      */
     @Override
-    public final String predicateToString() {
+    final String predicateToString() {
         final StringBuilder sb = (new StringBuilder("{instant=[")).append(instant); //$NON-NLS-1$
         sb.append("],duration=[").append(duration).append("]}");  //$NON-NLS-1$//$NON-NLS-2$
         return sb.toString();

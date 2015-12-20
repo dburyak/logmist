@@ -86,7 +86,7 @@ public final class EndsWithFilter extends PredicateFilter {
          */
         @SuppressWarnings("synthetic-access")
         private EndsWithPredicate(final String suffix, final boolean ignoreCase) {
-            assert(EndsWithFilter.validateSuffix(suffix)) : AssertConst.ASRT_INVALID_ARG;
+            assert (EndsWithFilter.validateSuffix(suffix)) : AssertConst.ASRT_INVALID_ARG;
 
             this.suffix = suffix;
             this.suffixLowerCase = suffix.toLowerCase();
@@ -106,7 +106,7 @@ public final class EndsWithFilter extends PredicateFilter {
          * @return true if log entry message ends with suffix from this predicate
          */
         @Override
-        public boolean test(final LogEntry t) {
+        public final boolean test(final LogEntry t) {
             if (ignoreCase) {
                 return t.getMsg().toLowerCase().endsWith(suffixLowerCase);
             } else {
@@ -200,7 +200,7 @@ public final class EndsWithFilter extends PredicateFilter {
      * @return string representation of predicate of this filter
      */
     @Override
-    protected String predicateToString() {
+    final String predicateToString() {
         final StringBuilder sb = (new StringBuilder("{suffix=[")).append(suffix); //$NON-NLS-1$
         sb.append("],ignoreCase=[").append(ignoreCase).append("]}"); //$NON-NLS-1$ //$NON-NLS-2$
         return sb.toString();
