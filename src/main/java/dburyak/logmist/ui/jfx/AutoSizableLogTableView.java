@@ -315,7 +315,7 @@ public final class AutoSizableLogTableView extends TableView<LogEntryTableLine> 
         }
 
         /**
-         * Auto resize all columns of table this skin is bound to.
+         * Auto resize all columns of table this skin is bound to. This job is performed asynchronously.
          * <br/><b>PRE-conditions:</b> NONE
          * <br/><b>POST-conditions:</b> NONE
          * <br/><b>Side-effects:</b> this is time consuming operation when table has large amount of data

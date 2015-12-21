@@ -18,7 +18,7 @@ public final class MainController {
     @FXML
     public final void initialize() {
         mainLogsTableController.init(this);
-        mainStatusBarController.init(this);
+        mainStatusBarController.bindTo(this);
     }
 
     public final ProgressBar getStatusProgressBar() {
