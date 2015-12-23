@@ -124,7 +124,8 @@ public final class Resources {
             CORE_UIDATA_RWLOCK_TIMEOUT_MS("core.UIData.rwLock.timoutMS"),
             CORE_THREAD_POOL_AWAIT_TERMINATION_TIMEOUT_MS("core.threadPool.awaitTerminationTimeoutMS"),
             CORE_THREAD_POOL_KEEP_ALIVE_TIME_S("core.threadPool.keepAliveTimeS"),
-            CORE_THREAD_POOL_TASK_QUEUE_CAPACITY("core.threadPool.taskQueueCapacity"),;
+            CORE_THREAD_POOL_TASK_QUEUE_CAPACITY("core.threadPool.taskQueueCapacity"),
+            CORE_PARSERS_NUM_LINES_TO_TEST("core.parsers.num_lines_to_test"),;
 
         private final String name;
 

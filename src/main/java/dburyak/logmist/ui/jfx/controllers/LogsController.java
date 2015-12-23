@@ -8,9 +8,11 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import dburyak.logmist.Resources;
 import dburyak.logmist.Resources.ConfigID;
 import dburyak.logmist.Resources.MsgID;
+import dburyak.logmist.Utils;
 import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.model.parsers.ILogFileParser;
 import dburyak.logmist.ui.jfx.AutoSizableLogTableView;
@@ -31,6 +34,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import rx.Observable;
+import rx.Single;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -38,11 +44,11 @@ import javafx.stage.Stage;
  */
 public final class LogsController {
 
-    static final Logger LOG = LogManager.getFormatterLogger(LogsController.class);
+    private static final Logger LOG = LogManager.getFormatterLogger(LogsController.class);
 
     private MainController mainCtrl;
-    private boolean areParsersInited = false;
-    private final Collection<ILogFileParser> parsers = new LinkedList<>();
+    private boolean areParsersInitialized = false;
+    private final Collection<ILogFileParser> parsers = new ArrayList<>();
     private ILogFileParser parserDefault;
     private ParseService parseSrv = null;
 
@@ -61,20 +67,19 @@ public final class LogsController {
 
     private final void initParsers() {
         LOG.entry();
-        if (areParsersInited) {
+        if (areParsersInitialized) {
             LOG.exit();
             return;
         }
 
         LOG.info("initializing log parsers");
         final Resources res = Resources.getInstance();
-        // first - default parser, which is used when none of other parsers can
-        // recognize format
-        assert(!res.isUndefined(ConfigID.CORE_PARSERS_DEFAULT));
+        // first - default parser, which is used when none of other parsers can recognize format
+        assert (!res.isUndefined(ConfigID.CORE_PARSERS_DEFAULT));
         final String parserDefaultClassStr = res.getConfigProp(ConfigID.CORE_PARSERS_DEFAULT);
         try {
             final Object parserDefaultObj = Class.forName(parserDefaultClassStr).newInstance();
-            assert(parserDefaultObj instanceof ILogFileParser);
+            assert (parserDefaultObj instanceof ILogFileParser);
             parserDefault = (ILogFileParser) parserDefaultObj;
             LOG.info("default log parser : className = [%s]", parserDefaultClassStr);
         } catch (final InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -85,24 +90,29 @@ public final class LogsController {
         }
 
         // instantiate secondary parsers and add them to the list
+        parsers.clear();
         final String[] secClassesStr = res.getConfigProp(ConfigID.CORE_PARSERS_SECONDARY).split(",");
         LOG.debug("secondary log parsers in config : num = [%d]", secClassesStr.length);
-        Arrays.stream(secClassesStr).forEachOrdered(classStr -> {
-            try {
-                final ILogFileParser parser = (ILogFileParser) Class.forName(classStr).newInstance();
-                parsers.add(parser);
-                LOG.info("log parser registered : className = [%s]", classStr);
-            } catch (final Exception e) {
-                LOG.catching(Level.TRACE, e);
-                LOG.warn("cannot instantiate log parser, discarding : className = [%s]", classStr);
-            }
-        });
+        parsers.addAll(Arrays.stream(secClassesStr)
+            .map(className -> { // instantiate parsers by className
+                try {
+                    final ILogFileParser parser = (ILogFileParser) Class.forName(className).newInstance();
+                    LOG.info("log parser registered : className = [%s]", className);
+                    return parser;
+                } catch (final Exception e) {
+                    LOG.catching(Level.TRACE, e);
+                    LOG.warn("cannot instantiate log parser, discarding : className = [%s]", className);
+                    return null;
+                }
+            }).filter(parser -> parser != null) // filter out failed parsers
+            .collect(Collectors.toList()));
 
         // init parse service
-        assert(parseSrv == null);
+        assert (parseSrv == null);
         parseSrv = new ParseService(parserDefault);
 
-        areParsersInited = true;
+        areParsersInitialized = true;
+        LOG.exit();
     }
 
     private static final Path chooseFile() {
@@ -127,24 +137,65 @@ public final class LogsController {
         }
     }
 
-    private final ILogFileParser chooseParser(final Path filePath) {
-        for (final ILogFileParser parser : parsers) {
-            try {
-                if (parser.canParse(filePath)) {
-                    return parser;
-                }
-            } catch (final InaccessibleFileException e) {
-                LOG.catching(Level.TRACE, e);
-                LOG.error("inaccessible log file : filePath = [%s]", filePath);
-            }
+    /**
+     * Choose file parser (any first matching) that can parse given file.
+     * <br/><b>PRE-conditions:</b> non-null and accessible and readable filePath
+     * <br/><b>POST-conditions:</b> non-null result, always emits a value
+     * <br/><b>Side-effects:</b> I/O activity on given file (open, read, close)
+     * <br/><b>Created on:</b> <i>3:48:49 AM Dec 23, 2015</i>
+     * 
+     * @param filePath
+     *            file to be tested
+     * @return single that emits parser capable to parse given file
+     */
+    private final Single<ILogFileParser> chooseParser(final Path filePath) {
+        final int numLines = Integer.parseInt(
+            Resources.getInstance().getConfigProp(ConfigID.CORE_PARSERS_NUM_LINES_TO_TEST));
+
+        try {
+            final Observable<String> linesSource = Utils.asLinesObservable(filePath)
+                .observeOn(Schedulers.io())
+                .take(numLines)
+                .cache()
+                .observeOn(Schedulers.computation());
+
+            final Observable<Boolean> canParseObservable = Observable.concatEager(  // concat in direct order
+                parsers.stream()
+                    .map(parser -> parser.canParse(linesSource).toObservable())
+                    .collect(Collectors.toList()));
+
+            final Observable<ILogFileParser> parsersObservable = Observable.from(parsers);
+
+            return Observable.zip(parsersObservable, canParseObservable,
+                (parser, parseResult) -> {
+                    return new AbstractMap.SimpleImmutableEntry<>(parser, parseResult);
+                }).filter(entry -> entry.getValue())
+                .first()
+                .map(pair -> pair.getKey())   // extract parser from pair
+                .defaultIfEmpty(parserDefault)
+                .toSingle();
+        } catch (final InaccessibleFileException ex) {
+            LOG.catching(Level.TRACE, ex);
+            LOG.error("cannot read file : filePath", filePath); //$NON-NLS-1$
+            return Single.error(LOG.throwing(Level.TRACE, ex));
         }
-        return parserDefault;
     }
 
 
+    /**
+     * Callback to be called on "Open..." button click.
+     * <br/><b>PRE-conditions:</b> non-null event
+     * <br/><b>POST-conditions:</b> NONE
+     * <br/><b>Side-effects:</b> I/O activity if user chooses some file, state change
+     * <br/><b>Created on:</b> <i>3:58:41 AM Dec 23, 2015</i>
+     * 
+     * @param event
+     *            button click event
+     */
     @FXML
     public final void handleOpenBtn(final ActionEvent event) {
         LOG.entry(event);
+
         logsTableOpenBtn.setDisable(true);
         initParsers();
         final Path filePath = chooseFile();

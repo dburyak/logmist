@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import dburyak.jtools.AssertConst;
 import dburyak.jtools.Validators;
 import dburyak.logmist.Resources;
+import dburyak.logmist.Resources.ConfigID;
 import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
 import rx.Observable;
@@ -32,13 +33,6 @@ public abstract class LogFileParserBase implements ILogFileParser {
      * <br/><b>Created on:</b> <i>2:23:59 AM Oct 2, 2015</i>
      */
     private static final Logger LOG = LogManager.getFormatterLogger(LogFileParserBase.class);
-
-    /**
-     * TODO : this should be retrieved from config ({@link Resources})
-     * Number of lines to try parsing in {@link LogFileParserBase#canParse(Observable)} method.
-     * <br/><b>Created on:</b> <i>2:05:40 AM Oct 3, 2015</i>
-     */
-    private static final int NUM_LINES_TO_TEST = 5;
 
 
     /**
@@ -115,8 +109,8 @@ public abstract class LogFileParserBase implements ILogFileParser {
         validateLines(lines);
 
         return LOG.exit(Single.<Boolean> create(analysisReceiver -> {
-            // TODO : get this value from config
-            final int numLines = NUM_LINES_TO_TEST;
+            final int numLines = Integer.parseInt(
+                Resources.getInstance().getConfigProp(ConfigID.CORE_PARSERS_NUM_LINES_TO_TEST));
 
             lines.take(numLines).subscribe(new Subscriber<String>() {
 
