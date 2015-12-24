@@ -123,14 +123,14 @@ public final class LogsController {
         if (Files.exists(dir)) {
             fileChooser.setInitialDirectory(dir.toFile());
         } else {
-            fileChooser.setInitialDirectory(Paths.get(".").toFile());
+            fileChooser.setInitialDirectory(Paths.get(".").toFile()); // TODO : use named constant
         }
         final File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
             final Path dirChosen = file.getParentFile().toPath();
             Resources.getInstance().setConfigProp(ConfigID.MAIN_LOGS_FILE_CHOOSER_DIR,
                 dirChosen.toAbsolutePath().toString());
-            LOG.trace("logs file chosen : file = [%s]", file.toPath().toString());
+            LOG.trace("logs file chosen : file = [%s]", file.toPath().toString()); //$NON-NLS-1$
             return file.toPath();
         } else { // user cancelled opening
             return null;
@@ -154,8 +154,8 @@ public final class LogsController {
 
         try {
             final Observable<String> linesSource = Utils.asLinesObservable(filePath)
-                .observeOn(Schedulers.io())
                 .take(numLines)
+                .observeOn(Schedulers.io())
                 .cache()
                 .observeOn(Schedulers.computation());
 
