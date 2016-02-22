@@ -15,8 +15,8 @@
 				<Insets bottom="3" left="3" right="3" top="3" />
 			</padding>
 			<Label text="%main.logsTable.placeholder.text" />
-			<Button fx:id="logsTableOpenBtn" onAction="#handleOpenBtn" text="%main.logsTable.placeholder.btn.text" />
-			<ProgressIndicator fx:id="logsTableProgressIndicator" visible="false" />
+			<Button fx:id="logsTableOpenBtn" text="%main.logsTable.placeholder.btn.text" />
+			<ProgressIndicator fx:id="logsTableProgressIndicator" visible="false" progress="-1.0D"/>
 		</VBox>
 	</placeholder>
 </AutoSizableLogTableView>

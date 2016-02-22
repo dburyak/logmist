@@ -108,6 +108,7 @@ public abstract class LogFileParserBase implements ILogFileParser {
         LOG.entry(lines);
         validateLines(lines);
 
+        // FIXME : this design throws exception, should be redesigned to use map, filter, or reduce for evaluation
         return LOG.exit(Single.<Boolean> create(analysisReceiver -> {
             final int numLines = Integer.parseInt(
                 Resources.getInstance().getConfigProp(ConfigID.CORE_PARSERS_NUM_LINES_TO_TEST));
@@ -117,15 +118,17 @@ public abstract class LogFileParserBase implements ILogFileParser {
                 @SuppressWarnings("synthetic-access")
                 @Override
                 public final void onNext(final String line) {
-                    try {
-                        final LogEntry log = doParseLine(line, 1);
-                        assert (log != null) : AssertConst.ASRT_NULL_VALUE;
-                        // line is recognized if no exception is thrown, let's proceed with next line
-                    } catch (final ParseException e) {
-                        LOG.debug("cannot parse line, treating format as unknown : parser = [%s] ; line = [%s]",
-                            this, line);
-                        analysisReceiver.onSuccess(false);
-                        unsubscribe(); // line was not recognized, no more input needed
+                    if (!this.isUnsubscribed()) { // filters out redundant emissions (buffered because of backpressure)
+                        try {
+                            final LogEntry log = doParseLine(line, 1);
+                            assert (log != null) : AssertConst.ASRT_NULL_VALUE;
+                            // line is recognized if no exception is thrown, let's proceed with next line
+                        } catch (final ParseException e) {
+                            LOG.debug("cannot parse line, treating format as unknown : parser = [%s] ; line = [%s]",
+                                this, line);
+                            analysisReceiver.onSuccess(false);
+                            this.unsubscribe(); // line was not recognized, no more input needed
+                        }
                     }
                 }
 

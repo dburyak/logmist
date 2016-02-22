@@ -35,3 +35,8 @@
 .columnLineNum {
     -fx-text-fill : lightgrey ;
 }
+
+#mainStatusBarStopBtn {
+    -fx-color : RED ;
+    -fx-stroke : BLACK ;
+}

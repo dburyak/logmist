@@ -7,20 +7,18 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import dburyak.logmist.Resources;
 import dburyak.logmist.Resources.MsgID;
 import dburyak.logmist.Resources.UIConfigID;
-import dburyak.logmist.exceptions.InaccessibleFileException;
 import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
 import dburyak.logmist.model.parsers.ILogFileParser;
 import dburyak.logmist.ui.data.DataUpdEventDispatcher;
-import dburyak.logmist.ui.data.IDataUpdEventHandler;
 import dburyak.logmist.ui.data.DataUpdEventType;
+import dburyak.logmist.ui.data.IDataUpdEventHandler;
 import dburyak.logmist.ui.data.LogTableData;
 import dburyak.logmist.ui.data.ProgressData;
 import dburyak.logmist.ui.data.signalers.LogTableDataUpdHandler;
@@ -265,30 +263,32 @@ public final class ParseService extends Service<Void> {
                         boolean defaultParseNeeded = true;
                         try {
                             // register progress data model handler (updates progress data)
-                            parser.addListener(parseProgressUpdater);
-                            logs = parser.parse(filePath);
+                            // parser.addListener(parseProgressUpdater);
+                            // logs = parser.parse(filePath);
+                            logs = null;
                             defaultParseNeeded = false;
-                        } catch (final InaccessibleFileException e) {
-                            LOG.catching(Level.TRACE, e);
-                            LOG.error("inaccessible log file : filePath = [%s]", filePath);
-                            defaultParseNeeded = false; // no sense to try default parser on inaccessible file
-                        } catch (final ParseException e) {
-                            LOG.catching(Level.TRACE, e);
-                            LOG.error("parse error occurred : parser = [%s] ; line = [%s] ; file = [%s]",
-                                e.getParser(), e.getLine(), filePath);
-                            defaultParseNeeded = true;
+                            // } catch (final InaccessibleFileException e) {
+                            // LOG.catching(Level.TRACE, e);
+                            // LOG.error("inaccessible log file : filePath = [%s]", filePath);
+                            // defaultParseNeeded = false; // no sense to try default parser on inaccessible file
+                            // } catch (final ParseException e) {
+                            // LOG.catching(Level.TRACE, e);
+                            // LOG.error("parse error occurred : parser = [%s] ; line = [%s] ; file = [%s]",
+                            // e.getParser(), e.getLine(), filePath);
+                            // defaultParseNeeded = true;
                         } finally {
-                            parser.removeListener(parseProgressUpdater);
+                            // parser.removeListener(parseProgressUpdater);
                         }
 
                         if (defaultParseNeeded) {
                             LOG.info("trying default parser : parser = [%s] ; file = [%s]", parserDefault, filePath);
                             try {
-                                parserDefault.addListener(parseProgressUpdater);
-                                logs = parserDefault.parse(filePath);
+                                // parserDefault.addListener(parseProgressUpdater);
+                                // logs = parserDefault.parse(filePath);
+                                logs = null;
                                 // don't catch exceptions, let them indicate parse service failure
                             } finally {
-                                parserDefault.removeListener(parseProgressUpdater);
+                                // parserDefault.removeListener(parseProgressUpdater);
                             }
                         }
 

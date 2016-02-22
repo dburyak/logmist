@@ -22,7 +22,7 @@
 	<top>
 		<MenuBar>
 			<Menu text="%main.menu.file">
-				<MenuItem text="%main.menu.file.open" onAction="#handleMenuFileOpen" />
+				<MenuItem fx:id="mainMenuFileOpen" text="%main.menu.file.open" />
 				<MenuItem text="%main.menu.file.exit" onAction="#handleMenuFileExit" />
 			</Menu>
 		</MenuBar>

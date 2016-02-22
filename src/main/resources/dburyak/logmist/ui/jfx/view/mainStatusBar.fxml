@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import java.lang.Double ?>
 <?import com.sun.javafx.scene.control.skin.DoubleField?>
+<?import javafx.scene.control.Button?>
 
 <HBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER_LEFT" spacing="3"
 	fx:controller="dburyak.logmist.ui.jfx.controllers.StatusBarController">
@@ -47,11 +48,15 @@
 
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 
-	<ProgressBar fx:id="mainStatusBarProgressBar" minWidth="70" disable="true" progress="0" HBox.hgrow="ALWAYS">
-		<maxWidth>
-			<Double fx:constant="POSITIVE_INFINITY"></Double>
-		</maxWidth>
-	</ProgressBar>
+	<HBox alignment="CENTER" minWidth="90" spacing="3" HBox.hgrow="ALWAYS">
+		<ProgressBar fx:id="mainStatusBarProgressBar" minWidth="70" disable="true" progress="0" HBox.hgrow="ALWAYS">
+			<maxWidth>
+				<Double fx:constant="POSITIVE_INFINITY"></Double>
+			</maxWidth>
+		</ProgressBar>
+		<Button fx:id="mainStatusBarStopBtn" disable="false" minWidth="15" minHeight="15" maxWidth="15" maxHeight="15"
+			prefHeight="15" prefWidth="15" />
+	</HBox>
 
 	<Separator orientation="VERTICAL" valignment="CENTER" halignment="CENTER" />
 

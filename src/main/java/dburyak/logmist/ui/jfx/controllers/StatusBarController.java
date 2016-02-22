@@ -12,6 +12,7 @@ import dburyak.logmist.Resources;
 import dburyak.logmist.Resources.UIConfigID;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import rx.Observable;
@@ -101,7 +102,7 @@ public final class StatusBarController {
          *             if "percent" is invalid
          */
         private static final boolean validatePercent(final double percent) {
-            if (!(0.0D < percent && percent <= 1.0D)) {
+            if (!((0.0D < percent) && (percent <= 1.0D))) {
                 throw LOG.throwing(Level.TRACE, new IllegalArgumentException());
             }
             return true;
@@ -198,7 +199,7 @@ public final class StatusBarController {
          */
         final long getUsedMemMB() {
             final long usedMemMB = toMB(allMemBytes - freeMemBytes);
-            assert (0L < usedMemMB && usedMemMB <= toMB(allMemBytes));
+            assert ((0L < usedMemMB) && (usedMemMB <= toMB(allMemBytes)));
             return usedMemMB;
         }
 
@@ -247,7 +248,7 @@ public final class StatusBarController {
             UIConfigID.MAIN_STATUS_BAR_HEAP_BAR_START_DELAY_MS));
         final long periodMS = Long.parseLong(res.getUIProp(UIConfigID.MAIN_STATUS_BAR_HEAP_BAR_UPD_PERIOD_MS));
 
-        Observable<MemStats> memStatsSource = Observable
+        final Observable<MemStats> memStatsSource = Observable
             .interval(startDelayMS, periodMS, TimeUnit.MILLISECONDS, Schedulers.computation())
             .map(tick -> MemStats.newMemStats())
             .subscribeOn(Schedulers.computation());
@@ -291,6 +292,8 @@ public final class StatusBarController {
     private Label mainStatusBarHeapUsed;
     @FXML
     private Label mainStatusBarHeapAll;
+    @FXML
+    private Button mainStatusBarStopBtn;
 
 
     /**
@@ -321,6 +324,10 @@ public final class StatusBarController {
 
     public final ProgressBar getProgressBar() {
         return mainStatusBarProgressBar;
+    }
+
+    public final Button getStopBtn() {
+        return mainStatusBarStopBtn;
     }
 
 }
