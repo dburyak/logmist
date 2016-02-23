@@ -91,7 +91,8 @@ public final class Resources {
             MAIN_STATUS_BAR_HEAP_BAR_START_DELAY_MS("main.statusBar.heapBar.startDelayMS"),
             MAIN_STATUS_BAR_HEAP_BAR_UPD_PERIOD_MS("main.statusBar.heapBar.updPeriodMS"),
             MAIN_STATUS_BAR_PROGRESS_BAR_UPD_PERIOD_MS("main.statusBar.progressBar.updPeriodMS"),
-            MAIN_LOGS_FIXED_CELL_SIZE("main.logs.fixedCellSize");
+            MAIN_LOGS_FIXED_CELL_SIZE("main.logs.fixedCellSize"),
+            MAIN_LOGS_TABLE_UPDATE_INACTIVE_TIME_MS("main.logs.tableUpdateInactiveTimeMS");
 
         private final String name;
 

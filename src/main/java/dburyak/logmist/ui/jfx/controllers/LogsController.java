@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -139,14 +138,14 @@ public final class LogsController {
         clicksOpenBtn = EventStreams.eventsOf(logsTableOpenBtn, ActionEvent.ACTION);
     }
 
-    @SuppressWarnings("boxing")
+    @SuppressWarnings({ "boxing", "nls" })
     private final void initParseAction() {
         final EventStream<ActionEvent> actionSource = clicksOpenBtn.or(mainCtrl.mainMenuFileOpenClicks())
             .map(either -> either.isLeft() ? either.getLeft() : either.getRight()); // get any
         final PublishSubject<ActionEvent> actionsSubject = PublishSubject.create();
         actionSource.subscribe(actionsSubject::onNext);  // convert to rxjava
         final Observable<ParseInfo> parseInfoSource = actionsSubject
-            .flatMap(click -> chooseFile())
+            .flatMap(click -> chooseFile()) // this can emit multiple selected files
             .filter(path -> path != null)
             .doOnNext(path -> loadParsers()) // side-effect that loads parsers from config only once
             .doOnNext(path -> LOG.debug("path chosen : path = [%s]", path))
@@ -175,18 +174,23 @@ public final class LogsController {
         subscribeNumLinesProperty(parseInfoFromSubject);
 
         // FIXME : better composition should be used here
-        // final Observable<LogEntry> logsStream2 = parseInfoFromSubject
-        // .map(pi -> {
-        //
-        // });
-
-        final Observable<LogEntry> logsStream = parseInfoFromSubject
-            .flatMap(info -> { // parse lines with parser, convert to log entries
+        // final Observable<LogEntry> logsStream2 =
+        parseInfoFromSubject
+            .map(info -> { // parse lines with parser and emit log entries source
                 final Observable<ILogFileParser> parser = info.getParser();
                 final Observable<String> lines = info.getLines();
                 return parser.flatMap(p -> p.parse(lines));
-            }).doOnNext(log -> LOG.debug("log entry emitted : log = [%s]", log)); //$NON-NLS-1$
-        subscribeLogTableContent(logsStream);
+            }).subscribe( // lifetime subscription
+                logsSource -> subscribeLogTableContent(logsSource), // next
+                error -> LOG.error("error on parsing file :", error)); // error
+
+        // final Observable<LogEntry> logsStream = parseInfoFromSubject
+        // .flatMap(info -> { // parse lines with parser, convert to log entries
+        // final Observable<ILogFileParser> parser = info.getParser();
+        // final Observable<String> lines = info.getLines();
+        // return parser.flatMap(p -> p.parse(lines));
+        // }).doOnNext(log -> LOG.debug("log entry emitted : log = [%s]", log)); //$NON-NLS-1$
+        // subscribeLogTableContent(logsStream);
     }
 
     private final void bindParseInProgressProperty() {
@@ -324,7 +328,7 @@ public final class LogsController {
                     mainLogsTable.autoSizeFitContent();
 
                     final Duration timeSpent = Duration.between(timeStart, Instant.now());
-                    LOG.debug("update UI parsed logs table data : timeSpentMS = [%d]", timeSpent);
+                    LOG.debug("update UI parsed logs table data : timeSpent = [%s]", timeSpent);
                 });
             }
 
@@ -583,10 +587,10 @@ public final class LogsController {
 
             return Observable.zip(parsersObservable, canParseObservable,
                 (parser, parseResult) -> {
-                    return new AbstractMap.SimpleImmutableEntry<>(parser, parseResult);
-                }).filter(entry -> entry.getValue())
+                    return Tuples.t(parser, parseResult);
+                }).filter(t2 -> t2.get2())
                 .first()
-                .map(pair -> pair.getKey())   // extract parser from pair
+                .map(t2 -> t2.get1())   // extract parser from pair
                 .defaultIfEmpty(parserDefault)
                 .toSingle();
         } catch (final InaccessibleFileException ex) {
