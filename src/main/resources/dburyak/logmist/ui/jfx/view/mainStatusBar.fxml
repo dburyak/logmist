@@ -54,7 +54,7 @@
 				<Double fx:constant="POSITIVE_INFINITY"></Double>
 			</maxWidth>
 		</ProgressBar>
-		<Button fx:id="mainStatusBarStopBtn" disable="false" minWidth="15" minHeight="15" maxWidth="15" maxHeight="15"
+		<Button fx:id="mainStatusBarStopBtn" disable="true" minWidth="15" minHeight="15" maxWidth="15" maxHeight="15"
 			prefHeight="15" prefWidth="15" />
 	</HBox>
 

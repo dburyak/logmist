@@ -1,6 +1,8 @@
 package dburyak.logmist.model.parsers;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,7 +14,6 @@ import dburyak.logmist.exceptions.ParseException;
 import dburyak.logmist.model.LogEntry;
 import rx.Observable;
 import rx.Single;
-import rx.Subscriber;
 
 
 /**
@@ -108,41 +109,28 @@ public abstract class LogFileParserBase implements ILogFileParser {
         LOG.entry(lines);
         validateLines(lines);
 
-        // FIXME : this design throws exception, should be redesigned to use map, filter, or reduce for evaluation
-        return LOG.exit(Single.<Boolean> create(analysisReceiver -> {
-            final int numLines = Integer.parseInt(
-                Resources.getInstance().getConfigProp(ConfigID.CORE_PARSERS_NUM_LINES_TO_TEST));
+        final int numLines = Integer.parseInt(
+            Resources.getInstance().getConfigProp(ConfigID.CORE_PARSERS_NUM_LINES_TO_TEST));
+        LOG.debug("num lines for test : numLines = [%d]", numLines);
 
-            lines.take(numLines).subscribe(new Subscriber<String>() {
-
-                @SuppressWarnings("synthetic-access")
-                @Override
-                public final void onNext(final String line) {
-                    if (!this.isUnsubscribed()) { // filters out redundant emissions (buffered because of backpressure)
-                        try {
-                            final LogEntry log = doParseLine(line, 1);
-                            assert (log != null) : AssertConst.ASRT_NULL_VALUE;
-                            // line is recognized if no exception is thrown, let's proceed with next line
-                        } catch (final ParseException e) {
-                            LOG.debug("cannot parse line, treating format as unknown : parser = [%s] ; line = [%s]",
-                                this, line);
-                            analysisReceiver.onSuccess(false);
-                            this.unsubscribe(); // line was not recognized, no more input needed
-                        }
-                    }
+        return LOG.exit(lines.take(numLines)
+            .map(line -> { // line -> isParsed by this parser
+                LogEntry log = null;
+                try {
+                    log = doParseLine(line, 1);
+                    assert (log != null) : AssertConst.ASRT_NULL_VALUE;
+                } catch (final ParseException ex) {
+                    LOG.debug("cannot parse line, treating format as unknown : parser = [%s] ; line = [%s]",
+                        this, line);
                 }
-
-                @Override
-                public final void onCompleted() {
-                    analysisReceiver.onSuccess(true);
-                }
-
-                @Override
-                public final void onError(final Throwable error) {
-                    analysisReceiver.onError(error);
-                }
-            });
-        }));
+                LOG.debug("testing log line : isParsed = [%b] ; line = [%s] ; parser = [%s]", log != null, line, this);
+                return (log != null);
+            })
+            .takeUntil(isParsed -> !isParsed)
+            .defaultIfEmpty(false)
+            .reduce(true, Boolean::logicalAnd)
+            .toSingle()
+            .doOnSuccess(canParse -> LOG.debug("can parse : canParse = [%b]", canParse)));
     }
 
     /**
@@ -159,50 +147,28 @@ public abstract class LogFileParserBase implements ILogFileParser {
      * @return source of parsed log entries
      * @emits ParseException (emitted) if line of unexpected format was received from input
      */
+    @SuppressWarnings({ "boxing", "nls" })
     @Override
     public final Observable<LogEntry> parse(final Observable<String> lines) {
         LOG.entry(lines);
         validateLines(lines);
 
-        return LOG.exit(Observable.<LogEntry> create(logsListener -> {
-            lines.subscribe(new Subscriber<String>() { // listen for lines from input
-
-                private long lineNum = 0;
-
-
-                @SuppressWarnings({ "nls", "synthetic-access", "boxing" })
-                @Override
-                public final void onNext(final String line) {
-                    if (logsListener.isUnsubscribed()) {
-                        unsubscribe();
-                    } else {
-                        lineNum++;
-                        if (line.isEmpty()) {
-                            LOG.warn("empty line read : lineNum = [%s]", lineNum);
-                        }
-                        try {
-                            final LogEntry log = doParseLine(line, lineNum);
-                            assert (log != null) : AssertConst.ASRT_NULL_VALUE;
-                            logsListener.onNext(log);
-                        } catch (final ParseException e) {
-                            LOG.error("line with unexpected format : parser = [%s] ; line = [%s]", this, line);
-                            logsListener.onError(e); // propagate error
-                            unsubscribe(); // no more lines needed from feed
-                        }
+        final AtomicInteger lineNum = new AtomicInteger(0);
+        return LOG.exit(lines.doOnNext(line -> lineNum.incrementAndGet())
+            .map(line -> {
+                LogEntry log = null;
+                if (line.isEmpty()) {
+                    LOG.warn("empty line read : lineNum = [%d]", lineNum.get());
+                } else {
+                    try {
+                        log = doParseLine(line, lineNum.get());
+                        assert (log != null);
+                    } catch (final ParseException ex) {
+                        LOG.error("line with unexpected format : parser = [%s] ; line = [%s]", this, line);
                     }
                 }
-
-                @Override
-                public final void onCompleted() {
-                    logsListener.onCompleted();
-                }
-
-                @Override
-                public final void onError(final Throwable e) {
-                    logsListener.onError(e);
-                }
-            });
-        }));
+                return log;
+            }));
     }
 
 }

@@ -127,9 +127,7 @@ public final class LogsController {
     }
 
     public final void initActions() {
-        bindParseInProgressProperty();
         initEventStreams();
-
         initParseAction();
         LOG.debug("actions initialized");
     }
@@ -181,7 +179,10 @@ public final class LogsController {
                 final Observable<String> lines = info.getLines();
                 return parser.flatMap(p -> p.parse(lines));
             }).subscribe( // lifetime subscription
-                logsSource -> subscribeLogTableContent(logsSource), // next
+                logsSource -> { // next
+                    bindParseInProgressProperty();
+                    subscribeLogTableContent(logsSource);
+                },
                 error -> LOG.error("error on parsing file :", error)); // error
 
         // final Observable<LogEntry> logsStream = parseInfoFromSubject
@@ -341,7 +342,6 @@ public final class LogsController {
             @SuppressWarnings("synthetic-access")
             @Override
             public void onCompleted() {
-                // FIXME : this is NOT called
                 LOG.debug("finished parsing, updating log table"); //$NON-NLS-1$
                 updateLogTable();
 
@@ -567,7 +567,9 @@ public final class LogsController {
      *            file to be tested
      * @return single that emits parser capable to parse given file
      */
+    @SuppressWarnings("nls")
     private final Single<ILogFileParser> chooseParser(final Path filePath) {
+        LOG.debug("choosing parser : filePath = [%s]", filePath);
         final int numLines = Integer.parseInt(
             Resources.getInstance().getConfigProp(ConfigID.CORE_PARSERS_NUM_LINES_TO_TEST));
 
@@ -587,11 +589,13 @@ public final class LogsController {
 
             return Observable.zip(parsersObservable, canParseObservable,
                 (parser, parseResult) -> {
+                    LOG.debug("parse result for file : canParse = [%b] ; parser = [%s]", parseResult, parser);
                     return Tuples.t(parser, parseResult);
-                }).filter(t2 -> t2.get2())
-                .first()
+                })
+                .filter(t2 -> t2.get2())
                 .map(t2 -> t2.get1())   // extract parser from pair
-                .defaultIfEmpty(parserDefault)
+                .firstOrDefault(parserDefault)
+                .doOnNext(parser -> LOG.debug("parser chosen for file : parser = [%s] ; file = [%s]", parser, filePath))
                 .toSingle();
         } catch (final InaccessibleFileException ex) {
             LOG.catching(Level.TRACE, ex);
