@@ -19,5 +19,9 @@
 		<Logger name="dburyak.logmist.model.parsers.LogParser1" level="info" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
+		<Logger name="dburyak.logmist.ui.jfx.controllers.LogsController$ANONYMOUS$LogTableUpdater" level="trace"
+			additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
 	</Loggers>
 </Configuration>

@@ -162,6 +162,7 @@ public abstract class LogFileParserBase implements ILogFileParser {
                 } else {
                     try {
                         log = doParseLine(line, lineNum.get());
+                        LOG.debug("log line parsed : linNum = [%d] ; line = [%s]", lineNum.get(), line);
                         assert (log != null);
                     } catch (final ParseException ex) {
                         LOG.error("line with unexpected format : parser = [%s] ; line = [%s]", this, line);

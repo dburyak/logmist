@@ -44,6 +44,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -117,6 +118,7 @@ public final class LogsController {
 
     // event streams
     private EventStream<ActionEvent> clicksOpenBtn = null;
+    private EventStream<ActionEvent> clicksMenuOpen = null;
 
     // subscriptions
 
@@ -134,64 +136,51 @@ public final class LogsController {
 
     private final void initEventStreams() {
         clicksOpenBtn = EventStreams.eventsOf(logsTableOpenBtn, ActionEvent.ACTION);
+        clicksMenuOpen = mainCtrl.mainMenuFileOpenClicks();
     }
 
     @SuppressWarnings({ "boxing", "nls" })
     private final void initParseAction() {
-        final EventStream<ActionEvent> actionSource = clicksOpenBtn.or(mainCtrl.mainMenuFileOpenClicks())
+        // create source of clicks
+        final EventStream<ActionEvent> actionSource = clicksOpenBtn.or(clicksMenuOpen)
             .map(either -> either.isLeft() ? either.getLeft() : either.getRight()); // get any
         final PublishSubject<ActionEvent> actionsSubject = PublishSubject.create();
         actionSource.subscribe(actionsSubject::onNext);  // convert to rxjava
+
+        // create source of ParseInfo, which is emitted when user requests to parse log file
+        // TODO : add support for multiple files
         final Observable<ParseInfo> parseInfoSource = actionsSubject
             .flatMap(click -> chooseFile()) // this can emit multiple selected files
             .filter(path -> path != null)
             .doOnNext(path -> loadParsers()) // side-effect that loads parsers from config only once
             .doOnNext(path -> LOG.debug("path chosen : path = [%s]", path))
             // choose parser, convert to path+parser tuple
-            .map(path -> Tuples.t(path, chooseParser(path).toObservable()))
-            .map(tuple2 -> { // convert path to source of lines (open file and read line by line), emit ParseInfo
-                final Path path = tuple2.get1();
-                final Observable<ILogFileParser> parser = tuple2.get2();
-                Observable<String> lines = Observable.empty();
-                int size = 0;
-                try {
-                    final Tuple2<Observable<String>, Integer> linesAndSize = Utils.asLinesObservableAndSize(path);
-                    lines = linesAndSize.get1();
-                    size = linesAndSize.get2();
-                } catch (@SuppressWarnings("unused") final InaccessibleFileException ex) {
-                    LOG.error("cannot read file : path = [%s]", path); //$NON-NLS-1$
-                }
-                return new ParseInfo(lines, parser, size);
-            }).observeOn(Schedulers.computation());
+            .map(path -> Tuples.t(path, chooseParser(path)))
+            // convert path to source of lines (open file and read line by line), emit ParseInfo
+            .map(tuple2 -> ParseInfo.from(tuple2.get1(), tuple2.get2()))
+            .observeOn(Schedulers.computation());
         final PublishSubject<ParseInfo> subjectParseInfo = PublishSubject.create();
         parseInfoSource.subscribe(subjectParseInfo);
 
+        // lifetime subscription for parse progress indicators
         final Observable<ParseInfo> parseInfoFromSubject = subjectParseInfo
             .doOnNext(info -> LOG.debug("emit parse info : parseInfo = [%s]", info)); //$NON-NLS-1$
         subscribeParseInProgressProperty(parseInfoFromSubject);
         subscribeNumLinesProperty(parseInfoFromSubject);
 
-        // FIXME : better composition should be used here
-        // final Observable<LogEntry> logsStream2 =
+        // lifetime subscription for logs table contents
         parseInfoFromSubject
             .map(info -> { // parse lines with parser and emit log entries source
-                final Observable<ILogFileParser> parser = info.getParser();
+                final Observable<ILogFileParser> parser = info.getParser().toObservable();
                 final Observable<String> lines = info.getLines();
                 return parser.flatMap(p -> p.parse(lines));
             }).subscribe( // lifetime subscription
-                logsSource -> { // next
+                logsSource -> { // next source of parsed log entries
                     bindParseInProgressProperty();
                     subscribeLogTableContent(logsSource);
                 },
-                error -> LOG.error("error on parsing file :", error)); // error
-
-        // final Observable<LogEntry> logsStream = parseInfoFromSubject
-        // .flatMap(info -> { // parse lines with parser, convert to log entries
-        // final Observable<ILogFileParser> parser = info.getParser();
-        // final Observable<String> lines = info.getLines();
-        // return parser.flatMap(p -> p.parse(lines));
-        // }).doOnNext(log -> LOG.debug("log entry emitted : log = [%s]", log)); //$NON-NLS-1$
-        // subscribeLogTableContent(logsStream);
+                error -> LOG.error("error on parsing file :", error) // error
+        );
     }
 
     private final void bindParseInProgressProperty() {
@@ -271,6 +260,8 @@ public final class LogsController {
             private final Logger LOG = LogManager.getFormatterLogger(
                 LogsController.class.getCanonicalName() + "$ANONYMOUS$LogTableUpdater");
 
+            private final double PRECISION = 0.01D;
+
             /**
              * Received log entries are stored in this collection. When log entries emission completes, this collection
              * is
@@ -278,6 +269,10 @@ public final class LogsController {
              * <br/><b>Created on:</b> <i>4:38:22 PM Dec 29, 2015</i>
              */
             private final Collection<LogEntry> logs = new LinkedList<>();
+
+            private final int numLines = numLinesToParse.get();
+
+            private volatile double prevProgress = 0.0D;
 
 
             /**
@@ -335,8 +330,19 @@ public final class LogsController {
 
             @Override
             public void onNext(final LogEntry log) {
-                LOG.debug("inserting log into table logs collection : log = [%s]", log); //$NON-NLS-1$
+                LOG.trace("inserting log into table logs collection : log = [%s]", log); //$NON-NLS-1$
                 logs.add(log);
+
+                // evaluate progress bar percent update
+                final double progress = log.getLineNum() / (double) numLines;
+                LOG.trace("progress = [%f]", progress);
+                if (progress >= (prevProgress + PRECISION)) { // need update
+                    prevProgress = progress;
+                    Platform.runLater(() -> {
+                        LOG.trace("update progress bar : progress = [%f]", progress);
+                        mainCtrl.getStatusBarController().getProgressBar().setProgress(progress);
+                    });
+                }
             }
 
             @SuppressWarnings("synthetic-access")
@@ -349,8 +355,13 @@ public final class LogsController {
 
                 // toggle off parse-in-progress indicator
                 isParseInProgress.set(false);
+                Platform.runLater(() -> {
+                    final ProgressBar bar = mainCtrl.getStatusBarController().getProgressBar();
+                    bar.setProgress(0.0D);
+                    LOG.trace("update progress bar - parse finished : progress = [%f]", bar.getProgress());
+                });
                 unbindParseInProgressProperty();
-                LOG.debug("isParseInProgress indicator unbound"); //$NON-NLS-1$
+                LOG.trace("isParseInProgress indicator unbound"); //$NON-NLS-1$
             }
 
             @SuppressWarnings("synthetic-access")
@@ -374,6 +385,12 @@ public final class LogsController {
     private static final class ParseInfo {
 
         /**
+         * Default system logger for this class.
+         * <br/><b>Created on:</b> <i>7:08:21 PM Feb 25, 2016</i>
+         */
+        private static final Logger LOG = LogManager.getFormatterLogger(ParseInfo.class);
+
+        /**
          * Source of lines to be parsed.
          * <br/><b>Created on:</b> <i>7:43:12 PM Dec 28, 2015</i>
          */
@@ -383,7 +400,7 @@ public final class LogsController {
          * Emits only single parser to be used for parsing lines.
          * <br/><b>Created on:</b> <i>7:43:26 PM Dec 28, 2015</i>
          */
-        private final Observable<ILogFileParser> parser;
+        private final Single<ILogFileParser> parser;
 
         /**
          * Total number of lines to be parsed in lines source.
@@ -406,10 +423,38 @@ public final class LogsController {
          * @param numLines
          *            total number of lines in lines source
          */
-        public ParseInfo(final Observable<String> lines, final Observable<ILogFileParser> parser, final int numLines) {
+        public ParseInfo(final Observable<String> lines, final Single<ILogFileParser> parser, final int numLines) {
             this.lines = lines;
             this.parser = parser;
             this.numLines = numLines;
+        }
+
+        /**
+         * Factory method to produce {@link ParseInfo} from given file and parser. Effectively, reads entire file and
+         * stores number of lines.
+         * <br/><b>PRE-conditions:</b> non-null path, non-null and non-empty parser
+         * <br/><b>POST-conditions:</b> non-null result
+         * <br/><b>Side-effects:</b> I/O activity (file is read)
+         * <br/><b>Created on:</b> <i>7:08:40 PM Feb 25, 2016</i>
+         * 
+         * @param path
+         *            file to be parsed
+         * @param parser
+         *            source of all available parsers
+         * @return parse info for given file and parsers
+         */
+        @SuppressWarnings("boxing")
+        public static final ParseInfo from(final Path path, final Single<ILogFileParser> parser) {
+            Observable<String> lines = Observable.empty();
+            int size = 0;
+            try {
+                final Tuple2<Observable<String>, Integer> linesAndSize = Utils.asLinesObservableAndSize(path);
+                lines = linesAndSize.get1();
+                size = linesAndSize.get2();
+            } catch (@SuppressWarnings("unused") final InaccessibleFileException ex) {
+                LOG.error("cannot read file : path = [%s]", path); //$NON-NLS-1$
+            }
+            return new ParseInfo(lines, parser, size);
         }
 
 
@@ -434,7 +479,7 @@ public final class LogsController {
          * 
          * @return the parser
          */
-        public final Observable<ILogFileParser> getParser() {
+        public final Single<ILogFileParser> getParser() {
             return parser;
         }
 
@@ -602,42 +647,6 @@ public final class LogsController {
             LOG.error("cannot read file : filePath", filePath); //$NON-NLS-1$
             return Single.error(LOG.throwing(Level.TRACE, ex));
         }
-    }
-
-
-    /**
-     * Callback to be called on "Open..." button click.
-     * <br/><b>PRE-conditions:</b> non-null event
-     * <br/><b>POST-conditions:</b> NONE
-     * <br/><b>Side-effects:</b> I/O activity if user chooses some file, state change
-     * <br/><b>Created on:</b> <i>3:58:41 AM Dec 23, 2015</i>
-     * 
-     * @param event
-     *            button click event
-     */
-    // @FXML
-    public final void handleOpenBtn(final ActionEvent event) {
-        LOG.entry(event);
-
-        logsTableOpenBtn.setDisable(true);
-        loadParsers();
-        // final Path filePath = chooseFile();
-        final Path filePath = null;
-        if (filePath == null) {
-            logsTableOpenBtn.setDisable(false);
-            return;
-        }
-
-        // final ILogFileParser parser = chooseParser(filePath);
-        final ILogFileParser parser = null;
-        parseSrv.setExecutor(LogmistJFXApp.getInstance().getThreadPool());
-        Platform.runLater(() -> {
-            parseSrv.reset();
-            parseSrv.configure(filePath, parser, logsTableOpenBtn, mainCtrl.getStatusProgressBar(),
-                logsTableProgressIndicator, mainLogsTable);
-            parseSrv.start();
-        });
-        LOG.exit();
     }
 
     /**
